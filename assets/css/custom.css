@@ -1,0 +1,146 @@
+body {
+    font-size: 14px;
+}
+
+.brand-text {
+    font-weight: 600;
+}
+
+.card {
+    border-radius: 8px;
+}
+
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-wrapper .table {
+    margin-bottom: 0;
+    min-width: 600px;
+}
+
+.table th, .table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.table td .btn {
+    margin: 1px;
+}
+
+.table td .btn-sm {
+    font-size: 12px;
+}
+
+.card-header .btn {
+    white-space: nowrap;
+}
+
+.badge-open {
+    background-color: #6c757d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.badge-proses {
+    background-color: #ffc107;
+    color: black;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.badge-selesai {
+    background-color: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.badge-belum {
+    background-color: #6c757d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.badge-diterima {
+    background-color: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.badge-ditolak {
+    background-color: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.sidebar-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-wrapper::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+.btn-blink-border {
+    animation: pulse 2s infinite;
+}
+
+.search-form .input-group {
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 576px) {
+    .card-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start !important;
+    }
+    .card-header .btn {
+        width: 100%;
+    }
+    .search-form .input-group {
+        flex-wrap: wrap;
+    }
+    .search-form .input-group .form-control {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+    .search-form .input-group .input-group-append {
+        width: 100%;
+        display: flex;
+        gap: 4px;
+    }
+    .search-form .input-group .input-group-append .btn {
+        flex: 1;
+    }
+    .table td .btn {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

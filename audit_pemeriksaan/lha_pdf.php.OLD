@@ -1,0 +1,474 @@
+<?php
+
+if (function_exists('opcache_reset')) {
+    opcache_reset();
+}
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+ob_start();
+session_start();
+
+require_once "../config/app.php";
+require_once "../config/database.php";
+require_once "../config/functions.php";
+require_once "../auth/check.php";
+require_once "../tcpdf/tcpdf.php";
+
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if (!$id) {
+    die("ID Audit tidak valid");
+}
+
+/* QUERY DATA AUDIT */
+$qAudit = mysqli_query($conn,"
+	SELECT ap.*, uk.nama_unit, au.nama_auditor 
+	FROM audit_pemeriksaan ap LEFT JOIN unit_kerja uk ON ap.unit_id = uk.id LEFT JOIN auditor au ON ap.ketua_auditor_id = au.id 
+	WHERE ap.id = '$id'"
+);
+$audit = mysqli_fetch_assoc($qAudit);
+if (!$audit) {
+    die("Data audit tidak ditemukan");
+}
+
+/* QUERY TIM AUDIT */
+$qTim = mysqli_query($conn,"
+	SELECT t.*, a.nama_auditor
+	FROM audit_tim t LEFT JOIN auditor a ON t.auditor_id = a.id
+	WHERE t.audit_id = '$id'
+	ORDER BY t.id");
+
+/* QUERY TEMUAN */
+$qTemuan = mysqli_query($conn,"SELECT * FROM audit_temuan WHERE audit_id = '$id' ORDER BY id");
+
+/* QUERY REKOMENDASI */
+$qRekomendasi = mysqli_query($conn,"
+	SELECT r.*, t.nomor_temuan, t.judul_temuan
+	FROM audit_rekomendasi r INNER JOIN audit_temuan t ON r.temuan_id = t.id
+	WHERE t.audit_id = '$id'
+	ORDER BY r.nomor_rekomendasi");
+
+
+/* QUERY TINDAK LANJUT */
+$qTL = mysqli_query($conn,"
+	SELECT tl.*, r.nomor_rekomendasi
+	FROM audit_tindak_lanjut tl INNER JOIN audit_rekomendasi r ON tl.rekomendasi_id = r.id INNER JOIN audit_temuan t ON r.temuan_id = t.id
+	WHERE t.audit_id = '$id'
+	ORDER BY tl.nomor_tindak_lanjut");
+
+
+/* SUMMARY */
+$totalTemuan = mysqli_num_rows($qTemuan);
+mysqli_data_seek($qTemuan, 0);
+$totalRekomendasi = mysqli_num_rows($qRekomendasi);
+mysqli_data_seek($qRekomendasi, 0);
+$totalTL = mysqli_num_rows($qTL);
+mysqli_data_seek($qTL, 0);
+$totalSelesai = mysqli_num_rows(
+    mysqli_query($conn,"
+	SELECT tl.id 
+	FROM audit_tindak_lanjut tl INNER JOIN audit_rekomendasi r ON tl.rekomendasi_id = r.id INNER JOIN audit_temuan t ON r.temuan_id = t.id
+	WHERE t.audit_id='$id' AND tl.status='SELESAI'")
+);
+$totalBelum = $totalTL - $totalSelesai;
+
+/* class */
+class MYPDF extends TCPDF
+{
+    public function Header()
+    {
+        if ($this->getPage() == 1) {
+            return;
+        }
+        $logo = __DIR__ . '/../assets/images/LogoJXB_new.png';
+        if (file_exists($logo)) {
+            $this->Image($logo, 15, 8, 18);
+        }
+        $this->SetFont('helvetica', 'B', 9);
+        $this->Cell(0,10,'LAPORAN HASIL AUDIT (LHA)',0,0,'R');
+        $this->Ln(10);
+        $this->SetDrawColor(0, 51, 153);
+	$this->Line(15, 22, 195, 22);
+	/* watermark */
+	    $this->StartTransform();
+    	    $this->Rotate(45,70,190);
+            $this->SetFont('helvetica','B',30);
+    	    $this->SetTextColor(240,240,240);
+    	    $this->Text(35,190,'CONFIDENTIAL');
+    	    $this->StopTransform();
+    	    $this->SetTextColor(0,0,0);
+        /* end */
+    }
+
+    public function Footer()
+    {
+        if ($this->getPage() == 1) {
+            return;
+        }
+
+        $this->SetY(-15);
+        $this->SetDrawColor(0, 51, 153);
+        $this->Line(15,$this->GetY(),195,$this->GetY());
+        $this->Ln(2);
+        $this->SetFont('helvetica','',8);
+        $this->Cell(90,10,'PT Jakarta Tourisindo',0,0,'L');
+        $this->Cell(90,10,'Halaman ' .$this->getAliasNumPage() .' / ' .$this->getAliasNbPages(),0,0,'R');
+    }
+}
+
+/* inisialisasi */
+$pdf = new MYPDF(PDF_PAGE_ORIENTATION,PDF_UNIT,PDF_PAGE_FORMAT,true,'UTF-8',false);
+
+$pdf->SetCreator('SITLP');
+$pdf->SetAuthor('PT Jakarta Tourisindo');
+$pdf->SetTitle('LHA - ' . $audit['nomor_audit']);
+$pdf->SetMargins(20,20,20);
+$pdf->SetAutoPageBreak(true,25);
+$pdf->setPrintHeader(true);
+$pdf->setPrintFooter(true);
+$pdf->SetFont('helvetica','',11);
+
+/* cover */
+$pdf->AddPage();
+/* LOGO */
+$logo = __DIR__ . '/../assets/images/LogoJXB_new.png';
+
+if (file_exists($logo)) {
+    $pdf->Image($logo,75,35,60);
+}
+
+$pdf->Ln(70);
+$pdf->SetFont('helvetica','B',20);
+$pdf->Cell(0,10,'LAPORAN HASIL AUDIT',0,1,'C');
+$pdf->Cell(0,10,'(LHA)',0,1,'C');
+$pdf->Ln(10);
+$pdf->SetTextColor(255,140,0);
+$pdf->SetFont('helvetica','B',16);
+$pdf->Cell(0,10,$audit['judul_audit'],0,1,'C');
+$pdf->SetTextColor(0,0,0);
+$pdf->Ln(10);
+
+
+/* daftar isi */
+$pdf->AddPage();
+$pdf->Bookmark('Daftar Isi', 0, 0);
+$pdf->SetFont('helvetica', 'B', 16);
+$pdf->Cell(0,10,'DAFTAR ISI',0,1,'C');
+$pdf->Ln(10);
+$pdf->SetFont('helvetica', '', 12);
+$daftarIsi = [
+    'BAB I     Pendahuluan',
+    'BAB II    Hasil Temuan Audit',
+    'BAB III   Rekomendasi',
+    'BAB IV    Tindak Lanjut',
+    'BAB V     Kesimpulan',
+    'Pengesahan'
+];
+foreach($daftarIsi as $isi)
+{
+    $pdf->Cell(0,8,$isi,0,1);
+}
+
+
+/* bab 1, pendahuluan */
+$pdf->AddPage();
+$pdf->Bookmark('BAB I - Pendahuluan',0,0);
+$pdf->SetFont('helvetica','B',12);
+$pdf->Cell(0,10,'BAB I',0,1,'C');
+$pdf->Cell(0,10,'PENDAHULUAN',0,1,'C');
+$pdf->Ln(10);
+
+
+/* ruang lingkup */
+$html = "
+ <h3>1. Ruang Lingkup Audit</h3>
+  <p>{$audit['ruang_lingkup']}</p>
+ <h3>2. Jenis Audit</h3>
+  <p>{$audit['jenis_audit']}</p>
+ <h3>3. Periode Audit</h3>
+  <p>".date('d-m-Y',strtotime($audit['tanggal_mulai']))." s/d ".date('d-m-Y',strtotime($audit['tanggal_selesai']))."</p>
+ <h3>4. Tim Audit</h3>
+";
+while($tim = mysqli_fetch_assoc($qTim))
+{
+    $html .= "
+    • {$tim['nama_auditor']} ({$tim['peran']})<br>
+    ";
+}
+$pdf->writeHTML($html,true,false,true,false,'');
+mysqli_data_seek($qTim,0);
+
+
+/* bab 2, hasil temuan */
+$pdf->AddPage();
+$pdf->Bookmark('BAB II - Hasil Temuan Audit',0,0);
+$pdf->SetFont('helvetica','B',12);
+$pdf->Cell(0,10,'BAB II',0,1,'C');
+$pdf->Cell(0,10,'HASIL TEMUAN AUDIT',0,1,'C');
+$pdf->Ln(8);
+
+
+/* detail temuan */
+while($temuan = mysqli_fetch_assoc($qTemuan))
+{
+    $html = "
+    <table border='1' cellpadding='5'>
+     <tr bgcolor='#D9EAD3'>
+      <td colspan='2'><b>{$temuan['nomor_temuan']} - {$temuan['judul_temuan']}</b></td>
+     </tr>
+     <tr>
+      <td width='25%'><b>Kondisi</b></td>
+      <td>{$temuan['kondisi']}</td>
+     </tr>
+     <tr>
+      <td><b>Kriteria</b></td>
+      <td>{$temuan['kriteria']}</td>
+     </tr>
+     <tr>
+      <td><b>Sebab</b></td>
+      <td>{$temuan['sebab']}</td>
+     </tr>
+     <tr>
+      <td><b>Akibat</b></td>
+      <td>{$temuan['akibat']}</td>
+     </tr>
+     <tr>
+      <td><b>Risiko</b></td>
+      <td>{$temuan['tingkat_risiko']}</td>
+     </tr>
+    </table>
+    <br><br>
+    ";
+    $pdf->writeHTML($html,true,false,true,false,'');
+}
+mysqli_data_seek($qTemuan,0);
+
+
+/* bab 3, rekomendasi */
+$pdf->AddPage();
+$pdf->Bookmark('BAB III - Rekomendasi',0,0);
+$pdf->SetFont('helvetica','B',12);
+$pdf->Cell(0,10,'BAB III',0,1,'C');
+$pdf->Cell(0,10,'REKOMENDASI',0,1,'C');
+$pdf->Ln(10);
+
+
+/* isi rekomendasi */
+while($rek = mysqli_fetch_assoc($qRekomendasi))
+{
+    $html = "
+    <table border='1' cellpadding='5'>
+     <tr bgcolor='#D9EAD3'>
+      <td colspan='2'><b>{$rek['nomor_rekomendasi']}</b>
+      </td>
+     </tr>
+     <tr>
+      <td width='30%'>Temuan</td>
+      <td>{$rek['nomor_temuan']} - {$rek['judul_temuan']}</td>
+     </tr>
+     <tr>
+      <td>Rekomendasi</td>
+      <td>{$rek['rekomendasi']}</td>
+     </tr>
+     <tr>
+      <td>Prioritas</td>
+      <td>{$rek['prioritas']}</td>
+     </tr>
+     </table>
+     <br><br>
+    ";
+    $pdf->writeHTML($html,true,false,true,false,'');
+}
+
+/* bab 4 , tindak lanjut */
+$pdf->AddPage();
+//$pdf->AddPage('L');
+$pdf->Bookmark('BAB IV - Tindak Lanjut',0,0);
+$pdf->SetFont('helvetica','B',8);
+$pdf->Cell(0,10,'BAB IV',0,1,'C');
+$pdf->Cell(0,10,'TINDAK LANJUT',0,1,'C');
+$pdf->Ln(10);
+
+
+
+/* tabel tindak lanjut */
+$html = "
+   <table border='1' cellpadding='5'>
+    <tr bgcolor='#D9EAD3'>
+     <th width='60%'>No TL</th>
+     <th width='50%'>PIC</th>
+     <th width='40%'>Status</th>
+     <th width='40%'>Verifikasi</th>
+     <th width='40%'>Target</th>
+    </tr>";
+while($tl = mysqli_fetch_assoc($qTL))
+{
+    $html .= "
+    <tr>
+     <td>{$tl['nomor_tindak_lanjut']}</td>
+     <td>{$tl['pic']}</td>
+     <td>{$tl['status']}</td>
+     <td>{$tl['verifikasi_status']}</td>
+     <td>{$tl['target_selesai']}</td>
+    </tr>
+    ";
+}
+$html .= "</table>";
+$pdf->writeHTML($html,true,false,true,false,'');
+
+
+
+/* bab 5, kesimpulan */
+$pdf->AddPage();
+$pdf->Bookmark('BAB V - Kesimpulan',0,0);
+$pdf->SetFont('helvetica','B',12);
+$pdf->Cell(0,10,'BAB V',0,1,'C');
+$pdf->Cell(0,10,'KESIMPULAN',0,1,'C');
+$pdf->Ln(10);
+
+
+/* ringkasan */
+$html = "
+   <table border='1' cellpadding='5'>
+    <tr>
+     <td>Total Temuan</td>
+     <td>{$totalTemuan}</td>
+    </tr>
+    <tr>
+     <td>Total Rekomendasi</td>
+     <td>{$totalRekomendasi}</td>
+    </tr>
+    <tr>
+     <td>Total Tindak Lanjut</td>
+     <td>{$totalTL}</td>
+    </tr>
+    <tr>
+     <td>Tindak Lanjut Selesai</td>
+     <td>{$totalSelesai}</td>
+    </tr>
+    <tr>
+     <td>Belum Selesai</td>
+     <td>{$totalBelum}</td>
+    </tr>
+   </table>
+   <br><br>
+    Berdasarkan hasil audit yang telah dilakukan, diharapkan seluruh rekomendasi dapat ditindaklanjuti sesuai target waktu yang telah ditetapkan.
+";
+
+$pdf->writeHTML($html,true,false,true,false,'');
+
+
+/* halaman pengesahan */
+$pdf->AddPage();
+$pdf->Bookmark('Pengesahan',0,0);
+$pdf->SetFont('helvetica','B',12);
+$pdf->Cell(0,10,'PENGESAHAN',0,1,'C');
+$pdf->Ln(20);
+
+
+/* teks pengesahan */
+$pdf->SetFont('helvetica','',11);
+$pdf->MultiCell(0,8,"Laporan Hasil Audit ini telah disusun berdasarkan hasil pemeriksaan yang dilaksanakan oleh Satuan Internal Audit PT Jakarta Tourisindo.",0,'J',false,1);
+$pdf->Ln(15);
+
+
+/* tanggal */
+$pdf->Cell(0,8,'Jakarta, ' .date('d F Y'),0,1,'R');
+$pdf->Ln(15);
+
+
+/* area ttd */
+$pdf->Cell(85,8,'Kepala SIA',0,0,'C');
+$pdf->Cell(20,8,'',0,0);
+$pdf->Cell(85,8,'Direktur Utama',0,1,'C');
+$pdf->Ln(30);
+$pdf->Cell(85,8,'(________________________)',0,0,'C');
+$pdf->Cell(20,8,'',0,0);
+$pdf->Cell(85,8,'(________________________)',0,1,'C');
+
+
+/* qr code verifikasi */
+$pdf->Ln(20);
+$pdf->SetFont('helvetica','',9);
+$pdf->Cell(0,6,'Verifikasi Dokumen:',0,1,'C');
+
+
+
+/* url verifikasi */
+$verifyUrl = APP_URL . '/verify_lha.php?id=' . $id;
+
+
+/* qr code */
+$style = ['border' => 0,'padding' => 2,'fgcolor' => [0,0,0],'bgcolor' => false];
+$pdf->write2DBarcode($verifyUrl,'QRCODE,H',85,$pdf->GetY(),35,35,$style);
+
+
+/* url dibawah qr */
+$pdf->Ln(55);
+$pdf->Cell(0,5,$verifyUrl,0,1,'C');
+
+
+
+/* info audit */
+$html = "
+   <table cellpadding='6'>
+    <tr>
+     <td width='40%'><b>Nomor Audit</b></td>
+     <td>: {$audit['nomor_audit']}</td>
+    </tr>
+    <tr>
+     <td><b>Nomor Surat Tugas</b></td>
+     <td>: {$audit['nomor_surat_tugas']}</td>
+    </tr>
+    <tr>
+     <td><b>Unit Kerja</b></td>
+     <td>: {$audit['nama_unit']}</td>
+    </tr>
+    <tr>
+     <td><b>Ketua Auditor</b></td>
+     <td>: {$audit['nama_auditor']}</td>
+    </tr>
+    <tr>
+     <td><b>Tanggal Audit</b></td>
+     <td>: {$audit['tanggal_mulai']} s.d {$audit['tanggal_selesai']}</td>
+    </tr>
+    <tr>
+     <td><b>Jenis Audit</b></td>
+     <td>: {$audit['jenis_audit']}</td>
+    </tr>
+   </table>
+";
+$pdf->writeHTML($html,true,false,true,false,'');
+
+
+/* tim audit */
+//$pdf->Ln(10);
+//$pdf->SetFont('helvetica','B',12);
+//$pdf->Cell(0,8,'Tim Auditor:',0,1);
+//$pdf->SetFont('helvetica','',11);
+//$no = 1;
+//while($tim = mysqli_fetch_assoc($qTim))
+//{
+//    $pdf->Cell(0,8,$no . '. ' . $tim['nama_auditor'] . ' (' .$tim['peran'] . ')',0,1);
+//    $no++;
+//}
+
+
+/* footer */
+//$pdf->SetY(-40);
+//$pdf->SetFont('helvetica','',8);
+//$pdf->Cell(0,6,'Satuan Internal Audit (SIA)',0,1,'C');
+//$pdf->Cell(0,6,'PT Jakarta Tourisindo',0,1,'C');
+//$pdf->Cell(0,6,'Tahun ' . date('Y'),0,1,'C');
+
+ob_end_clean();
+$pdf->Output('LHA_'.$audit['nomor_audit'].'.pdf','I');
+exit;
+
+/* utk download */
+//$pdf->Output(
+//    'LHA_'.$audit['nomor_audit'].'.pdf',
+//    'D'
+//);
