@@ -133,6 +133,11 @@ body {
     }
 }
 
+.small-box .icon > i {
+    padding-left: 5px;
+    padding-bottom: 5px;
+}
+
 @keyframes pulse {
     0% {
         transform: scale(1);

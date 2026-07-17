@@ -134,8 +134,11 @@ Swal.fire({
 <div class="app-content">
 <div class="container-fluid">
 <div class="card mt-3">
-<div class="card-header">
-<h3 class="card-title">Tindak Lanjut Rekomendasi</h3>
+<div class="card-header d-flex align-items-center">
+<h3 class="card-title mb-0">Tindak Lanjut Rekomendasi</h3>
+<?php if(isset($_GET['rekomendasi_id']) && $rekomendasi && $_SESSION['role'] != 'AUDITEE'): ?>
+<a href="../audit_temuan/detail.php?id=<?= $rekomendasi['temuan_id'] ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
+<?php endif; ?>
 </div>
 <div class="card-body">
 <?php if(isset($_GET['rekomendasi_id'])){ ?>
@@ -164,7 +167,7 @@ Swal.fire({
 <div class="card">
 <div class="card-header d-flex justify-content-between">
 <h3 class="card-title">Daftar Tindak Lanjut</h3>
-<?php if(isset($_GET['rekomendasi_id'])){ ?>
+<?php if(isset($_GET['rekomendasi_id']) && $_SESSION['role'] != 'AUDITEE'){ ?>
 <a href="create.php?rekomendasi_id=<?= $rekomendasi_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i>Tambah Tindak Lanjut</a>
 <?php } ?>
 </div>
@@ -177,6 +180,8 @@ Swal.fire({
    <th>Nomor TL</th>
    <th>Unit</th>
    <th>PIC</th>
+   <th>Uraian Tindak Lanjut</th>
+   <th>Hasil Tindak Lanjut</th>
    <th>Target</th>
    <th>Status</th>
    <th>Verifikasi</th>
@@ -189,6 +194,8 @@ Swal.fire({
    <td><?= htmlspecialchars($row['nomor_tindak_lanjut']) ?></td>
    <td><?= htmlspecialchars($row['nama_unit']) ?></td>
    <td><?= htmlspecialchars($row['pic']) ?></td>
+   <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 300px;"><?= htmlspecialchars($row['uraian_tindak_lanjut']) ?></td>
+   <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 300px;"><?= htmlspecialchars($row['hasil_tindak_lanjut']) ?></td>
    <td><?= $row['target_selesai'] ?></td>
    <td>
     <?php
@@ -212,12 +219,11 @@ Swal.fire({
     echo '<span class="badge bg-secondary">BELUM</span>';}
    ?>
   </td>
-  <td>
-   <?php if($row['bukti_file']){ ?>
-   <a href="../uploads/tindak_lanjut/<?= $row['bukti_file'] ?>" target="_blank" class="btn btn-success btn-sm">Lihat Bukti</a>
-   <?php } else { ?>
-   <a href="upload_bukti.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Upload Bukti</a>
-   <?php } ?>
+   <td>
+    <a href="../uploads/tindak_lanjut/<?= $row['bukti_file'] ?>" target="_blank" class="btn btn-success btn-sm <?= !$row['bukti_file'] ? 'disabled' : '' ?>">Lihat Bukti</a>
+    <?php if(!$row['bukti_file'] && $_SESSION['role'] != 'KEPALA_SPI') { ?>
+    <a href="upload_bukti.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Upload Bukti</a>
+    <?php } ?>
    <!--
    <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Verifikasi</a>
    -->
@@ -226,11 +232,15 @@ Swal.fire({
     $_SESSION['role'],
     ['ADMIN','KEPALA_SPI']
    )): ?>
-   <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm">Verifikasi</a>
+   <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm <?= (!$row['bukti_file'] || $row['verifikasi_status'] != 'BELUM') ? 'disabled' : '' ?>">Verifikasi</a>
    <?php endif; ?>
+   <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','AUDITOR'])): ?>
    <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
-   <a href="delete.php?id=<?= $row['id'] ?>&rekomendasi_id=<?= $rekomendasi_id ?>"
-   class="btn btn-danger btn-sm" onclick="return confirm('Hapus tindak lanjut?')">Hapus</a>
+   <?php if($rekomendasi_id > 0): ?>
+   <a href="javascript:void(0)"
+   class="btn btn-danger btn-sm" onclick="hapusTL(<?= $row['id'] ?>, <?= $rekomendasi_id ?>)">Hapus</a>
+   <?php endif; ?>
+   <?php endif; ?>
    </td>
   </tr>
   <?php } ?>
@@ -249,6 +259,49 @@ $(document).ready(function(){
   responsive:true
  });
 });
+</script>
+
+<?php if (isset($_SESSION['success'])) : ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= addslashes($_SESSION['success']) ?>',
+    timer: 2500,
+    showConfirmButton: false
+});
+</script>
+<?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])) : ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal',
+    text: '<?= addslashes($_SESSION['error']) ?>'
+});
+</script>
+<?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<script>
+function hapusTL(id, rekomendasi_id)
+{
+    Swal.fire({
+        title: 'Hapus Tindak Lanjut?',
+        text: 'Data tidak dapat dikembalikan',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            window.location = 'delete.php?id=' + id + '&rekomendasi_id=' + rekomendasi_id;
+        }
+    });
+}
 </script>
 
 <?php include "../templates/footer.php"; ?>

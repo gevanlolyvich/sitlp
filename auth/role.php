@@ -15,7 +15,7 @@ function checkRole($allowedRoles)
         $_SESSION['error'] =
             "Anda tidak memiliki hak akses.";
         header(
-            "Location: ../dashboard/index.php"
+            "Location: ../dashboard/"
         );
         exit;
     }

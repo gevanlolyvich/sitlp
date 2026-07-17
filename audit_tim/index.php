@@ -9,9 +9,10 @@ require_once "../auth/check.php";
 
 $audit_id = (int)$_GET['audit_id'];
 
-$qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit FROM audit_pemeriksaan WHERE id=$audit_id");
+$qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit, ketua_auditor_id FROM audit_pemeriksaan WHERE id=$audit_id");
 $audit = mysqli_fetch_assoc($qAudit);
-$qAuditor = mysqli_query($conn,"SELECT * FROM auditor WHERE aktif=1 ORDER BY nama_auditor");
+$ketuaId = (int)$audit['ketua_auditor_id'];
+$qAuditor = mysqli_query($conn,"SELECT * FROM auditor WHERE aktif=1 AND id != $ketuaId AND id NOT IN (SELECT auditor_id FROM audit_tim WHERE audit_id=$audit_id) ORDER BY nama_auditor");
 
 $qTim = mysqli_query($conn,"SELECT t.*, a.nama_auditor FROM audit_tim t
 	LEFT JOIN auditor a ON t.auditor_id=a.id
@@ -27,8 +28,9 @@ include "../templates/sidebar.php";
  <div class="app-content">
   <div class="container-fluid">
    <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Tim Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
+     <div class="card-header d-flex align-items-center">
+     <h3 class="card-title mb-0">Tim Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
+     <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
     </div>
     <form action="store.php" method="post">
      <input type="hidden" name="audit_id" value="<?= $audit_id ?>">
@@ -47,8 +49,7 @@ include "../templates/sidebar.php";
        </div>
        <div class="col-md-4">
        <label>Peran</label>
-       <select name="peran" class="form-select">
-	<option value="KETUA">KETUA</option>
+        <select name="peran" class="form-select">
 	<option value="ANGGOTA">ANGGOTA</option>
 	<option value="PENGENDALI">PENGENDALI</option>
        </select>
@@ -82,7 +83,7 @@ include "../templates/sidebar.php";
 	 <td><?= htmlspecialchars($t['nama_auditor']) ?></td>
 	 <td><?= htmlspecialchars($t['peran']) ?></td>
 	 <td>
-	  <a href="delete.php?id=<?= $t['id'] ?>&audit_id=<?= $audit_id ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus anggota tim?')">Hapus</a>
+	  <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusAnggota(<?= $t['id'] ?>, <?= $audit_id ?>)">Hapus</a>
 	 </td>
 	</tr>
        <?php } ?>
@@ -94,6 +95,49 @@ include "../templates/sidebar.php";
   </div>
  </div>
 </main>
+
+<?php if (isset($_SESSION['success'])) : ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= addslashes($_SESSION['success']) ?>',
+    timer: 2500,
+    showConfirmButton: false
+});
+</script>
+<?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])) : ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal',
+    text: '<?= addslashes($_SESSION['error']) ?>'
+});
+</script>
+<?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<script>
+function hapusAnggota(id, audit_id)
+{
+    Swal.fire({
+        title: 'Hapus Anggota Tim?',
+        text: 'Data tidak dapat dikembalikan',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            window.location = 'delete.php?id=' + id + '&audit_id=' + audit_id;
+        }
+    });
+}
+</script>
 
 <?php
 include "../templates/footer.php";

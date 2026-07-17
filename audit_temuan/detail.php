@@ -27,8 +27,9 @@ include "../templates/sidebar.php";
  <div class="app-content">
   <div class="container-fluid">
    <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title"><?= htmlspecialchars($temuan['nomor_temuan']) ?></h3>
+    <div class="card-header d-flex align-items-center">
+     <h3 class="card-title mb-0"><?= htmlspecialchars($temuan['nomor_temuan']) ?></h3>
+     <a href="index.php?audit_id=<?= $temuan['audit_id'] ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
     </div>
     <div class="card-body">
     <div class="table-responsive-wrapper"><table class="table table-bordered">

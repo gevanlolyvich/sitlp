@@ -107,7 +107,11 @@ include "../templates/sidebar.php";
       <div class="card-body text-center">
        <h5>Tim Audit</h5>
        <p>Kelola anggota tim audit</p>
+       <?php if($audit['status']!='SELESAI'): ?>
        <a href="../audit_tim/index.php?audit_id=<?= $audit['id'] ?>" class="btn btn-primary">Buka</a>
+       <?php else: ?>
+       <button class="btn btn-secondary" disabled><i class="fas fa-lock"></i> Terkunci</button>
+       <?php endif; ?>
       </div>
      </div>
     </div>
@@ -116,7 +120,11 @@ include "../templates/sidebar.php";
       <div class="card-body text-center">
        <h5>Lampiran</h5>
        <p>Dokumen audit</p>
+       <?php if($audit['status']!='SELESAI'): ?>
        <a href="../audit_lampiran/index.php?audit_id=<?= $audit['id'] ?>" class="btn btn-success">Buka</a>
+       <?php else: ?>
+       <button class="btn btn-secondary" disabled><i class="fas fa-lock"></i> Terkunci</button>
+       <?php endif; ?>
       </div>
      </div>
     </div>
@@ -125,7 +133,11 @@ include "../templates/sidebar.php";
       <div class="card-body text-center">
        <h5>Temuan Audit</h5>
        <p>Hasil pemeriksaan</p>
+       <?php if($audit['status']!='SELESAI'): ?>
        <a href="../audit_temuan/index.php?audit_id=<?= $audit['id'] ?>" class="btn btn-warning">Buka</a>
+       <?php else: ?>
+       <button class="btn btn-secondary" disabled><i class="fas fa-lock"></i> Terkunci</button>
+       <?php endif; ?>
       </div>
      </div>
     </div>
@@ -142,29 +154,67 @@ document.querySelectorAll('.btn-close-audit').forEach(function(btn){
   e.preventDefault();
   let url =
       this.href;
-  Swal.fire({
-   title:
-    'Tutup Audit?',
-   text:
-    'Audit yang sudah ditutup tidak boleh diubah lagi.',
-   icon:
-    'warning',
-   showCancelButton:
-    true,
-   confirmButtonText:
-    'Ya, Tutup Audit',
-   cancelButtonText:
-    'Batal'
-  }).then((result)=>{
-   if(result.isConfirmed)
-   {
-      window.location =
-      url;
+  let auditId =
+      <?= $audit['id'] ?>;
+  fetch('check_close.php?id=' + auditId)
+  .then(r=>r.json())
+  .then(data=>{
+   if(!data.ok){
+    Swal.fire({
+     title:'Tidak Dapat Menutup Audit',
+     text: data.message,
+     icon:'error'
+    });
+    return;
    }
+   Swal.fire({
+    title:
+     'Tutup Audit?',
+    text:
+     'Audit yang sudah ditutup tidak boleh diubah lagi.',
+    icon:
+     'warning',
+    showCancelButton:
+     true,
+    confirmButtonText:
+     'Ya, Tutup Audit',
+    cancelButtonText:
+     'Batal'
+   }).then((result)=>{
+    if(result.isConfirmed)
+    {
+       window.location =
+       url;
+    }
+   });
   });
  });
 });
 </script>
+
+<?php if (isset($_SESSION['error'])) : ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal',
+    text: '<?= addslashes($_SESSION['error']) ?>'
+});
+</script>
+<?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success'])) : ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= addslashes($_SESSION['success']) ?>',
+    timer: 2500,
+    showConfirmButton: false
+});
+</script>
+<?php unset($_SESSION['success']); ?>
+<?php endif; ?>
 
 <?php
 include "../templates/footer.php";

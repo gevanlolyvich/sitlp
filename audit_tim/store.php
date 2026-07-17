@@ -11,8 +11,15 @@ $audit_id   = (int)$_POST['audit_id'];
 $auditor_id = (int)$_POST['auditor_id'];
 $peran      = $_POST['peran'];
 
-mysqli_query($conn,"INSERT INTO audit_tim (audit_id,auditor_id,peran)
-	VALUES('$audit_id','$auditor_id','$peran')");
+$qCheck = mysqli_query($conn, "SELECT id FROM audit_tim WHERE audit_id=$audit_id AND auditor_id=$auditor_id");
+if (mysqli_num_rows($qCheck) > 0) {
+    $_SESSION['error'] = "Auditor sudah ditambahkan ke tim.";
+    header("Location: index.php?audit_id=" . $audit_id);
+    exit;
+}
 
-header("Location:index.php?audit_id=".$audit_id);
+mysqli_query($conn, "INSERT INTO audit_tim (audit_id, auditor_id, peran) VALUES('$audit_id','$auditor_id','$peran')");
+
+$_SESSION['success'] = "Anggota tim berhasil ditambahkan.";
+header("Location: index.php?audit_id=" . $audit_id);
 exit;

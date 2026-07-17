@@ -9,32 +9,27 @@ require_once "../auth/check.php";
 
 $id = (int)$_GET['id'];
 
-
-/* check apakah sdh ada temuan */
-$qTemuan =
-mysqli_query(
- $conn,
- "
- SELECT COUNT(*) jml
- FROM audit_temuan
- WHERE audit_id='$id'
- "
-);
-
-$temuan =
-mysqli_fetch_assoc(
- $qTemuan
-);
-
-if(
- $temuan['jml']==0
-)
-{
- die(
-  "Audit belum memiliki temuan."
- );
+/* check apakah sudah ada temuan */
+$qTemuan = mysqli_query($conn, "SELECT COUNT(*) jml FROM audit_temuan WHERE audit_id='$id'");
+$temuan = mysqli_fetch_assoc($qTemuan);
+if($temuan['jml']==0){
+    die("Audit belum memiliki temuan.");
 }
-/* end of check */
+
+/* check apakah semua tindak lanjut sudah diverifikasi */
+$qTL = mysqli_query($conn, "
+    SELECT COUNT(*) jml
+    FROM audit_tindak_lanjut tl
+    JOIN audit_rekomendasi r ON tl.rekomendasi_id = r.id
+    JOIN audit_temuan t ON r.temuan_id = t.id
+    WHERE t.audit_id = '$id' AND tl.verifikasi_status = 'BELUM'
+");
+$tlBelum = mysqli_fetch_assoc($qTL);
+if($tlBelum['jml'] > 0){
+    $_SESSION['error'] = "Tidak dapat menutup audit. Masih ada " . $tlBelum['jml'] . " tindak lanjut yang belum diverifikasi.";
+    header("Location: detail.php?id=" . $id);
+    exit;
+}
 
 $qAudit = mysqli_query(
     $conn,

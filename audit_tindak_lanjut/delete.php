@@ -26,8 +26,6 @@ if(
 
 mysqli_query($conn,"DELETE FROM audit_tindak_lanjut WHERE id=$id");
 
-
-$id = mysqli_insert_id($conn);
 logActivity(
     $conn,
     "menghapus Audit Tindak Lanjut",
@@ -35,7 +33,7 @@ logActivity(
     $id
 );
 
-
+$_SESSION['success'] = "Tindak lanjut berhasil dihapus.";
 header("Location:index.php?rekomendasi_id=".$rekomendasi_id);
 
 exit;

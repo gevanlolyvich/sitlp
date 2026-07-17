@@ -112,6 +112,7 @@ include "../templates/sidebar.php";
 <div class="card-footer">
 
 <button type="submit" class="btn btn-primary">Simpan Verifikasi</button>
+<a href="index.php" class="btn btn-secondary">Kembali</a>
 
 </div>
 

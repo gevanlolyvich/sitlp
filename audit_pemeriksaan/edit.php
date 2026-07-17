@@ -64,7 +64,7 @@ if($audit['status']=='SELESAI')
 </div>
 <div class="card-footer">
 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-<a href="detail.php?id=<?= $audit['id'] ?>" class="btn btn-secondary">Kembali</a>
+<a href="index.php" class="btn btn-secondary">Kembali</a>
 </div>
 </form>
 </div>

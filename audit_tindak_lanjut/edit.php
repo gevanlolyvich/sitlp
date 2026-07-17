@@ -16,6 +16,9 @@ if(!$tl)
     die("Data tidak ditemukan");
 }
 
+$qUnit = mysqli_query($conn,"SELECT * FROM unit_kerja ORDER BY nama_unit");
+$isLocked = ($tl['status'] == 'SELESAI');
+
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../templates/sidebar.php";
@@ -37,6 +40,20 @@ include "../templates/sidebar.php";
 <input type="text" class="form-control" value="<?= $tl['nomor_tindak_lanjut'] ?>" readonly>
 </div>
 <div class="mb-3">
+<label>Unit Kerja</label>
+<select name="unit_id" class="form-select" <?= $isLocked ? 'disabled' : '' ?> required>
+ <option value="">Pilih Unit</option>
+ <?php
+ while($u=mysqli_fetch_assoc($qUnit)){
+ ?>
+ <option value="<?= $u['id'] ?>" <?= $tl['unit_id']==$u['id']?'selected':'' ?>><?= htmlspecialchars($u['nama_unit']) ?></option>
+ <?php } ?>
+</select>
+<?php if($isLocked): ?>
+<input type="hidden" name="unit_id" value="<?= $tl['unit_id'] ?>">
+<?php endif; ?>
+</div>
+<div class="mb-3">
 <label>PIC</label>
 <input type="text" name="pic" class="form-control" value="<?= htmlspecialchars($tl['pic']) ?>" required>
 </div>
@@ -47,25 +64,36 @@ include "../templates/sidebar.php";
 <div class="row">
 <div class="col-md-4">
 <label>Target Selesai</label>
-<input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control">
+<input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control" <?= $isLocked ? 'disabled' : '' ?>>
+<?php if($isLocked): ?>
+<input type="hidden" name="target_selesai" value="<?= $tl['target_selesai'] ?>">
+<?php endif; ?>
 </div>
 <div class="col-md-4">
 <label>Tanggal Realisasi</label>
-<input type="date" name="tanggal_realisasi" value="<?= $tl['tanggal_realisasi'] ?>" class="form-control">
+<input type="date" name="tanggal_realisasi" value="<?= $tl['tanggal_realisasi'] ?>" class="form-control" <?= $isLocked ? 'disabled' : '' ?>>
+<?php if($isLocked): ?>
+<input type="hidden" name="tanggal_realisasi" value="<?= $tl['tanggal_realisasi'] ?>">
+<?php endif; ?>
+<small class="text-muted">Kosongkan jika belum selesai. Akan terisi otomatis saat status diubah ke SELESAI.</small>
 </div>
 <div class="col-md-4">
 <label>Status</label>
-<select name="status" class="form-select">
+<select name="status" class="form-select" <?= $isLocked ? 'disabled' : '' ?>>
  <option value="OPEN" <?= $tl['status']=='OPEN'?'selected':'' ?>>OPEN</option>
  <option value="PROSES"<?= $tl['status']=='PROSES'?'selected':'' ?>>PROSES</option>
- <option value="SELESAI"<?= $tl['status']=='SELESAI'?'selected':'' ?>>SELESAI</option>
+ <?php if($tl['status']=='SELESAI'): ?>
+ <option value="SELESAI" selected>SELESAI</option>
+ <?php endif; ?>
 </select>
-</div>
+<?php if($isLocked): ?>
+<input type="hidden" name="status" value="<?= $tl['status'] ?>">
+<?php endif; ?>
 </div>
 </div>
 <div class="card-footer">
 <button type="submit" class="btn btn-primary">Update</button>
-<a href="index.php?rekomendasi_id=<?= $tl['rekomendasi_id'] ?>" class="btn btn-secondary">Kembali</a>
+<a href="index.php" class="btn btn-secondary">Kembali</a>
 </div>
 </form>
 </div>

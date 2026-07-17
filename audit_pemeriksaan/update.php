@@ -22,7 +22,7 @@ $sql = " UPDATE audit_pemeriksaan SET nomor_surat_tugas='$nomor_surat_tugas',
 	tanggal_selesai='$tanggal_selesai', ruang_lingkup='$ruang_lingkup', keterangan='$keterangan' 
 	WHERE id='$id' ";
 if(mysqli_query($conn,$sql)) { if(function_exists('logActivity')) { logActivity( $conn, 'Mengubah data audit','audit_pemeriksaan', $id ); }
-	header("Location: detail.php?id=".$id);
+	header("Location: index.php");
 } else { 
 	die( mysqli_error($conn) ); 
 }

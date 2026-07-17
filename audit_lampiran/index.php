@@ -24,8 +24,9 @@ include "../templates/sidebar.php";
  <div class="app-content">
   <div class="container-fluid">
    <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Lampiran Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
+    <div class="card-header d-flex align-items-center">
+     <h3 class="card-title mb-0">Lampiran Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
+     <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
     </div>
     <form action="store.php" method="post" enctype="multipart/form-data">
      <input type="hidden" name="audit_id" value="<?= $audit_id ?>">
@@ -82,7 +83,7 @@ include "../templates/sidebar.php";
 	<td><?= $row['uploaded_at'] ?></td>
 	<td>
           <a href="../<?= $row['file_path'] ?>" target="_blank" class="btn btn-success btn-sm">Download</a>
-          <a href="delete.php?id=<?= $row['id'] ?>&audit_id=<?= $audit_id ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus lampiran?')">Hapus </a>
+          <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusLampiran(<?= $row['id'] ?>, <?= $audit_id ?>)">Hapus </a>
         </td>
        </tr>
        <?php } ?>
@@ -94,5 +95,48 @@ include "../templates/sidebar.php";
   </div>
  </div>
 </main>
+
+<?php if (isset($_SESSION['success'])) : ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= addslashes($_SESSION['success']) ?>',
+    timer: 2500,
+    showConfirmButton: false
+});
+</script>
+<?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])) : ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal',
+    text: '<?= addslashes($_SESSION['error']) ?>'
+});
+</script>
+<?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<script>
+function hapusLampiran(id, audit_id)
+{
+    Swal.fire({
+        title: 'Hapus Lampiran?',
+        text: 'Data tidak dapat dikembalikan',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            window.location = 'delete.php?id=' + id + '&audit_id=' + audit_id;
+        }
+    });
+}
+</script>
 
 <?php include "../templates/footer.php"; ?>

@@ -4,7 +4,7 @@ data-bs-theme="dark">
 
 <div class="sidebar-brand">
 
-<a href="../dashboard/index.php"
+<a href="../dashboard/"
 class="nav-link">
 
 <span class="brand-text fw-light">
@@ -54,7 +54,7 @@ role="menu">
 
 <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','DIREKSI'])): ?>
 <li class="nav-item">
-<a href="../dashboard_spi/index.php" class="nav-link">
+<a href="../dashboard_spi/" class="nav-link">
 <i class="nav-icon fas fa-chart-line"></i>
 <p>Dashboard Monitoring SPI</p>
 </a>
@@ -63,7 +63,7 @@ role="menu">
 
 <?php if($_SESSION['role']=='AUDITOR'): ?>
 <li class="nav-item">
-<a href="../dashboard/index.php" class="nav-link">
+<a href="../dashboard/" class="nav-link">
 <i class="nav-icon fas fa-home"></i>
 <p>Dashboard</p>
 </a>
@@ -72,7 +72,7 @@ role="menu">
 
 <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI'])): ?>
 <li class="nav-item">
-<a href="../audit_program/index.php" class="nav-link">
+<a href="../audit_program/" class="nav-link">
 <i class="nav-icon fas fa-calendar-alt"></i>
 <p>Program Audit (PAT)</p>
 </a>
@@ -81,7 +81,7 @@ role="menu">
 
 <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','AUDITOR'])): ?>
 <li class="nav-item">
-<a href="../audit_pemeriksaan/index.php" class="nav-link">
+<a href="../audit_pemeriksaan/" class="nav-link">
 <i class="nav-icon fas fa-clipboard-check"></i>
 <p>Pemeriksaan Audit</p>
 </a>
@@ -90,7 +90,7 @@ role="menu">
 
 <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','DIREKSI'])): ?>
 <li class="nav-item">
-<a href="../audit_tindak_lanjut/index.php" class="nav-link">
+<a href="../audit_tindak_lanjut/" class="nav-link">
 <i class="nav-icon fas fa-tasks"></i>
 <p>Monitoring Tindak Lanjut</p>
 </a>
@@ -99,7 +99,7 @@ role="menu">
 
 <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI'])): ?>
 <li class="nav-item">
-<a href="../audit_log/index.php" class="nav-link">
+<a href="../audit_log/" class="nav-link">
 <i class="nav-icon fas fa-history"></i>
 <p>LOG Audit Trail</p>
 </a>
@@ -108,19 +108,19 @@ role="menu">
 
 <?php if($_SESSION['role']=='ADMIN'): ?>
 <li class="nav-item">
-<a href="../users/index.php" class="nav-link">
+<a href="../users/" class="nav-link">
 <i class="nav-icon fas fa-users"></i>
 <p>Master User</p>
 </a>
 </li>
 <li class="nav-item">
-<a href="../unit_kerja/index.php" class="nav-link">
+<a href="../unit_kerja/" class="nav-link">
 <i class="nav-icon fas fa-building"></i>
 <p>Unit Kerja</p>
 </a>
 </li>
 <li class="nav-item">
-<a href="../auditor/index.php" class="nav-link">
+<a href="../auditor/" class="nav-link">
 <i class="nav-icon fas fa-user-shield"></i>
 <p>Auditor</p>
 </a>
@@ -130,13 +130,13 @@ role="menu">
 <!-- AUDITEE -->
 <?php if($_SESSION['role']=='AUDITEE'): ?>
 <li class="nav-item">
-    <a href="../dashboard/index.php" class="nav-link">
+    <a href="../dashboard/" class="nav-link">
         <i class="nav-icon fas fa-home"></i>
         <p>Dashboard</p>
     </a>
 </li>
 <li class="nav-item">
-    <a href="../auditee_temuan/index.php" class="nav-link">
+    <a href="../auditee_temuan/" class="nav-link">
         <i class="nav-icon fas fa-tasks"></i>
         <p>Tindak Lanjut Saya</p>
     </a>

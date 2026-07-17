@@ -102,7 +102,9 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 	?></td>
 	<td>
 	 <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
+	 <?php if($row['status'] != 'SELESAI'): ?>
 	 <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+	 <?php endif; ?>
 	 <a href="lha_pdf.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" target="_blank"><i class="fas fa-file-pdf"></i>LHA</a>
 
 	 <?php if(!empty($row['lha_file'])): ?>
