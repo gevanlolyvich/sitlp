@@ -18,7 +18,8 @@ SELECT
     tl.rekomendasi_id,
     tl.target_selesai,
     tl.status,
-    tl.verifikasi_status,
+    tl.catatan_spi,
+    tl.bukti_file,
     a.nomor_audit,
     a.judul_audit,
     t.nomor_temuan,
@@ -38,12 +39,13 @@ WHERE
     tl.unit_id = '$unit_id'
 ORDER BY
     CASE
-        WHEN tl.status='OPEN' THEN 1
-        WHEN tl.status='PROSES' THEN 2
-        WHEN tl.status='SELESAI' THEN 3
+        WHEN tl.status='Proses' THEN 1
+        WHEN tl.status='Belum Ditindak Lanjut' THEN 2
+        WHEN tl.status='Belum Sesuai' THEN 3
+        WHEN tl.status='Tidak Dapat Ditindak Lanjut' THEN 4
+        WHEN tl.status='Sesuai' THEN 5
     END,
     tl.target_selesai ASC
-
 ";
 
 //echo $sql; exit;
@@ -95,11 +97,11 @@ include "../templates/sidebar.php";
                                 <th>No</th>
                                 <th>No Audit</th>
                                 <th>Temuan</th>
-                                <th style="width: 20%;">Rekomendasi</th>
+                                <th style="width: 20%;">Uraian</th>
                                 <th style="width: 18%;">Hasil Tindak Lanjut</th>
                                 <th>Target</th>
-                                <th>Status</th>
-                                <th>Verifikasi</th>
+                                <th>Status Tindak Lanjut</th>
+                                <th>Catatan SPI</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -123,7 +125,7 @@ include "../templates/sidebar.php";
                                         <div style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word; max-width: 250px;">
                                         <?= nl2br(
                                             htmlspecialchars(
-                                                $row['rekomendasi']
+                                                $row['uraian_tindak_lanjut']
                                             )
                                         ) ?>
                                         </div>
@@ -143,42 +145,24 @@ include "../templates/sidebar.php";
                                     </td>
                                     <td>
                                         <?php
-                                        $status = strtoupper(trim($row['status']));
+                                        $sts = $row['status'];
                                         $badge = [
-                                            'OPEN' => 'primary',
-                                            'PROSES' => 'warning',
-                                            'SELESAI' => 'success'
+                                            'Proses' => 'bg-warning',
+                                            'Sesuai' => 'bg-success',
+                                            'Belum Sesuai' => 'bg-danger',
+                                            'Belum Ditindak Lanjut' => 'bg-secondary',
+                                            'Tidak Dapat Ditindak Lanjut' => 'bg-dark'
                                         ];
-                                        if (isset($badge[$status])) {
-                                            echo '<span class="badge bg-' . $badge[$status] . '">' .
-                                                $status .
-                                                '</span>';
-                                        } else {
-                                            echo '[' . $status . ']';
-                                        }
+                                        $badgeClass = isset($badge[$sts]) ? $badge[$sts] : 'bg-info';
+                                        echo '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($sts) . '</span>';
                                         ?>
                                     </td>
                                     <td>
-                                        <?php
-                                        $verifikasi = strtoupper(trim($row['verifikasi_status']));
-                                        $badge = [
-                                            'BELUM' => 'secondary',
-                                            'DITERIMA' => 'success',
-                                            'DITOLAK' => 'danger'
-                                        ];
-                                        if (isset($badge[$verifikasi])) {
-                                            echo '<span class="badge bg-' . $badge[$verifikasi] . '">' .
-                                                $verifikasi .
-                                                '</span>';
-                                        } else {
-                                            echo '[' . $verifikasi . ']';
-                                        }
-                                        ?>
+                                        <?= htmlspecialchars($row['catatan_spi'] ?? '-') ?>
                                     </td>
                                     <td>
-                                        <a href="../audit_tindak_lanjut/index.php?rekomendasi_id=<?= $row['rekomendasi_id'] ?>"
-                                            class="btn btn-primary btn-sm"><i class="fas fa-arrow-right"></i>Tindak
-                                            Lanjut</a>
+                                        <a href="../audit_tindak_lanjut/detail.php?id=<?= $row['tindak_lanjut_id'] ?>"
+                                            class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Lihat</a>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>

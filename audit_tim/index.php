@@ -50,8 +50,8 @@ include "../templates/sidebar.php";
        <div class="col-md-4">
        <label>Peran</label>
         <select name="peran" class="form-select">
-	<option value="ANGGOTA">ANGGOTA</option>
-	<option value="PENGENDALI">PENGENDALI</option>
+	<option value="Anggota" selected>Anggota</option>
+	<option value="Pengendali">Pengendali</option>
        </select>
        </div>
       <div class="col-md-3">
@@ -81,7 +81,11 @@ include "../templates/sidebar.php";
         <tr>
 	 <td><?= $no++ ?></td>
 	 <td><?= htmlspecialchars($t['nama_auditor']) ?></td>
-	 <td><?= htmlspecialchars($t['peran']) ?></td>
+ 	 <td><?php
+             $mapPeran = ['KETUA'=>'Ketua','ANGGOTA'=>'Anggota','PENGENDALI'=>'Pengendali'];
+             $peranTampil = isset($mapPeran[$t['peran']]) ? $mapPeran[$t['peran']] : $t['peran'];
+             echo htmlspecialchars($peranTampil);
+         ?></td>
 	 <td>
 	  <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusAnggota(<?= $t['id'] ?>, <?= $audit_id ?>)">Hapus</a>
 	 </td>

@@ -40,14 +40,11 @@ include "../templates/sidebar.php";
         <label>Nomor Temuan</label>
         <input type="text" name="nomor_temuan" value="<?= htmlspecialchars($temuan['nomor_temuan']) ?>" class="form-control" readonly>
        </div>
-       <div class="col-md-6">
-        <label>Status</label>
-        <select name="status" class="form-select">
-         <option value="OPEN" <?= $temuan['status']=='OPEN'?'selected':'' ?>>OPEN</option>
-         <option value="PROSES" <?= $temuan['status']=='PROSES'?'selected':'' ?>>PROSES</option>
-         <option value="CLOSED" <?= $temuan['status']=='CLOSED'?'selected':'' ?>>CLOSED</option>
-        </select>
-       </div>
+        <input type="hidden" name="status" value="OPEN">
+        <div class="col-md-6">
+         <label>Status</label>
+         <input type="text" class="form-control" value="OPEN" readonly>
+        </div>
       </div>
       <br>
       <label>Judul Temuan</label>

@@ -48,8 +48,7 @@ $_POST['akibat']
 $tingkat_risiko =
 $_POST['tingkat_risiko'];
 
-$status =
-$_POST['status'];
+$status = 'OPEN';
 
 $created_by = $_SESSION['user_id'];
 

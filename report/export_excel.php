@@ -119,7 +119,7 @@ $query = mysqli_query($conn,"SELECT
     tl.target_selesai,
     tl.tanggal_realisasi,
     tl.status,
-    tl.verifikasi_status
+    tl.catatan_spi
     FROM audit_tindak_lanjut tl
     LEFT JOIN unit_kerja uk ON tl.unit_id=uk.id
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
@@ -140,8 +140,8 @@ $headers = [
  'PIC',
  'Target',
  'Realisasi',
- 'Status',
- 'Verifikasi'];
+ 'Status Tindak Lanjut',
+ 'Catatan SPI'];
 
 $col='A';
 foreach($headers as $header)
@@ -157,7 +157,7 @@ foreach($headers as $header)
 $row = 2;
 $no = 1;
 while(
- $data = mysqli_fetch_assoc($query)){$sheet->setCellValue('A'.$row,$no++);
+ $data = mysqli_fetch_assoc($query)){ $sheet->setCellValue('A'.$row,$no++);
  $sheet->setCellValue('B'.$row,$data['nomor_tindak_lanjut']);
  $sheet->setCellValue('C'.$row,$data['nama_unit']);
  $sheet->setCellValue('D'.$row,$data['judul_temuan']);
@@ -166,7 +166,7 @@ while(
  $sheet->setCellValue('G'.$row,$data['target_selesai']);
  $sheet->setCellValue('H'.$row,$data['tanggal_realisasi']);
  $sheet->setCellValue('I'.$row,$data['status']);
- $sheet->setCellValue('J'.$row,$data['verifikasi_status']);
+ $sheet->setCellValue('J'.$row,$data['catatan_spi']);
  $row++;
  }
 

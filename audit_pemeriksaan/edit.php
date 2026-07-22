@@ -41,18 +41,32 @@ if($audit['status']=='SELESAI')
 <div class="row">
 
 <div class="col-md-4"> <label>Unit Kerja</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nama_unit']) ?>" readonly> </div>
-<div class="col-md-4"> <label>Jenis Audit</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['jenis_audit']) ?>" readonly> </div>
+<div class="col-md-4"> <label>Jenis Audit</label>
+<input type="hidden" name="jenis_audit" value="<?= htmlspecialchars($audit['jenis_audit']) ?>">
+<?php
+$displayJenis = $audit['jenis_audit'];
+$mapJenis = [
+    'OPERASIONAL'=>'Operasional|Keuangan|Kepatuhan','KEUANGAN'=>'Operasional|Keuangan|Kepatuhan',
+    'KEPATUHAN'=>'Operasional|Keuangan|Kepatuhan','Operasional'=>'Operasional|Keuangan|Kepatuhan',
+    'Keuangan'=>'Operasional|Keuangan|Kepatuhan','Kepatuhan'=>'Operasional|Keuangan|Kepatuhan',
+    'VERIFIKASI'=>'Verifikasi','INVESTIGASI'=>'Investigasi','KHUSUS'=>'Khusus'
+];
+if (isset($mapJenis[$displayJenis])) $displayJenis = $mapJenis[$displayJenis];
+?>
+<input type="text" class="form-control" value="<?= htmlspecialchars($displayJenis) ?>" readonly>
+</div>
 <div class="col-md-4"> <label>Ketua Auditor</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nama_auditor']) ?>" readonly> </div>
 </div>
 <br>
 <div class="row">
 <div class="col-md-6"> <label>Tanggal Surat Tugas</label> <input type="date" name="tanggal_surat_tugas"class="form-control" value="<?= $audit['tanggal_surat_tugas'] ?>" required> </div>
-<div class="col-md-6"> <label>Judul Audit</label> <input type="text" name="judul_audit" class="form-control" value="<?= htmlspecialchars($audit['judul_audit']) ?>" required> </div>
+<div class="col-md-6"> <label>Judul Audit</label> <input type="hidden" name="judul_audit" value="<?= htmlspecialchars($audit['judul_audit']) ?>"> <input type="text" class="form-control" value="<?= htmlspecialchars($audit['judul_audit']) ?>" readonly> </div>
 </div>
 <br>
 <div class="row">
-<div class="col-md-6"> <label>Tanggal Mulai</label> <input type="date" name="tanggal_mulai" class="form-control" value="<?= $audit['tanggal_mulai'] ?>" required> </div>
-<div class="col-md-6"> <label>Tanggal Selesai</label> <input type="date" name="tanggal_selesai"class="form-control" value="<?= $audit['tanggal_selesai'] ?>" required> </div>
+<div class="col-md-4"> <label>Tanggal Mulai Audit</label> <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control" value="<?= $audit['tanggal_mulai'] ?>" required> </div>
+<div class="col-md-4"> <label>Estimasi Hari</label> <input type="hidden" name="estimasi_hari" value="<?= $audit['estimasi_hari'] ?: 14 ?>"> <input type="number" id="estimasi_hari" value="<?= $audit['estimasi_hari'] ?: 14 ?>" class="form-control" readonly> </div>
+<div class="col-md-4"> <label>Tanggal Selesai Audit</label> <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" value="<?= $audit['tanggal_selesai'] ?>" readonly> </div>
 </div>
 <br>
 <label>Ruang Lingkup Audit</label>
@@ -69,5 +83,25 @@ if($audit['status']=='SELESAI')
 </form>
 </div>
 </div> </div> </main>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tanggalMulai = document.getElementById('tanggal_mulai');
+    var estimasiHari = document.getElementById('estimasi_hari');
+    var tanggalSelesai = document.getElementById('tanggal_selesai');
+    function hitungTanggalSelesai() {
+        if (tanggalMulai.value && estimasiHari.value) {
+            var start = new Date(tanggalMulai.value);
+            var days = parseInt(estimasiHari.value) || 0;
+            start.setDate(start.getDate() + days);
+            var y = start.getFullYear();
+            var m = String(start.getMonth() + 1).padStart(2, '0');
+            var d = String(start.getDate()).padStart(2, '0');
+            tanggalSelesai.value = y + '-' + m + '-' + d;
+        }
+    }
+    tanggalMulai.addEventListener('change', hitungTanggalSelesai);
+    estimasiHari.addEventListener('input', hitungTanggalSelesai);
+});
+</script>
 <?php include "../templates/footer.php"; ?>
 

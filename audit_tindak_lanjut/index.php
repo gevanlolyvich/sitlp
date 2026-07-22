@@ -10,48 +10,23 @@ require_once "../auth/role.php";
 
 checkRole(['ADMIN','KEPALA_SPI','AUDITOR','AUDITEE','DIREKSI']);
 
-//
-//$rekomendasi_id = (int)$_GET['rekomendasi_id'];
-//$qRek = mysqli_query($conn,"SELECT r.*, t.nomor_temuan, t.judul_temuan
-//	FROM audit_rekomendasi r
-//	LEFT JOIN audit_temuan t ON r.temuan_id=t.id
-//	WHERE r.id=$rekomendasi_id");
-//
-//$rekomendasi = mysqli_fetch_assoc($qRek);
-//
-//if(!$rekomendasi){
-//    die("Rekomendasi tidak ditemukan");
-//}
-//
 $rekomendasi = null;
 $rekomendasi_id = 0;
 if(isset($_GET['rekomendasi_id']))
 {
     $rekomendasi_id = (int)$_GET['rekomendasi_id'];
     $qRek = mysqli_query($conn,"
-        SELECT
-            r.*,
-            t.nomor_temuan,
-            t.judul_temuan
+        SELECT r.*, t.nomor_temuan, t.judul_temuan
         FROM audit_rekomendasi r
-        LEFT JOIN audit_temuan t
-            ON r.temuan_id=t.id
+        LEFT JOIN audit_temuan t ON r.temuan_id=t.id
         WHERE r.id=$rekomendasi_id");
     $rekomendasi = mysqli_fetch_assoc($qRek);
     if(!$rekomendasi)
     {
-        die(
-            "Rekomendasi tidak ditemukan"
-        );
+        die("Rekomendasi tidak ditemukan");
     }
 }
 
-
-//$qTL = mysqli_query($conn,"SELECT tl.*, u.nama_unit
-//	FROM audit_tindak_lanjut tl
-//	LEFT JOIN unit_kerja u ON tl.unit_id=u.id
-//	WHERE tl.rekomendasi_id=$rekomendasi_id
-//	ORDER BY tl.id");
 $where = [];
 if($rekomendasi_id > 0)
 {
@@ -59,55 +34,41 @@ if($rekomendasi_id > 0)
 }
 if($_SESSION['role'] == 'AUDITEE'){
     $unit_id = (int)$_SESSION['unit_id'];
-    //$where[] = "tl.unit_id=$unit_id";
-    $where[] = "tl.unit_id = ".(int)$_SESSION['unit_id'];
+    $where[] = "tl.unit_id = ".$unit_id;
 }
 $sqlWhere = '';
 if(count($where))
 {
-    $sqlWhere =
-        'WHERE ' .
-        implode(
-            ' AND ',
-            $where
-        );
+    $sqlWhere = 'WHERE ' . implode(' AND ', $where);
 }
-$qTL = mysqli_query($conn,"
-    SELECT
-        tl.*,
-        u.nama_unit,
-        r.rekomendasi,
-        t.judul_temuan
-    FROM audit_tindak_lanjut tl
-    LEFT JOIN unit_kerja u
-        ON tl.unit_id=u.id
-    LEFT JOIN audit_rekomendasi r
-        ON tl.rekomendasi_id=r.id
-    LEFT JOIN audit_temuan t
-        ON r.temuan_id=t.id
-    $sqlWhere
-    ORDER BY
-        tl.id DESC");
 
-/*
-echo "    SELECT
-        tl.*,
-        u.nama_unit,
-        r.rekomendasi,
-        t.judul_temuan
+$qTL = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_rekomendasi, t.judul_temuan, t.nomor_temuan
     FROM audit_tindak_lanjut tl
-    LEFT JOIN unit_kerja u
-        ON tl.unit_id=u.id
-    LEFT JOIN audit_rekomendasi r
-        ON tl.rekomendasi_id=r.id
-    LEFT JOIN audit_temuan t
-        ON r.temuan_id=t.id
+    LEFT JOIN unit_kerja u ON tl.unit_id=u.id
+    LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
+    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
     $sqlWhere
-    ORDER BY
-	tl.id DESC";
-exit;
- */
+    ORDER BY tl.id DESC");
 
+$tlList = [];
+while ($row = mysqli_fetch_assoc($qTL)) {
+    // Get logs for this tindak lanjut
+    $qLog = mysqli_query($conn,"SELECT * FROM audit_tindak_lanjut_log WHERE tindak_lanjut_id=" . $row['id'] . " ORDER BY id ASC");
+    $logs = [];
+    while ($log = mysqli_fetch_assoc($qLog)) {
+        $logs[] = $log;
+    }
+    $row['logs'] = $logs;
+    $tlList[] = $row;
+}
+
+$badgeMap = [
+    'Proses' => 'bg-warning',
+    'Sesuai' => 'bg-success',
+    'Belum Sesuai' => 'bg-danger',
+    'Belum Ditindak Lanjut' => 'bg-secondary text-white',
+    'Tidak Dapat Ditindak Lanjut' => 'bg-dark text-white'
+];
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -117,7 +78,6 @@ include "../templates/sidebar.php";
 <?php if(isset($_GET['upload']) && $_GET['upload']=='success'){ ?>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-
 Swal.fire({
     icon: 'success',
     title: 'Berhasil',
@@ -125,7 +85,6 @@ Swal.fire({
     timer: 2500,
     showConfirmButton: false
 });
-
 });
 </script>
 <?php } ?>
@@ -133,6 +92,7 @@ Swal.fire({
 <main class="app-main">
 <div class="app-content">
 <div class="container-fluid">
+
 <div class="card mt-3">
 <div class="card-header d-flex align-items-center">
 <h3 class="card-title mb-0">Tindak Lanjut Rekomendasi</h3>
@@ -143,22 +103,10 @@ Swal.fire({
 <div class="card-body">
 <?php if(isset($_GET['rekomendasi_id'])){ ?>
 <div class="table-responsive-wrapper"><table class="table table-bordered">
-<tr>
-<th width="220">Nomor Temuan</th>
-<td><?= htmlspecialchars($rekomendasi['nomor_temuan']) ?></td>
-</tr>
-<tr>
-<th>Judul Temuan</th>
-<td><?= htmlspecialchars($rekomendasi['judul_temuan']) ?></td>
-</tr>
-<tr>
-<th>Nomor Rekomendasi</th>
-<td><?= htmlspecialchars($rekomendasi['nomor_rekomendasi']) ?></td>
-</tr>
-<tr>
-<th>Rekomendasi</th>
-<td><?= nl2br(htmlspecialchars($rekomendasi['rekomendasi'])) ?></td>
-</tr>
+<tr><th width="220">Nomor Temuan</th><td><?= htmlspecialchars($rekomendasi['nomor_temuan']) ?></td></tr>
+<tr><th>Judul Temuan</th><td><?= htmlspecialchars($rekomendasi['judul_temuan']) ?></td></tr>
+<tr><th>Nomor Rekomendasi</th><td><?= htmlspecialchars($rekomendasi['nomor_rekomendasi']) ?></td></tr>
+<tr><th>Rekomendasi</th><td><?= nl2br(htmlspecialchars($rekomendasi['rekomendasi'])) ?></td></tr>
 </table></div>
 <?php } ?>
 </div>
@@ -168,90 +116,78 @@ Swal.fire({
 <div class="card-header d-flex justify-content-between">
 <h3 class="card-title">Daftar Tindak Lanjut</h3>
 <?php if(isset($_GET['rekomendasi_id']) && $_SESSION['role'] != 'AUDITEE'){ ?>
-<a href="create.php?rekomendasi_id=<?= $rekomendasi_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i>Tambah Tindak Lanjut</a>
+<a href="create.php?rekomendasi_id=<?= $rekomendasi_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Tindak Lanjut</a>
 <?php } ?>
 </div>
 
 <div class="card-body">
-
-<div class="table-responsive-wrapper"><table id="tblTL" class="table table-bordered table-striped">
+<div class="table-responsive-wrapper"><table id="tblTL" class="table table-bordered table-hover">
  <thead>
   <tr>
    <th>Nomor TL</th>
    <th>Unit</th>
    <th>PIC</th>
-   <th>Uraian Tindak Lanjut</th>
-   <th>Hasil Tindak Lanjut</th>
+   <th>Uraian</th>
    <th>Target</th>
    <th>Status</th>
-   <th>Verifikasi</th>
-   <th width="180">Aksi</th>
+   <th>Catatan SPI</th>
+   <th>Hasil Tindak Lanjut</th>
+   <th width="200">Aksi</th>
   </tr>
  </thead>
  <tbody>
-  <?php while($row = mysqli_fetch_assoc($qTL)){ ?>
+   <?php foreach ($tlList as $row):
+    $hasUpload = false;
+    $lastLogAksi = null;
+    foreach ($row['logs'] as $l) { if ($l['aksi'] == 'upload_bukti') { $hasUpload = true; } }
+    if (count($row['logs']) > 0) { $lastLogAksi = $row['logs'][count($row['logs'])-1]['aksi']; }
+   ?>
   <tr>
-   <td><?= htmlspecialchars($row['nomor_tindak_lanjut']) ?></td>
+   <td><strong><?= htmlspecialchars($row['nomor_tindak_lanjut']) ?></strong></td>
    <td><?= htmlspecialchars($row['nama_unit']) ?></td>
    <td><?= htmlspecialchars($row['pic']) ?></td>
-   <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 300px;"><?= htmlspecialchars($row['uraian_tindak_lanjut']) ?></td>
-   <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 300px;"><?= htmlspecialchars($row['hasil_tindak_lanjut']) ?></td>
-   <td><?= $row['target_selesai'] ?></td>
+   <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 250px;"><?= htmlspecialchars($row['uraian_tindak_lanjut']) ?></td>
+   <td><?= $row['target_selesai'] ? date('d-m-Y', strtotime($row['target_selesai'])) : '-' ?></td>
    <td>
     <?php
-   	$status = $row['status'];
-	if($status=='OPEN'){
-	    echo '<span class="badge bg-danger">OPEN</span>';
-	} elseif($status=='PROSES'){
-	    echo '<span class="badge bg-warning">PROSES</span>';
-	} else {
-	    echo '<span class="badge bg-success">SELESAI</span>';
-	}
+    $sts = $row['status'];
+    $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'bg-info';
+    echo '<span class="badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
     ?>
    </td>
-  <td>
-   <?php
-   if($row['verifikasi_status']=='DITERIMA'){
-    echo '<span class="badge bg-success">DITERIMA</span>';
-   }elseif($row['verifikasi_status']=='DITOLAK'){
-    echo '<span class="badge bg-danger">DITOLAK</span>';
-   }else{
-    echo '<span class="badge bg-secondary">BELUM</span>';}
-   ?>
-  </td>
-   <td>
-    <a href="../uploads/tindak_lanjut/<?= $row['bukti_file'] ?>" target="_blank" class="btn btn-success btn-sm <?= !$row['bukti_file'] ? 'disabled' : '' ?>">Lihat Bukti</a>
-    <?php if(!$row['bukti_file'] && $_SESSION['role'] != 'KEPALA_SPI') { ?>
-    <a href="upload_bukti.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Upload Bukti</a>
-    <?php } ?>
-   <!--
-   <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Verifikasi</a>
-   -->
-   <?php if(
-    in_array(
-    $_SESSION['role'],
-    ['ADMIN','KEPALA_SPI']
-   )): ?>
-   <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm <?= (!$row['bukti_file'] || $row['verifikasi_status'] != 'BELUM') ? 'disabled' : '' ?>">Verifikasi</a>
-   <?php endif; ?>
-   <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','AUDITOR'])): ?>
-   <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
-   <?php if($rekomendasi_id > 0): ?>
-   <a href="javascript:void(0)"
-   class="btn btn-danger btn-sm" onclick="hapusTL(<?= $row['id'] ?>, <?= $rekomendasi_id ?>)">Hapus</a>
-   <?php endif; ?>
-   <?php endif; ?>
+    <td><?= htmlspecialchars($row['catatan_spi'] ?? '-') ?></td>
+    <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row['hasil_tindak_lanjut'] ?? '-') ?></td>
+    <td>
+    <?php if ($row['bukti_file']): ?>
+    <a href="../uploads/tindak_lanjut/<?= $row['bukti_file'] ?>" target="_blank" class="btn btn-success btn-sm mb-1" title="Lihat Bukti"><i class="fas fa-file"></i></a>
+    <?php endif; ?>
+    <?php if ($_SESSION['role'] == 'AUDITEE'): ?>
+     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Lihat</a>
+    <?php elseif (in_array($row['status'], ['Sesuai', 'Tidak Dapat Ditindak Lanjut'])): ?>
+     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm" title="History"><i class="fas fa-history"></i> History</a>
+    <?php else: ?>
+      <?php if ($row['status'] == 'Proses' && !$hasUpload): ?>
+      <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm mb-1" title="Edit"><i class="fas fa-edit"></i></a>
+      <a href="javascript:void(0)" class="btn btn-danger btn-sm mb-1" onclick="hapusTL(<?= $row['id'] ?>,<?= $row['rekomendasi_id'] ?>)" title="Hapus"><i class="fas fa-trash"></i></a>
+      <?php endif; ?>
+      <?php if ($lastLogAksi == 'upload_bukti'): ?>
+      <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm mb-1" title="Verifikasi"><i class="fas fa-check"></i> Verifikasi</a>
+      <?php endif; ?>
+    <?php endif; ?>
    </td>
   </tr>
-  <?php } ?>
+  <?php endforeach; ?>
  </tbody>
 </table>
 </div>
 </div>
 </div>
+
 </div>
 </div>
 </main>
+
+
 
 <script>
 $(document).ready(function(){

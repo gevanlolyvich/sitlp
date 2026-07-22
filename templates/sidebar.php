@@ -130,9 +130,9 @@ role="menu">
 <!-- AUDITEE -->
 <?php if($_SESSION['role']=='AUDITEE'): ?>
 <li class="nav-item">
-    <a href="../dashboard/" class="nav-link">
-        <i class="nav-icon fas fa-home"></i>
-        <p>Dashboard</p>
+    <a href="../dashboard_auditee/" class="nav-link">
+        <i class="nav-icon fas fa-chart-pie"></i>
+        <p>Dashboard Auditee</p>
     </a>
 </li>
 <li class="nav-item">

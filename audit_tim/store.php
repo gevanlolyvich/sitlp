@@ -10,6 +10,12 @@ require_once "../auth/check.php";
 $audit_id   = (int)$_POST['audit_id'];
 $auditor_id = (int)$_POST['auditor_id'];
 $peran      = $_POST['peran'];
+$allowedPeran = ['Anggota', 'Pengendali'];
+if (!in_array($peran, $allowedPeran)) {
+    $_SESSION['error'] = "Peran tidak valid.";
+    header("Location: index.php?audit_id=" . $audit_id);
+    exit;
+}
 
 $qCheck = mysqli_query($conn, "SELECT id FROM audit_tim WHERE audit_id=$audit_id AND auditor_id=$auditor_id");
 if (mysqli_num_rows($qCheck) > 0) {

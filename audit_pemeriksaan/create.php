@@ -46,7 +46,6 @@ include "../templates/sidebar.php";
       <input type="hidden" name="unit_id" value="<?= $pat['unit_id'] ?>">
       <input type="hidden" name="ketua_auditor_id" value="<?= $pat['penanggung_jawab_id'] ?>">
       <input type="hidden" name="tahun_audit" value="<?= $pat['tahun'] ?>">
-      <input type="hidden" name="jenis_audit" value="<?= $pat['jenis_audit'] ?>">
       <input type="hidden" name="nomor_audit" value="<?= $nomor_audit ?>">
       <div class="card-body">
        <div class="row">
@@ -67,7 +66,18 @@ include "../templates/sidebar.php";
         </div>
         <div class="col-md-4">
          <label>Jenis Audit</label>
-         <input type="text" class="form-control" value="<?= htmlspecialchars($pat['jenis_audit']) ?>" readonly>
+         <input type="hidden" name="jenis_audit" value="<?= htmlspecialchars($pat['jenis_audit']) ?>">
+         <?php
+         $displayJenis = $pat['jenis_audit'];
+         $mapJenis = [
+             'OPERASIONAL'=>'Operasional|Keuangan|Kepatuhan','KEUANGAN'=>'Operasional|Keuangan|Kepatuhan',
+             'KEPATUHAN'=>'Operasional|Keuangan|Kepatuhan','Operasional'=>'Operasional|Keuangan|Kepatuhan',
+             'Keuangan'=>'Operasional|Keuangan|Kepatuhan','Kepatuhan'=>'Operasional|Keuangan|Kepatuhan',
+             'VERIFIKASI'=>'Verifikasi','INVESTIGASI'=>'Investigasi','KHUSUS'=>'Khusus'
+         ];
+         if (isset($mapJenis[$displayJenis])) $displayJenis = $mapJenis[$displayJenis];
+         ?>
+         <input type="text" class="form-control" value="<?= htmlspecialchars($displayJenis) ?>" readonly>
         </div>
         <div class="col-md-4">
          <label>Ketua Auditor</label>
@@ -87,13 +97,17 @@ include "../templates/sidebar.php";
        </div>
        <br>
        <div class="row">
-        <div class="col-md-6">
-         <label>Tanggal Mulai</label>
-         <input type="date" name="tanggal_mulai" class="form-control" required>
+        <div class="col-md-4">
+         <label>Tanggal Mulai Audit</label>
+         <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control" required>
         </div>
-        <div class="col-md-6">
-         <label>Tanggal Selesai</label>
-         <input type="date" name="tanggal_selesai" class="form-control" required>
+        <div class="col-md-4">
+         <label>Estimasi Hari</label>
+         <input type="number" name="estimasi_hari" id="estimasi_hari" value="14" min="1" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+         <label>Tanggal Selesai Audit</label>
+         <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" readonly>
         </div>
        </div>
        <br>
@@ -111,6 +125,26 @@ include "../templates/sidebar.php";
  </div>
 </main>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tanggalMulai = document.getElementById('tanggal_mulai');
+    var estimasiHari = document.getElementById('estimasi_hari');
+    var tanggalSelesai = document.getElementById('tanggal_selesai');
+    function hitungTanggalSelesai() {
+        if (tanggalMulai.value && estimasiHari.value) {
+            var start = new Date(tanggalMulai.value);
+            var days = parseInt(estimasiHari.value) || 0;
+            start.setDate(start.getDate() + days);
+            var y = start.getFullYear();
+            var m = String(start.getMonth() + 1).padStart(2, '0');
+            var d = String(start.getDate()).padStart(2, '0');
+            tanggalSelesai.value = y + '-' + m + '-' + d;
+        }
+    }
+    tanggalMulai.addEventListener('change', hitungTanggalSelesai);
+    estimasiHari.addEventListener('input', hitungTanggalSelesai);
+});
+</script>
 <?php
 include "../templates/footer.php";
 ?>

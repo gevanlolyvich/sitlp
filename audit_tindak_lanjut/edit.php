@@ -16,8 +16,29 @@ if(!$tl)
     die("Data tidak ditemukan");
 }
 
+// Only allow edit if status is Proses
+if ($tl['status'] != 'Proses') {
+    $_SESSION['error'] = "Edit hanya diizinkan saat status masih Proses.";
+    header("Location: index.php" . ($tl['rekomendasi_id'] ? "?rekomendasi_id=" . $tl['rekomendasi_id'] : ""));
+    exit;
+}
+
 $qUnit = mysqli_query($conn,"SELECT * FROM unit_kerja ORDER BY nama_unit");
-$isLocked = ($tl['status'] == 'SELESAI');
+$isLocked = ($tl['status'] == 'Sesuai');
+
+// Get audit end date for max target validation
+$qTL = mysqli_query($conn,"SELECT r.temuan_id FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id WHERE tl.id=$id");
+$tlData = mysqli_fetch_assoc($qTL);
+$tanggal_selesai_audit = '';
+if ($tlData) {
+    $qTemuan = mysqli_query($conn,"SELECT audit_id FROM audit_temuan WHERE id=" . (int)$tlData['temuan_id']);
+    $temuanData = mysqli_fetch_assoc($qTemuan);
+    if ($temuanData) {
+        $qAudit = mysqli_query($conn,"SELECT tanggal_selesai FROM audit_pemeriksaan WHERE id=" . (int)$temuanData['audit_id']);
+        $auditData = mysqli_fetch_assoc($qAudit);
+        $tanggal_selesai_audit = $auditData['tanggal_selesai'];
+    }
+}
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -35,10 +56,6 @@ include "../templates/sidebar.php";
 <input type="hidden" name="id" value="<?= $tl['id'] ?>">
 <input type="hidden" name="rekomendasi_id" value="<?= $tl['rekomendasi_id'] ?>">
 <div class="card-body">
-<div class="mb-3">
-<label>Nomor Tindak Lanjut</label>
-<input type="text" class="form-control" value="<?= $tl['nomor_tindak_lanjut'] ?>" readonly>
-</div>
 <div class="mb-3">
 <label>Unit Kerja</label>
 <select name="unit_id" class="form-select" <?= $isLocked ? 'disabled' : '' ?> required>
@@ -64,31 +81,16 @@ include "../templates/sidebar.php";
 <div class="row">
 <div class="col-md-4">
 <label>Target Selesai</label>
-<input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control" <?= $isLocked ? 'disabled' : '' ?>>
+<input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control" max="<?= $tanggal_selesai_audit ?>" <?= $isLocked ? 'disabled' : '' ?>>
+<small class="text-muted">Maksimal <?= $tanggal_selesai_audit ? date('d-m-Y', strtotime($tanggal_selesai_audit)) : '-' ?></small>
 <?php if($isLocked): ?>
 <input type="hidden" name="target_selesai" value="<?= $tl['target_selesai'] ?>">
 <?php endif; ?>
 </div>
 <div class="col-md-4">
-<label>Tanggal Realisasi</label>
-<input type="date" name="tanggal_realisasi" value="<?= $tl['tanggal_realisasi'] ?>" class="form-control" <?= $isLocked ? 'disabled' : '' ?>>
-<?php if($isLocked): ?>
-<input type="hidden" name="tanggal_realisasi" value="<?= $tl['tanggal_realisasi'] ?>">
-<?php endif; ?>
-<small class="text-muted">Kosongkan jika belum selesai. Akan terisi otomatis saat status diubah ke SELESAI.</small>
-</div>
-<div class="col-md-4">
 <label>Status</label>
-<select name="status" class="form-select" <?= $isLocked ? 'disabled' : '' ?>>
- <option value="OPEN" <?= $tl['status']=='OPEN'?'selected':'' ?>>OPEN</option>
- <option value="PROSES"<?= $tl['status']=='PROSES'?'selected':'' ?>>PROSES</option>
- <?php if($tl['status']=='SELESAI'): ?>
- <option value="SELESAI" selected>SELESAI</option>
- <?php endif; ?>
-</select>
-<?php if($isLocked): ?>
-<input type="hidden" name="status" value="<?= $tl['status'] ?>">
-<?php endif; ?>
+<input type="text" class="form-control" value="<?= htmlspecialchars($tl['status']) ?>" readonly>
+<input type="hidden" name="status" value="<?= htmlspecialchars($tl['status']) ?>">
 </div>
 </div>
 <div class="card-footer">

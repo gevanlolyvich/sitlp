@@ -11,8 +11,19 @@ $id = (int)$_GET['id'];
 
 $rekomendasi_id = (int)$_GET['rekomendasi_id'];
 
-$q = mysqli_query($conn,"SELECT bukti_file FROM audit_tindak_lanjut WHERE id=$id");
-$d = mysqli_fetch_assoc($q);
+// Check if allowed to delete (only if status = Proses)
+$qCheck = mysqli_query($conn,"SELECT status, bukti_file FROM audit_tindak_lanjut WHERE id=$id");
+$d = mysqli_fetch_assoc($qCheck);
+if (!$d) {
+    $_SESSION['error'] = "Data tidak ditemukan.";
+    header("Location: index.php");
+    exit;
+}
+if ($d['status'] != 'Proses') {
+    $_SESSION['error'] = "Hapus hanya diizinkan saat status masih Proses.";
+    header("Location: index.php?rekomendasi_id=" . $rekomendasi_id);
+    exit;
+}
 
 if(
 !empty($d['bukti_file'])

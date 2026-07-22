@@ -39,10 +39,10 @@ include "../templates/sidebar.php";
        <label>Nomor Temuan</label>
        <input type="text" class="form-control" value="<?= htmlspecialchars($rekomendasi['nomor_temuan']) ?>" readonly>
       </div>
-      <div class="mb-3">
-       <label>Nomor Rekomendasi</label>
-       <input type="text" name="nomor_rekomendasi" value="<?= htmlspecialchars($rekomendasi['nomor_rekomendasi']) ?>" class="form-control" readonly>
-      </div>
+       <div class="mb-3">
+        <label>Nomor Rekomendasi</label>
+        <input type="text" name="nomor_rekomendasi" value="<?= htmlspecialchars($rekomendasi['nomor_rekomendasi']) ?>" class="form-control" required>
+       </div>
       <div class="mb-3">
        <label>Rekomendasi</label>
        <textarea name="rekomendasi" class="form-control" rows="5" required><?= htmlspecialchars($rekomendasi['rekomendasi']) ?></textarea>

@@ -82,7 +82,7 @@ $totalSelesai = mysqli_num_rows(
     mysqli_query($conn,"
 	SELECT tl.id 
 	FROM audit_tindak_lanjut tl INNER JOIN audit_rekomendasi r ON tl.rekomendasi_id = r.id INNER JOIN audit_temuan t ON r.temuan_id = t.id
-	WHERE t.audit_id='$id' AND tl.status='SELESAI'")
+	WHERE t.audit_id='$id' AND tl.status='Sesuai'")
 );
 $totalBelum = $totalTL - $totalSelesai;
 
@@ -335,7 +335,7 @@ $pdf->Ln(5);
 $pdf->SetFont('helvetica','B',9);
 $pdf->SetFillColor(68,114,196);
 $pdf->SetTextColor(255,255,255);
-$header = [['No',10],['Nomor TL',35],['PIC',40],['Unit',40],['Target',25],['Status',25],['Verifikasi',30],['Overdue',25]];
+$header = [['No',10],['Nomor TL',35],['PIC',40],['Unit',40],['Target',25],['Status',30],['Catatan SPI',30],['Overdue',25]];
 foreach($header as $col){
   $pdf->Cell($col[1],8,$col[0],1,0,'C',true);
 }
@@ -361,24 +361,14 @@ while($tl = mysqli_fetch_assoc($qTL)){
     }
     switch($tl['status'])
     {
-        case 'SELESAI':
+        case 'Sesuai':
             $statusBg = [198,239,206];
             break;
-        case 'PROSES':
+        case 'Proses':
             $statusBg = [255,235,156];
             break;
         default:
             $statusBg = [255,199,206];
-    }
-    switch($tl['verifikasi_status']){
-        case 'DITERIMA':
-            $verifBg = [198,239,206];
-            break;
-        case 'DITOLAK':
-            $verifBg = [255,199,206];
-            break;
-        default:
-            $verifBg = [255,235,156];
     }
     $pdf->Cell(10,8,$no,1,0,'C');
     $pdf->Cell(35,8,$tl['nomor_tindak_lanjut'],1);
@@ -386,9 +376,8 @@ while($tl = mysqli_fetch_assoc($qTL)){
     $pdf->Cell(40,8,$tl['nama_unit'],1);
     $pdf->Cell(25,8,date('d-m-Y',strtotime($tl['target_selesai'])),1,0,'C');
     $pdf->SetFillColor($statusBg[0],$statusBg[1],$statusBg[2]);
-    $pdf->Cell(25,8,$tl['status'],1,0,'C',true);
-    $pdf->SetFillColor($verifBg[0],$verifBg[1],$verifBg[2]);
-    $pdf->Cell(30,8,$tl['verifikasi_status'],1,0,'C',true);
+    $pdf->Cell(30,8,$tl['status'],1,0,'C',true);
+    $pdf->Cell(30,8,$tl['catatan_spi'] ?? '-',1,0,'C');
     if($overdue != '-'){
         $pdf->SetFillColor(255,199,206);
 	$fill = true;

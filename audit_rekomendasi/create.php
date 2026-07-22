@@ -18,22 +18,6 @@ if(!$temuan)
     die("Temuan tidak ditemukan");
 }
 
-/*
-Generate nomor rekomendasi
-*/
-
-$qCount = mysqli_query($conn,"SELECT COUNT(*) total FROM audit_rekomendasi WHERE temuan_id=$temuan_id");
-$d = mysqli_fetch_assoc($qCount);
-$urut = $d['total'] + 1;
-
-/*
-TM-2026-001-001
-↓
-RK-2026-001-001-001
-*/
-
-$nomor_rekomendasi = 'RK-' . substr($temuan['nomor_temuan'],3). '-' .str_pad($urut,3,'0',STR_PAD_LEFT);
-
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../templates/sidebar.php";
@@ -53,10 +37,10 @@ include "../templates/sidebar.php";
        <label>Nomor Temuan</label>
        <input type="text" class="form-control" value="<?= htmlspecialchars($temuan['nomor_temuan']) ?>" readonly>
       </div>
-      <div class="mb-3">
-       <label>Nomor Rekomendasi</label>
-       <input type="text" name="nomor_rekomendasi" value="<?= $nomor_rekomendasi ?>" class="form-control" readonly>
-      </div>
+       <div class="mb-3">
+        <label>Nomor Rekomendasi</label>
+        <input type="text" name="nomor_rekomendasi" class="form-control" placeholder="Masukkan nomor rekomendasi" required>
+       </div>
       <div class="mb-3">
        <label>Rekomendasi</label>
        <textarea name="rekomendasi" class="form-control" rows="5" required></textarea>

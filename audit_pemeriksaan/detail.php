@@ -74,6 +74,10 @@ include "../templates/sidebar.php";
           <td><?= htmlspecialchars($audit['tanggal_selesai']) ?></td>
         </tr>
         <tr>
+         <th>Estimasi Hari</th>
+          <td><?= htmlspecialchars($audit['estimasi_hari']) ?> hari</td>
+        </tr>
+        <tr>
          <th>Tahun Audit</th>
           <td><?= htmlspecialchars($audit['tahun_audit']) ?></td>
         </tr>

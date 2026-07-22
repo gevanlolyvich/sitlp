@@ -21,14 +21,20 @@ $unit_id             = (int)$_POST['unit_id'];
 $ketua_auditor_id    = (int)$_POST['ketua_auditor_id'];
 
 $tanggal_mulai       = $_POST['tanggal_mulai'];
-$tanggal_selesai     = $_POST['tanggal_selesai'];
+$estimasi_hari       = (int)$_POST['estimasi_hari'];
+$tanggal_selesai     = date('Y-m-d', strtotime($tanggal_mulai . ' + ' . $estimasi_hari . ' days'));
 
 $tahun_audit         = $_POST['tahun_audit'];
 
-$jenis_audit         = mysqli_real_escape_string(
-    $conn,
-    $_POST['jenis_audit']
-);
+$raw_jenis           = $_POST['jenis_audit'];
+$mapJenis = [
+    'OPERASIONAL'=>'Operasional|Keuangan|Kepatuhan','KEUANGAN'=>'Operasional|Keuangan|Kepatuhan',
+    'KEPATUHAN'=>'Operasional|Keuangan|Kepatuhan','Operasional'=>'Operasional|Keuangan|Kepatuhan',
+    'Keuangan'=>'Operasional|Keuangan|Kepatuhan','Kepatuhan'=>'Operasional|Keuangan|Kepatuhan',
+    'VERIFIKASI'=>'Verifikasi','INVESTIGASI'=>'Investigasi','KHUSUS'=>'Khusus'
+];
+$jenis_audit = isset($mapJenis[$raw_jenis]) ? $mapJenis[$raw_jenis] : $raw_jenis;
+$jenis_audit = mysqli_real_escape_string($conn, $jenis_audit);
 
 $ruang_lingkup       = mysqli_real_escape_string(
     $conn,
@@ -52,6 +58,7 @@ INSERT INTO audit_pemeriksaan
     unit_id,
     ketua_auditor_id,
     tanggal_mulai,
+    estimasi_hari,
     tanggal_selesai,
     tahun_audit,
     status,
@@ -71,6 +78,7 @@ VALUES
     '$unit_id',
     '$ketua_auditor_id',
     '$tanggal_mulai',
+    '$estimasi_hari',
     '$tanggal_selesai',
     '$tahun_audit',
     'DRAFT',

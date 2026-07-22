@@ -53,19 +53,16 @@ include "../templates/sidebar.php";
      <input type="hidden" name="audit_id" value="<?= $audit_id ?>">
      <div class="card-body">
       <div class="row">
-       <div class="col-md-6">
-	<label>Nomor Temuan</label>
-	<input type="text" name="nomor_temuan" value="<?= $nomor_temuan ?>" class="form-control" readonly>
+        <div class="col-md-6">
+ 	<label>Nomor Temuan</label>
+ 	<input type="text" name="nomor_temuan" value="<?= $nomor_temuan ?>" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+         <label>Status</label>
+         <input type="text" class="form-control" value="OPEN" readonly>
+         <input type="hidden" name="status" value="OPEN">
+        </div>
        </div>
-       <div class="col-md-6">
-        <label>Status</label>
-        <select name="status" class="form-select">
-	<option value="OPEN">OPEN</option>
-	<option value="PROSES">PROSES</option>
-	<option value="CLOSED">CLOSED</option>
-	</select>
-       </div>
-      </div>
       <br>
       <label>Judul Temuan</label>
       <input type="text" name="judul_temuan" class="form-control" required>
