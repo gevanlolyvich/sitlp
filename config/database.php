@@ -4,6 +4,7 @@
 // $pass = "DeptIT2022;";
 // $db = "sitlp";
 
+//development
 $host = "localhost";
 $user = "root";
 $pass = "";
