@@ -42,10 +42,10 @@ $sql = mysqli_query($conn,"SELECT * FROM auditor ORDER BY nama_auditor");
       <?php while($r=mysqli_fetch_assoc($sql)){ ?>
       <tr>
 	<td><?= $r['id'] ?></td>
-	<td><?= $r['nip'] ?></td>
-	<td><?= $r['nama_auditor'] ?></td>
-	<td><?= $r['jabatan'] ?></td>
-	<td><?= $r['email'] ?></td>
+	<td><?= htmlspecialchars($r['nip']) ?></td>
+	<td><?= htmlspecialchars($r['nama_auditor']) ?></td>
+	<td><?= htmlspecialchars($r['jabatan']) ?></td>
+	<td><?= htmlspecialchars($r['email']) ?></td>
 	<td><?= $r['aktif'] ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Nonaktif</span>'?></td>
 	<td>
 	 <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-warning btn-sm">Edit</a>

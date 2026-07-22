@@ -137,8 +137,8 @@ class="table table-bordered table-striped">
 
 <td><?= htmlspecialchars($r['kode_program']) ?></td>
 <td><?= htmlspecialchars($r['judul_program']) ?></td>
-<td><?= $r['tahun'] ?></td>
-<td><?= $r['triwulan'] ?></td>
+<td><?= htmlspecialchars($r['tahun']) ?></td>
+<td><?= htmlspecialchars($r['triwulan']) ?></td>
 <td><?= htmlspecialchars($r['nama_unit']) ?></td>
 <td><?= htmlspecialchars($r['penanggung_jawab']) ?></td>
 <td><?= htmlspecialchars($r['jenis_audit']) ?></td>

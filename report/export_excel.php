@@ -17,14 +17,9 @@ require_once '../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-$awal =
-$_GET['tanggal_awal'];
-
-$akhir =
-$_GET['tanggal_akhir'];
-
-
-$jenis = $_GET['jenis'];
+$awal = isset($_GET['tanggal_awal']) ? mysqli_real_escape_string($conn, $_GET['tanggal_awal']) : '';
+$akhir = isset($_GET['tanggal_akhir']) ? mysqli_real_escape_string($conn, $_GET['tanggal_akhir']) : '';
+$jenis = isset($_GET['jenis']) ? $_GET['jenis'] : '';
 //if($jenis=='all'){ exportAll($conn,$awal,$akhir); exit;}
 if($jenis=='all'){ exportAll();}
 function exportAll(){

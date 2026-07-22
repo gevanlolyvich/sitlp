@@ -6,6 +6,9 @@ require_once "../config/app.php";
 require_once "../config/database.php";
 require_once "../config/functions.php";
 require_once "../auth/check.php";
+require_once "../auth/role.php";
+
+checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
 
 $id = (int)$_GET['id'];
 
@@ -31,7 +34,7 @@ if(
 {
     @unlink(
     "../uploads/tindak_lanjut/" .
-    $d['bukti_file']
+    basename($d['bukti_file'])
     );
 }
 

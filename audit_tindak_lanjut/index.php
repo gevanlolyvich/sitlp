@@ -159,7 +159,7 @@ Swal.fire({
     <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row['hasil_tindak_lanjut'] ?? '-') ?></td>
     <td>
     <?php if ($row['bukti_file']): ?>
-    <a href="../uploads/tindak_lanjut/<?= $row['bukti_file'] ?>" target="_blank" class="btn btn-success btn-sm mb-1" title="Lihat Bukti"><i class="fas fa-file"></i></a>
+    <a href="../uploads/tindak_lanjut/<?= basename($row['bukti_file']) ?>" target="_blank" class="btn btn-success btn-sm mb-1" title="Lihat Bukti"><i class="fas fa-file"></i></a>
     <?php endif; ?>
     <?php if ($_SESSION['role'] == 'AUDITEE'): ?>
      <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Lihat</a>

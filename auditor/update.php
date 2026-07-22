@@ -10,11 +10,11 @@ require_once "../auth/check.php";
 hasRole(['ADMIN']);
 
 $id       = (int)$_POST['id'];
-$nip      = trim($_POST['nip']);
-$nama     = trim($_POST['nama']);
-$jabatan  = trim($_POST['jabatan']);
-$email    = trim($_POST['email']);
-$telepon  = trim($_POST['telepon']);
+$nip      = mysqli_real_escape_string($conn, trim($_POST['nip']));
+$nama     = mysqli_real_escape_string($conn, trim($_POST['nama']));
+$jabatan  = mysqli_real_escape_string($conn, trim($_POST['jabatan']));
+$email    = mysqli_real_escape_string($conn, trim($_POST['email']));
+$telepon  = mysqli_real_escape_string($conn, trim($_POST['telepon']));
 
 $aktif = isset($_POST['aktif'])?1:0;
 

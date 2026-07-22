@@ -47,9 +47,9 @@ $sql =mysqli_query($conn,"SELECT * FROM unit_kerja ORDER BY nama_unit");
        ?>
        <tr>
 	<td><?= $r['id'] ?></td>
-	<td><?= $r['kode_unit'] ?></td>
-	<td><?= $r['nama_unit'] ?></td>
-	<td><?= $r['email'] ?></td>
+	<td><?= htmlspecialchars($r['kode_unit']) ?></td>
+	<td><?= htmlspecialchars($r['nama_unit']) ?></td>
+	<td><?= htmlspecialchars($r['email']) ?></td>
 	<td>
 	<?=$r['aktif']?'<span class="badge bg-success">Aktif</span>':'<span class="badge bg-danger">Nonaktif</span>'?>
 	</td>

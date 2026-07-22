@@ -9,11 +9,11 @@ require_once "../auth/check.php";
 
 hasRole(['ADMIN']);
 
-$nip      = trim($_POST['nip']);
-$nama     = trim($_POST['nama']);
-$jabatan  = trim($_POST['jabatan']);
-$email    = trim($_POST['email']);
-$telepon  = trim($_POST['telepon']);
+$nip      = mysqli_real_escape_string($conn, trim($_POST['nip']));
+$nama     = mysqli_real_escape_string($conn, trim($_POST['nama']));
+$jabatan  = mysqli_real_escape_string($conn, trim($_POST['jabatan']));
+$email    = mysqli_real_escape_string($conn, trim($_POST['email']));
+$telepon  = mysqli_real_escape_string($conn, trim($_POST['telepon']));
 
 mysqli_query($conn,"INSERT INTO auditor
 	(nip,nama_auditor,jabatan,email,telepon)

@@ -5,6 +5,9 @@ require_once "../config/app.php";
 require_once "../config/database.php";
 require_once "../config/functions.php";
 require_once "../auth/check.php";
+require_once "../auth/role.php";
+
+checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
 
 $audit_id = (int)$_GET['audit_id'];
 $qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit FROM audit_pemeriksaan WHERE id=$audit_id");
@@ -82,7 +85,7 @@ include "../templates/sidebar.php";
 	<td><?= htmlspecialchars($row['nama']) ?></td>
 	<td><?= $row['uploaded_at'] ?></td>
 	<td>
-          <a href="../<?= $row['file_path'] ?>" target="_blank" class="btn btn-success btn-sm">Download</a>
+          <a href="../<?= htmlspecialchars($row['file_path']) ?>" target="_blank" class="btn btn-success btn-sm">Download</a>
           <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusLampiran(<?= $row['id'] ?>, <?= $audit_id ?>)">Hapus </a>
         </td>
        </tr>

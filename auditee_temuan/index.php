@@ -112,14 +112,14 @@ include "../templates/sidebar.php";
                                 ?>
                                 <tr>
                                     <td><?= $no++ ?></td>
-                                    <td><strong><?= $row['nomor_audit'] ?></strong>
+                                    <td><strong><?= htmlspecialchars($row['nomor_audit']) ?></strong>
                                         <br>
-                                        <?= $row['judul_audit'] ?>
+                                        <?= htmlspecialchars($row['judul_audit']) ?>
                                     </td>
                                     <td>
-                                        <strong><?= $row['nomor_temuan'] ?></strong>
+                                        <strong><?= htmlspecialchars($row['nomor_temuan']) ?></strong>
                                         <br>
-                                        <?= $row['judul_temuan'] ?>
+                                        <?= htmlspecialchars($row['judul_temuan']) ?>
                                     </td>
                                     <td>
                                         <div style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word; max-width: 250px;">

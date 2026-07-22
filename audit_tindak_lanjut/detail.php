@@ -146,7 +146,7 @@ foreach ($logs as $idx => $log):
                             <div class="mt-1"><strong>Hasil:</strong> <?= nl2br(htmlspecialchars($log['hasil_tindak_lanjut'])) ?></div>
                         <?php endif; ?>
                         <?php if ($log['file_bukti']): ?>
-                            <div class="mt-1"><a href="../uploads/tindak_lanjut/<?= $log['file_bukti'] ?>" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-file"></i> Lihat Bukti</a></div>
+                            <div class="mt-1"><a href="../uploads/tindak_lanjut/<?= basename($log['file_bukti']) ?>" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-file"></i> Lihat Bukti</a></div>
                         <?php endif; ?>
                     <?php elseif ($log['aksi'] == 'buat'): ?>
                         <div>Status awal: <span class="badge bg-warning">Proses</span></div>
@@ -198,7 +198,7 @@ foreach ($logs as $idx => $log):
         foreach ($logs as $log) {
             if ($log['file_bukti']) {
                 $hasFile = true;
-                echo '<a href="../uploads/tindak_lanjut/' . $log['file_bukti'] . '" target="_blank" class="btn btn-success btn-sm mr-2"><i class="fas fa-file"></i> Lihat Bukti</a>';
+                echo '<a href="../uploads/tindak_lanjut/' . basename($log['file_bukti']) . '" target="_blank" class="btn btn-success btn-sm mr-2"><i class="fas fa-file"></i> Lihat Bukti</a>';
             }
         }
         if (!$hasFile) {
@@ -214,7 +214,7 @@ foreach ($logs as $idx => $log):
         foreach ($logs as $log) {
             if ($log['file_bukti']) {
                 if (!$hasFile) { echo '<div class="mt-2"><strong>Bukti terakhir:</strong><br>'; $hasFile = true; }
-                echo '<a href="../uploads/tindak_lanjut/' . $log['file_bukti'] . '" target="_blank" class="btn btn-success btn-sm mr-2 mt-1"><i class="fas fa-file"></i> Lihat Bukti</a>';
+                echo '<a href="../uploads/tindak_lanjut/' . basename($log['file_bukti']) . '" target="_blank" class="btn btn-success btn-sm mr-2 mt-1"><i class="fas fa-file"></i> Lihat Bukti</a>';
             }
         }
         if ($hasFile) { echo '</div>'; }

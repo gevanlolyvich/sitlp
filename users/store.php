@@ -10,17 +10,17 @@ require_once "../auth/check.php";
 
 hasRole(['ADMIN']);
 
-$nama       = trim($_POST['nama']);
-$username   = trim($_POST['username']);
-$email      = trim($_POST['email']);
-$role       = trim($_POST['role']);
+$nama       = mysqli_real_escape_string($conn, trim($_POST['nama']));
+$username   = mysqli_real_escape_string($conn, trim($_POST['username']));
+$email      = mysqli_real_escape_string($conn, trim($_POST['email']));
+$role       = mysqli_real_escape_string($conn, trim($_POST['role']));
 
 $password   = $_POST['password'];
 $confirm    = $_POST['confirm_password'];
 
 $aktif = isset($_POST['aktif'])?1:0;
 
-if($password != $confirm)
+if($password !== $confirm)
 {
     die("Konfirmasi password tidak sama");
 }
@@ -36,6 +36,10 @@ $hash = password_hash($password,PASSWORD_DEFAULT);
 $foto = null;
 
 if(isset($_FILES['foto']) && $_FILES['foto']['error']==0){
+ $maxSize = 2 * 1024 * 1024;
+ if ($_FILES['foto']['size'] > $maxSize) {
+     die("Ukuran file foto maksimal 2MB");
+ }
  $ext = strtolower(pathinfo($_FILES['foto']['name'],PATHINFO_EXTENSION));
  $allow = ['jpg','jpeg','png'];
  if(in_array($ext,$allow)){

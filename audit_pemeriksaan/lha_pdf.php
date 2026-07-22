@@ -133,7 +133,7 @@ class MYPDF extends TCPDF
 /* inisialisasi */
 $pdf = new MYPDF(PDF_PAGE_ORIENTATION,PDF_UNIT,PDF_PAGE_FORMAT,true,'UTF-8',false);
 
-$pdf->SetCreator('SITLP');
+$pdf->SetCreator('SISIA JAKTOUR');
 $pdf->SetAuthor('PT Jakarta Tourisindo');
 $pdf->SetTitle('LHA - ' . $audit['nomor_audit']);
 $pdf->SetMargins(20,20,20);
@@ -567,7 +567,7 @@ $pdf->Ln(5);
 $pdf->SetFont('helvetica','',8);
 $pdf->Cell(0,5,'Nomor Dokumen : LHA-'.$audit['nomor_audit'],0,1,'C');
 $pdf->Cell(0,5,'Dibuat : '.date('d-m-Y H:i:s'),0,1,'C');
-$pdf->Cell(0,5,'Sistem : SITLP - Satuan Internal Audit',0,1,'C');
+$pdf->Cell(0,5,'Sistem : SISIA JAKTOUR',0,1,'C');
 
 
 /* info audit */

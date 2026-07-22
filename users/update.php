@@ -10,15 +10,19 @@ require_once "../auth/check.php";
 hasRole(['ADMIN']);
 
 $id      = (int)$_POST['id'];
-$nama    = trim($_POST['nama']);
-$email   = trim($_POST['email']);
-$unit_id = trim($_POST['kode_unit']);
-$role    = trim($_POST['role']);
+$nama    = mysqli_real_escape_string($conn, trim($_POST['nama']));
+$email   = mysqli_real_escape_string($conn, trim($_POST['email']));
+$unit_id = mysqli_real_escape_string($conn, trim($_POST['kode_unit']));
+$role    = mysqli_real_escape_string($conn, trim($_POST['role']));
 
 $aktif = isset($_POST['aktif'])?1:0;
 $foto_sql = "";
 
 if(isset($_FILES['foto'])&&$_FILES['foto']['error']==0){
+ $maxSize = 2 * 1024 * 1024;
+ if ($_FILES['foto']['size'] > $maxSize) {
+     die("Ukuran file foto maksimal 2MB");
+ }
  $ext = strtolower(pathinfo($_FILES['foto']['name'],PATHINFO_EXTENSION));
  $allow = ['jpg','jpeg','png'];
  if(in_array($ext,$allow)){

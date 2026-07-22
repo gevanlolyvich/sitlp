@@ -20,10 +20,10 @@ PT Jakarta Tourisindo
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- AdminLTE -->
-<script src="/sitlp/assets/adminlte/dist/js/adminlte.min.js"></script>
+<script src="/sisia/assets/adminlte/dist/js/adminlte.min.js"></script>
 
 <!-- Custom JS -->
-<script src="/sitlp/assets/js/custom.js"></script>
+<script src="/sisia/assets/js/custom.js"></script>
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

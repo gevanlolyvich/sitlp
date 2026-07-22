@@ -11,8 +11,12 @@ function sanitize($conn,$value)
 }
 
 function createLog($conn,$user_id,$aktivitas,$tabel='',$record_id=0){
+    $user_id = (int)$user_id;
+    $aktivitas = mysqli_real_escape_string($conn,$aktivitas);
+    $tabel = mysqli_real_escape_string($conn,$tabel);
+    $record_id = (int)$record_id;
     mysqli_query($conn,"INSERT INTO activity_log(user_id,aktivitas,nama_tabel,record_id)
-		VALUES('$user_id','$aktivitas','$tabel','$record_id')");
+		VALUES($user_id,'$aktivitas','$tabel',$record_id)");
 }
 
 function hasRole($roles)

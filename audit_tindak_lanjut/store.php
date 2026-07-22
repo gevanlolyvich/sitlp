@@ -6,6 +6,9 @@ require_once "../config/app.php";
 require_once "../config/database.php";
 require_once "../config/functions.php";
 require_once "../auth/check.php";
+require_once "../auth/role.php";
+
+checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
 
 $rekomendasi_id = (int)$_POST['rekomendasi_id'];
 $nomor_tindak_lanjut = mysqli_real_escape_string($conn, $_POST['nomor_tindak_lanjut']);

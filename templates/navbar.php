@@ -25,7 +25,7 @@ href="#">
 
 <span class="nav-link">
 
-<?= htmlspecialchars($_SESSION['nama']) ?>
+<?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
 
 </span>
 

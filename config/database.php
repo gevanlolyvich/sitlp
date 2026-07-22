@@ -2,7 +2,7 @@
 // $host = "172.16.0.18";
 // $user = "sitlp";
 // $pass = "DeptIT2022;";
-// $db   = "sitlp";
+// $db = "sitlp";
 
 $host = "localhost";
 $user = "root";

@@ -125,10 +125,10 @@ $r=mysqli_fetch_assoc($sql)
 <tr>
 
 <td><?= $r['id'] ?></td>
-<td><?= $r['nama'] ?></td>
-<td><?= $r['username'] ?></td>
-<td><?= $r['nama_unit'] ?></td>
-<td><?= $r['role'] ?></td>
+<td><?= htmlspecialchars($r['nama']) ?></td>
+<td><?= htmlspecialchars($r['username']) ?></td>
+<td><?= htmlspecialchars($r['nama_unit']) ?></td>
+<td><?= htmlspecialchars($r['role']) ?></td>
 <td>
 
 <?=

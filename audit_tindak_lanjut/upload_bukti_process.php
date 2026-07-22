@@ -23,6 +23,11 @@ if ($current['status'] == 'Sesuai') {
     exit;
 }
 
+$maxSize = 5 * 1024 * 1024;
+if ($_FILES['bukti']['size'] > $maxSize) {
+    die("Ukuran file maksimal 5MB");
+}
+
 $allowed = ['pdf','doc','docx','xls','xlsx','jpg','jpeg','png'];
 $ext = strtolower(pathinfo($_FILES['bukti']['name'],PATHINFO_EXTENSION));
 
@@ -41,7 +46,7 @@ if(
 )
 {
     $original_name = mysqli_real_escape_string($conn, $_FILES['bukti']['name']);
-    $user_id = $_SESSION['user_id'];
+    $user_id = (int)$_SESSION['user_id'];
 
     // Insert log entry for upload (DO NOT change status)
     mysqli_query($conn,"INSERT INTO audit_tindak_lanjut_log (tindak_lanjut_id, aksi, file_bukti, file_bukti_original, hasil_tindak_lanjut, keterangan, dibuat_oleh, dibuat_pada) VALUES ('$id', 'upload_bukti', '$nama_file', '$original_name', '$uraian_tindak_lanjut', 'Upload bukti tindak lanjut', '$user_id', NOW())");

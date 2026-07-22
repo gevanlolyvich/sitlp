@@ -15,7 +15,7 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-            <?php if($_SESSION['role'] == 'AUDITOR'): ?>
+            <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'AUDITOR'): ?>
             <div class="row mb-3 mt-3">
                 <div class="col-sm-6">
                     <h3 class="mb-0">Dashboard</h3>
@@ -38,7 +38,7 @@ include "../templates/sidebar.php";
                                 </span>
                             </div>
                             <h3 class="fw-bold mb-1">Selamat Datang, <?= htmlspecialchars($_SESSION['nama']) ?>!</h3>
-                            <p class="text-muted mb-0">Sistem Informasi Tindak Lanjut Pengawasan</p>
+                            <p class="text-muted mb-0">Sistem Informasi Satuan Internal Audit Jakarta Tourisindo</p>
                             <p class="text-muted">PT Jakarta Tourisindo</p>
                             <hr class="w-25 mx-auto">
                             <p class="text-muted small mb-0">Gunakan menu di samping untuk memulai aktivitas Anda.</p>

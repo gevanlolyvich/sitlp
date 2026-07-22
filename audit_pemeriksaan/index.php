@@ -108,7 +108,7 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 	 <a href="lha_pdf.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" target="_blank"><i class="fas fa-file-pdf"></i>LHA</a>
 
 	 <?php if(!empty($row['lha_file'])): ?>
-	 <a href="../uploads/lha/<?= $row['lha_file'] ?>" target="_blank" class="btn btn-success btn-sm">
+	 <a href="../uploads/lha/<?= basename($row['lha_file']) ?>" target="_blank" class="btn btn-success btn-sm">
 <i class="fa fa-file-pdf"></i>Lihat LHA</a>
          <?php endif; ?>
 
