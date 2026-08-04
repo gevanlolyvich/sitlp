@@ -7,7 +7,7 @@ require_once "../config/database.php";
 require_once "../config/functions.php";
 require_once "../auth/check.php";
 
-hasRole(['ADMIN']);
+hasRole(['ADMIN','KEPALA_SIA']);
 
 $nip      = mysqli_real_escape_string($conn, trim($_POST['nip']));
 $nama     = mysqli_real_escape_string($conn, trim($_POST['nama']));

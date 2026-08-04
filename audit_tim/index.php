@@ -9,8 +9,9 @@ require_once "../auth/check.php";
 
 $audit_id = (int)$_GET['audit_id'];
 
-$qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit, ketua_auditor_id FROM audit_pemeriksaan WHERE id=$audit_id");
+$qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit, ketua_auditor_id, status FROM audit_pemeriksaan WHERE id=$audit_id");
 $audit = mysqli_fetch_assoc($qAudit);
+$locked = ($audit['status'] == 'SELESAI');
 $ketuaId = (int)$audit['ketua_auditor_id'];
 $qAuditor = mysqli_query($conn,"SELECT * FROM auditor WHERE aktif=1 AND id != $ketuaId AND id NOT IN (SELECT auditor_id FROM audit_tim WHERE audit_id=$audit_id) ORDER BY nama_auditor");
 
@@ -32,6 +33,7 @@ include "../templates/sidebar.php";
      <h3 class="card-title mb-0">Tim Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
      <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
     </div>
+    <?php if(!$locked): ?>
     <form action="store.php" method="post">
      <input type="hidden" name="audit_id" value="<?= $audit_id ?>">
      <div class="card-body">
@@ -61,6 +63,9 @@ include "../templates/sidebar.php";
      </div>
     </div>
    </form>
+   <?php else: ?>
+   <div class="alert alert-secondary mb-0"><i class="fas fa-lock"></i> Audit sudah ditutup. Tim audit tidak dapat diubah.</div>
+   <?php endif; ?>
   </div>
   <div class="card">
    <div class="card-body">
@@ -87,7 +92,9 @@ include "../templates/sidebar.php";
              echo htmlspecialchars($peranTampil);
          ?></td>
 	 <td>
+	  <?php if(!$locked): ?>
 	  <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusAnggota(<?= $t['id'] ?>, <?= $audit_id ?>)">Hapus</a>
+	  <?php endif; ?>
 	 </td>
 	</tr>
        <?php } ?>

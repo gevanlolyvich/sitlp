@@ -52,7 +52,7 @@ include "../templates/sidebar.php";
 	  <select name="role" class="form-select" required>
 	   	<option value="">Pilih Role</option>
 		<option value="ADMIN">ADMIN</option>
-		<option value="KEPALA_SPI">KEPALA SPI</option>
+		<option value="KEPALA_SIA">KEPALA SIA</option>
 		<option value="AUDITOR">AUDITOR</option>
 		<option value="AUDITEE">AUDITEE</option>
 		<option value="DIREKSI">DIREKSI</option>

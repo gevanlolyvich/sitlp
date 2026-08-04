@@ -5,7 +5,7 @@ require_once "../config/app.php";
 require_once "../config/database.php";
 require_once "../config/functions.php";
 require_once "../auth/check.php";
-hasRole(['ADMIN']);
+hasRole(['ADMIN','KEPALA_SIA']);
 
 $id = (int)$_GET['id'];
 $q = mysqli_query($conn,"SELECT * FROM auditor WHERE id=$id");

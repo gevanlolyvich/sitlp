@@ -10,6 +10,8 @@ require_once "../auth/check.php";
 $id = (int)$_GET['id'];
 $audit_id = (int)$_GET['audit_id'];
 
+blockLockedAudit($conn, $audit_id);
+
 mysqli_query($conn, "DELETE FROM audit_tim WHERE id=$id");
 
 logActivity(

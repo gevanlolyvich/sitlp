@@ -9,7 +9,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI']);
+checkRole(['ADMIN','KEPALA_SIA']);
 
 $kode_program = mysqli_real_escape_string(
     $conn,
@@ -44,11 +44,6 @@ $level_risiko = mysqli_real_escape_string(
     $_POST['level_risiko']
 );
 
-$prioritas = mysqli_real_escape_string(
-    $conn,
-    $_POST['prioritas']
-);
-
 $judul_program = mysqli_real_escape_string(
     $conn,
     $_POST['judul_program']
@@ -74,7 +69,6 @@ triwulan,
 bulan_rencana,
 estimasi_hari,
 level_risiko,
-prioritas,
 keterangan,
 created_by
 )
@@ -90,7 +84,6 @@ $penanggung_jawab_id,
 '$bulan_rencana',
 '$estimasi_hari',
 '$level_risiko',
-'$prioritas',
 '$keterangan',
 '$created_by'
 )

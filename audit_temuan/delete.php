@@ -8,10 +8,12 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $id = (int)$_GET['id'];
 $audit_id = (int)$_GET['audit_id'];
+
+blockLockedAudit($conn, $audit_id);
 
 $q = mysqli_query($conn,"SELECT id FROM audit_temuan WHERE id=$id");
 if (!mysqli_num_rows($q)) {

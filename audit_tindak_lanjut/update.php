@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $id = (int)$_POST['id'];
 $rekomendasi_id = (int)$_POST['rekomendasi_id'];
@@ -19,7 +19,7 @@ $target = $_POST['target_selesai'];
 $status = $_POST['status'];
 
 // Only Kepala SPI/Admin can change status
-if (!in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI'])) {
+if (!in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])) {
     $qCur = mysqli_query($conn, "SELECT status FROM audit_tindak_lanjut WHERE id=$id");
     $cur = mysqli_fetch_assoc($qCur);
     $status = $cur['status'];
@@ -34,17 +34,27 @@ if ($current['status'] == 'Sesuai') {
     exit;
 }
 
-// Validate target_selesai
+// Validate target_selesai berada di rentang tanggal audit
 $qRek = mysqli_query($conn, "SELECT r.id, t.audit_id FROM audit_rekomendasi r LEFT JOIN audit_temuan t ON r.temuan_id=t.id WHERE r.id=$rekomendasi_id");
 $rek = mysqli_fetch_assoc($qRek);
 if ($rek) {
     $audit_id = (int)$rek['audit_id'];
-    $qAudit = mysqli_query($conn, "SELECT tanggal_selesai FROM audit_pemeriksaan WHERE id=$audit_id");
+
+    blockLockedAudit($conn, $audit_id);
+
+    $qAudit = mysqli_query($conn, "SELECT tanggal_mulai, tanggal_selesai FROM audit_pemeriksaan WHERE id=$audit_id");
     $auditData = mysqli_fetch_assoc($qAudit);
-    if ($auditData && $target > $auditData['tanggal_selesai']) {
-        $_SESSION['error'] = "Target selesai tidak boleh melebihi tanggal selesai audit (" . $auditData['tanggal_selesai'] . ").";
-        header("Location: edit.php?id=" . $id);
-        exit;
+    if ($auditData) {
+        if ($target < $auditData['tanggal_mulai']) {
+            $_SESSION['error'] = "Target selesai tidak boleh sebelum tanggal mulai audit (" . $auditData['tanggal_mulai'] . ").";
+            header("Location: edit.php?id=" . $id);
+            exit;
+        }
+        if ($target > $auditData['tanggal_selesai']) {
+            $_SESSION['error'] = "Target selesai tidak boleh melebihi tanggal selesai audit (" . $auditData['tanggal_selesai'] . ").";
+            header("Location: edit.php?id=" . $id);
+            exit;
+        }
     }
 }
 

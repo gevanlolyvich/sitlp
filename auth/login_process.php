@@ -33,6 +33,8 @@ mysqli_query($conn, " UPDATE users SET last_login=NOW() WHERE id='" . $user['id'
 $role = $user['role'];
 if ($role == 'AUDITEE') {
     header("Location: ../dashboard_auditee/");
+} elseif ($role == 'AUDITOR') {
+    header("Location: ../dashboard/");
 } else {
     header("Location: ../dashboard/");
 }

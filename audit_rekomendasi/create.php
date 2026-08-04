@@ -8,9 +8,14 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $temuan_id = (int)$_GET['temuan_id'];
+
+$qAuditCheck = mysqli_query($conn,"SELECT audit_id FROM audit_temuan WHERE id=$temuan_id");
+$auditCheck = mysqli_fetch_assoc($qAuditCheck);
+blockLockedAudit($conn, (int)$auditCheck['audit_id']);
+
 $qTemuan = mysqli_query($conn,"SELECT id,nomor_temuan,judul_temuan FROM audit_temuan WHERE id=$temuan_id");
 $temuan = mysqli_fetch_assoc($qTemuan);
 if(!$temuan)
@@ -44,14 +49,6 @@ include "../templates/sidebar.php";
       <div class="mb-3">
        <label>Rekomendasi</label>
        <textarea name="rekomendasi" class="form-control" rows="5" required></textarea>
-      </div>
-      <div class="mb-3">
-       <label>Prioritas</label>
-       <select name="prioritas" class="form-select">
-	<option value="RENDAH">RENDAH</option>
-        <option value="SEDANG" selected>SEDANG</option>
-        <option value="TINGGI">TINGGI</option>
-       </select>
       </div>
      </div>
      <div class="card-footer">

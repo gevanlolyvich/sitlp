@@ -6,7 +6,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN', 'KEPALA_SPI', 'DIREKSI']);
+checkRole(['ADMIN', 'KEPALA_SIA', 'DIREKSI']);
 
 $totalProgram     = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_program"))[0];
 $totalPemeriksaan = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_pemeriksaan"))[0];

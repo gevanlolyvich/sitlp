@@ -8,9 +8,12 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $audit_id   = (int)$_POST['audit_id'];
+
+blockLockedAudit($conn, $audit_id);
+
 $auditor_id = (int)$_POST['auditor_id'];
 $peran      = $_POST['peran'];
 $allowedPeran = ['Anggota', 'Pengendali'];

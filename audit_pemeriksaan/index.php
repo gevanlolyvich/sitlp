@@ -7,7 +7,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -15,30 +15,36 @@ include "../templates/sidebar.php";
 
 
 $where = "";
-if (
-    isset($_GET['keyword']) &&
-    trim($_GET['keyword']) != ''
-) {
-
-    $keyword = mysqli_real_escape_string(
-        $conn,
-        trim($_GET['keyword'])
-    );
+$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+if ($keyword != '') {
+    $kw = mysqli_real_escape_string($conn, $keyword);
     $where = "
         WHERE
-            ap.nomor_audit LIKE '%$keyword%'
+            ap.nomor_audit LIKE '%$kw%'
             OR
-            ap.judul_audit LIKE '%$keyword%'
+            ap.judul_audit LIKE '%$kw%'
     ";
 }
 
+$limit = 10;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$offset = ($limit * ($page - 1));
+
+$countResult = mysqli_query($conn,"SELECT COUNT(*) total
+	FROM audit_pemeriksaan ap
+	LEFT JOIN unit_kerja uk ON ap.unit_id = uk.id
+	LEFT JOIN auditor au ON ap.ketua_auditor_id = au.id
+        $where");
+$totalRecords = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($totalRecords / $limit);
 
 $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 	FROM audit_pemeriksaan ap
 	LEFT JOIN unit_kerja uk ON ap.unit_id = uk.id
 	LEFT JOIN auditor au ON ap.ketua_auditor_id = au.id
         $where
-	ORDER BY ap.id DESC");
+	ORDER BY ap.id DESC
+	LIMIT $limit OFFSET $offset");
 
 ?>
 
@@ -105,12 +111,6 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 	 <?php if($row['status'] != 'SELESAI'): ?>
 	 <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
 	 <?php endif; ?>
-	 <a href="lha_pdf.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" target="_blank"><i class="fas fa-file-pdf"></i>LHA</a>
-
-	 <?php if(!empty($row['lha_file'])): ?>
-	 <a href="../uploads/lha/<?= basename($row['lha_file']) ?>" target="_blank" class="btn btn-success btn-sm">
-<i class="fa fa-file-pdf"></i>Lihat LHA</a>
-         <?php endif; ?>
 
 	</td>
        </tr>
@@ -120,13 +120,23 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
      </div>
     </div>
 
-    <div class="mb-2">
-    <small class="text-muted">
-        Total Data:
-        <strong>
-            <?= mysqli_num_rows($q) ?>
-        </strong>
-    </small>
+    <div class="mt-3 d-flex justify-content-between align-items-center">
+    <small class="text-muted">Total: <strong><?= $totalRecords ?></strong></small>
+    <nav>
+    <ul class="pagination pagination-sm mb-0">
+    <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+    <a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Sebelumnya</a>
+    </li>
+    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+    <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+    <a class="page-link" href="?page=<?= $i ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>"><?= $i ?></a>
+    </li>
+    <?php endfor; ?>
+    <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+    <a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Selanjutnya</a>
+    </li>
+    </ul>
+    </nav>
     </div>
 
 
@@ -135,14 +145,7 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
  </div>
 </main>
 
-<script>
- $(document).ready(function(){
-  $('#tblAudit').DataTable({
-   responsive:true,
-   pageLength:10
-  });
- });
-</script>
+
 
 <?php
 include "../templates/footer.php";

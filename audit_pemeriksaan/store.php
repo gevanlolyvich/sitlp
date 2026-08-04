@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $program_id          = (int)$_POST['program_id'];
 $nomor_audit         = mysqli_real_escape_string($conn,$_POST['nomor_audit']);
@@ -25,15 +25,22 @@ $ketua_auditor_id    = (int)$_POST['ketua_auditor_id'];
 
 $tanggal_mulai       = $_POST['tanggal_mulai'];
 $estimasi_hari       = (int)$_POST['estimasi_hari'];
-$tanggal_selesai     = date('Y-m-d', strtotime($tanggal_mulai . ' + ' . $estimasi_hari . ' days'));
+
+if (!is_hari_kerja($tanggal_mulai, $conn)) {
+    $_SESSION['error'] = "Tanggal mulai audit tidak boleh jatuh pada akhir pekan atau hari libur.";
+    header("Location: create.php?program_id=$program_id");
+    exit;
+}
+
+$tanggal_selesai     = hitung_tanggal_selesai_kerja($tanggal_mulai, $estimasi_hari, $conn);
 
 $tahun_audit         = $_POST['tahun_audit'];
 
 $raw_jenis           = $_POST['jenis_audit'];
 $mapJenis = [
-    'OPERASIONAL'=>'Operasional|Keuangan|Kepatuhan','KEUANGAN'=>'Operasional|Keuangan|Kepatuhan',
-    'KEPATUHAN'=>'Operasional|Keuangan|Kepatuhan','Operasional'=>'Operasional|Keuangan|Kepatuhan',
-    'Keuangan'=>'Operasional|Keuangan|Kepatuhan','Kepatuhan'=>'Operasional|Keuangan|Kepatuhan',
+    'OPERASIONAL'=>'Operasional','Operasional'=>'Operasional',
+    'KEUANGAN'=>'Keuangan','Keuangan'=>'Keuangan',
+    'KEPATUHAN'=>'Kepatuhan','Kepatuhan'=>'Kepatuhan',
     'VERIFIKASI'=>'Verifikasi','INVESTIGASI'=>'Investigasi','KHUSUS'=>'Khusus'
 ];
 $jenis_audit = isset($mapJenis[$raw_jenis]) ? $mapJenis[$raw_jenis] : $raw_jenis;

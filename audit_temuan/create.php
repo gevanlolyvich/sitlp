@@ -9,6 +9,8 @@ require_once "../auth/check.php";
 
 $audit_id = (int)$_GET['audit_id'];
 
+blockLockedAudit($conn, $audit_id);
+
 $qAudit = mysqli_query($conn,"SELECT id, nomor_audit, judul_audit, tahun_audit
 	FROM audit_pemeriksaan
 	WHERE id=$audit_id");
@@ -68,7 +70,7 @@ include "../templates/sidebar.php";
       <input type="text" name="judul_temuan" class="form-control" required>
       <br>
       <label>Kondisi</label>
-      <textarea name="kondisi" class="form-control" rows="4" required></textarea>
+      <textarea name="kondisi" id="kondisi" class="form-control" rows="4" required></textarea>
       <br>
       <label>Kriteria</label>
       <textarea name="kriteria" class="form-control" rows="4" required></textarea>
@@ -103,3 +105,10 @@ include "../templates/sidebar.php";
 <?php
 include "../templates/footer.php";
 ?>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#kondisi').summernote({height:250});
+});
+</script>

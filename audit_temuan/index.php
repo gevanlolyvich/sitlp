@@ -8,13 +8,14 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $audit_id = (int)$_GET['audit_id'];
 
-$qAudit = mysqli_query($conn,"SELECT nomor_audit,judul_audit FROM audit_pemeriksaan WHERE id=$audit_id");
+$qAudit = mysqli_query($conn,"SELECT nomor_audit,judul_audit,status FROM audit_pemeriksaan WHERE id=$audit_id");
 
 $audit = mysqli_fetch_assoc($qAudit);
+$locked = ($audit['status'] == 'SELESAI');
 $q = mysqli_query($conn,"SELECT * FROM audit_temuan WHERE audit_id=$audit_id ORDER BY id DESC");
 
 include "../templates/header.php";
@@ -30,7 +31,9 @@ include "../templates/sidebar.php";
      <h3 class="card-title mb-0">Temuan Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
      <div class="ms-auto">
       <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Kembali</a>
+      <?php if(!$locked): ?>
       <a href="create.php?audit_id=<?= $audit_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i>Tambah Temuan</a>
+      <?php endif; ?>
      </div>
     </div>
     <div class="card-body">
@@ -53,8 +56,10 @@ include "../templates/sidebar.php";
 	<td><?= htmlspecialchars($row['status']) ?></td>
 	<td>
 	<a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
+	<?php if(!$locked): ?>
 	<a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
 	<a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusTemuan(<?= $row['id'] ?>, <?= $audit_id ?>)">Hapus</a>
+	<?php endif; ?>
 	</td>
        </tr>
        <?php } ?>

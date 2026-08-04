@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI']);
+checkRole(['ADMIN','KEPALA_SIA']);
 
 $id = (int)$_POST['id'];
 
@@ -22,7 +22,6 @@ $triwulan = mysqli_real_escape_string($conn,$_POST['triwulan']);
 $bulan_rencana = (int)$_POST['bulan_rencana'];
 $estimasi_hari = (int)$_POST['estimasi_hari'];
 $level_risiko = mysqli_real_escape_string($conn,$_POST['level_risiko']);
-$prioritas = mysqli_real_escape_string($conn,$_POST['prioritas']);
 $keterangan = mysqli_real_escape_string($conn,$_POST['keterangan']);
 
 $sql = "UPDATE audit_program SET
@@ -35,7 +34,6 @@ $sql = "UPDATE audit_program SET
 	bulan_rencana='$bulan_rencana',
 	estimasi_hari='$estimasi_hari',
 	level_risiko='$level_risiko',
-	prioritas='$prioritas',
 	keterangan='$keterangan'
 	WHERE id='$id'";
 

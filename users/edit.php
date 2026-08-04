@@ -75,9 +75,11 @@ include "../templates/sidebar.php";
   <div class="col-md-6">
    <label>Role</label>
    <select name="role" class="form-select">
+    <option value="">Pilih Role</option>
     <option value="ADMIN"<?= $user['role']=='ADMIN'?'selected':'' ?>>ADMIN</option>
-    <option value="SPI"<?= $user['role']=='SPI'?'selected':'' ?>>SPI</option>
-    <option value="AUDITEE"<?= $user['role']=='AUDITEE'?'selected':'' ?>>AUDITE</option>
+    <option value="KEPALA_SIA"<?= $user['role']=='KEPALA_SIA'?'selected':'' ?>>KEPALA SIA</option>
+    <option value="AUDITOR"<?= $user['role']=='AUDITOR'?'selected':'' ?>>AUDITOR</option>
+    <option value="AUDITEE"<?= $user['role']=='AUDITEE'?'selected':'' ?>>AUDITEE</option>
     <option value="DIREKSI"<?= $user['role']=='DIREKSI'?'selected':'' ?>>DIREKSI</option>
    </select>
   </div>

@@ -28,6 +28,12 @@ $urut = $d['total'] + 1;
 
 $nomor_audit = 'AUD-' . $tahun . '-' . str_pad($urut,3,'0',STR_PAD_LEFT);
 
+$qLibur = mysqli_query($conn,"SELECT tanggal FROM hari_libur");
+$hariLibur = [];
+while ($r = mysqli_fetch_assoc($qLibur)) {
+    $hariLibur[] = $r['tanggal'];
+}
+
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../templates/sidebar.php";
@@ -70,9 +76,9 @@ include "../templates/sidebar.php";
          <?php
          $displayJenis = $pat['jenis_audit'];
          $mapJenis = [
-             'OPERASIONAL'=>'Operasional|Keuangan|Kepatuhan','KEUANGAN'=>'Operasional|Keuangan|Kepatuhan',
-             'KEPATUHAN'=>'Operasional|Keuangan|Kepatuhan','Operasional'=>'Operasional|Keuangan|Kepatuhan',
-             'Keuangan'=>'Operasional|Keuangan|Kepatuhan','Kepatuhan'=>'Operasional|Keuangan|Kepatuhan',
+             'OPERASIONAL'=>'Operasional','Operasional'=>'Operasional',
+             'KEUANGAN'=>'Keuangan','Keuangan'=>'Keuangan',
+             'KEPATUHAN'=>'Kepatuhan','Kepatuhan'=>'Kepatuhan',
              'VERIFIKASI'=>'Verifikasi','INVESTIGASI'=>'Investigasi','KHUSUS'=>'Khusus'
          ];
          if (isset($mapJenis[$displayJenis])) $displayJenis = $mapJenis[$displayJenis];
@@ -90,10 +96,10 @@ include "../templates/sidebar.php";
          <label>Tanggal Surat Tugas</label>
          <input type="date" name="tanggal_surat_tugas" class="form-control" required>
         </div>
-        <div class="col-md-6">
-         <label>Judul Audit</label>
-         <input type="text" name="judul_audit" value="<?= htmlspecialchars($pat['judul_program']) ?>" class="form-control" required>
-        </div>
+         <div class="col-md-6">
+          <label>Judul Audit</label>
+          <input type="text" name="judul_audit" value="<?= htmlspecialchars($pat['judul_program']) ?>" class="form-control" readonly required>
+         </div>
        </div>
        <br>
        <div class="row">
@@ -126,22 +132,48 @@ include "../templates/sidebar.php";
 </main>
 
 <script>
+var HARI_LIBUR = <?= json_encode($hariLibur) ?>;
 document.addEventListener('DOMContentLoaded', function() {
     var tanggalMulai = document.getElementById('tanggal_mulai');
     var estimasiHari = document.getElementById('estimasi_hari');
     var tanggalSelesai = document.getElementById('tanggal_selesai');
+    function isHariKerja(tanggal) {
+        var d = new Date(tanggal + 'T00:00:00');
+        if (d.getDay() === 0 || d.getDay() === 6) return false;
+        return HARI_LIBUR.indexOf(tanggal) === -1;
+    }
     function hitungTanggalSelesai() {
-        if (tanggalMulai.value && estimasiHari.value) {
-            var start = new Date(tanggalMulai.value);
-            var days = parseInt(estimasiHari.value) || 0;
-            start.setDate(start.getDate() + days);
+        if (!tanggalMulai.value || !estimasiHari.value) return;
+        var start = new Date(tanggalMulai.value + 'T00:00:00');
+        var days = parseInt(estimasiHari.value) || 0;
+        var counted = 0;
+        var s = '';
+        while (counted < days) {
             var y = start.getFullYear();
             var m = String(start.getMonth() + 1).padStart(2, '0');
             var d = String(start.getDate()).padStart(2, '0');
-            tanggalSelesai.value = y + '-' + m + '-' + d;
+            s = y + '-' + m + '-' + d;
+            if (isHariKerja(s)) {
+                counted++;
+                if (counted >= days) break;
+            }
+            start.setDate(start.getDate() + 1);
         }
+        tanggalSelesai.value = s;
     }
-    tanggalMulai.addEventListener('change', hitungTanggalSelesai);
+    tanggalMulai.addEventListener('change', function() {
+        if (tanggalMulai.value && !isHariKerja(tanggalMulai.value)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Tanggal Tidak Valid',
+                text: 'Tanggal mulai tidak boleh jatuh pada akhir pekan atau hari libur.'
+            });
+            tanggalMulai.value = '';
+            tanggalSelesai.value = '';
+            return;
+        }
+        hitungTanggalSelesai();
+    });
     estimasiHari.addEventListener('input', hitungTanggalSelesai);
 });
 </script>

@@ -26,16 +26,19 @@ if ($tl['status'] != 'Proses') {
 $qUnit = mysqli_query($conn,"SELECT * FROM unit_kerja ORDER BY nama_unit");
 $isLocked = ($tl['status'] == 'Sesuai');
 
-// Get audit end date for max target validation
+// Get audit start & end date for target validation
 $qTL = mysqli_query($conn,"SELECT r.temuan_id FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id WHERE tl.id=$id");
 $tlData = mysqli_fetch_assoc($qTL);
+$tanggal_mulai_audit = '';
 $tanggal_selesai_audit = '';
 if ($tlData) {
     $qTemuan = mysqli_query($conn,"SELECT audit_id FROM audit_temuan WHERE id=" . (int)$tlData['temuan_id']);
     $temuanData = mysqli_fetch_assoc($qTemuan);
     if ($temuanData) {
-        $qAudit = mysqli_query($conn,"SELECT tanggal_selesai FROM audit_pemeriksaan WHERE id=" . (int)$temuanData['audit_id']);
+        blockLockedAudit($conn, (int)$temuanData['audit_id']);
+        $qAudit = mysqli_query($conn,"SELECT tanggal_mulai, tanggal_selesai FROM audit_pemeriksaan WHERE id=" . (int)$temuanData['audit_id']);
         $auditData = mysqli_fetch_assoc($qAudit);
+        $tanggal_mulai_audit = $auditData['tanggal_mulai'];
         $tanggal_selesai_audit = $auditData['tanggal_selesai'];
     }
 }
@@ -81,8 +84,8 @@ include "../templates/sidebar.php";
 <div class="row">
 <div class="col-md-4">
 <label>Target Selesai</label>
-<input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control" max="<?= $tanggal_selesai_audit ?>" <?= $isLocked ? 'disabled' : '' ?>>
-<small class="text-muted">Maksimal <?= $tanggal_selesai_audit ? date('d-m-Y', strtotime($tanggal_selesai_audit)) : '-' ?></small>
+<input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control" min="<?= $tanggal_mulai_audit ?>" max="<?= $tanggal_selesai_audit ?>" <?= $isLocked ? 'disabled' : '' ?>>
+<small class="text-muted"><?= ($tanggal_mulai_audit && $tanggal_selesai_audit) ? 'Rentang ' . date('d-m-Y', strtotime($tanggal_mulai_audit)) . ' s/d ' . date('d-m-Y', strtotime($tanggal_selesai_audit)) : '-' ?></small>
 <?php if($isLocked): ?>
 <input type="hidden" name="target_selesai" value="<?= $tl['target_selesai'] ?>">
 <?php endif; ?>

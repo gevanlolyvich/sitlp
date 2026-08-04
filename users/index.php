@@ -50,7 +50,39 @@ icon:'success',
 
 title:'Berhasil',
 
-text:'Password berhasil direset menjadi 123456'
+text:'Password berhasil direset'
+
+});
+
+});
+
+</script>
+
+<?php
+}
+?>
+
+<?php
+if(
+isset($_GET['msg'])
+&&
+$_GET['msg']=='reset_failed'
+){
+?>
+
+<script>
+
+document.addEventListener(
+'DOMContentLoaded',
+function(){
+
+Swal.fire({
+
+icon:'error',
+
+title:'Gagal',
+
+text:'Password baru dan ulangi password harus sama (minimal 6 karakter).'
 
 });
 
@@ -151,11 +183,7 @@ Edit
 
 </a>
 
-<!--
-<a href="reset_password.php?id=<?= $r['id'] ?>" class="btn btn-info btn-sm">Reset</a>
--->
-
-<a href="#" class="btn btn-info btn-sm" onclick="resetPassword(<?= $r['id'] ?>)">Reset</a>
+<a href="#" class="btn btn-info btn-sm" onclick="resetPassword(<?= $r['id'] ?>, '<?= htmlspecialchars($r['nama'], ENT_QUOTES) ?>')">Reset</a>
 
 </td>
 
@@ -181,6 +209,39 @@ Edit
 
 </main>
 
+<div class="modal fade" id="modalReset" tabindex="-1" aria-labelledby="modalResetLabel" aria-hidden="true">
+ <div class="modal-dialog">
+  <div class="modal-content">
+   <form action="reset_password.php" method="post" id="formReset" autocomplete="off">
+    <div class="modal-header">
+     <h5 class="modal-title" id="modalResetLabel">Reset Password</h5>
+     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+     <input type="hidden" name="id" id="reset_user_id">
+     <div class="mb-3">
+      <label class="form-label">User</label>
+      <input type="text" id="reset_user_nama" class="form-control" readonly>
+     </div>
+     <div class="mb-3">
+      <label class="form-label">Password Baru</label>
+      <input type="password" name="password_baru" id="password_baru" class="form-control" minlength="6" required>
+     </div>
+     <div class="mb-3">
+      <label class="form-label">Ulangi Password</label>
+      <input type="password" name="password_ulang" id="password_ulang" class="form-control" minlength="6" required>
+     </div>
+     <div id="reset_error" class="text-danger small d-none">Password baru dan ulangi password tidak sama!</div>
+    </div>
+    <div class="modal-footer">
+     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+     <button type="submit" class="btn btn-primary">Simpan</button>
+    </div>
+   </form>
+  </div>
+ </div>
+</div>
+
 <?php
 include "../templates/footer.php";
 ?>
@@ -203,30 +264,39 @@ buttons:[
 
 });
 
-function resetPassword(id)
+function resetPassword(id, nama)
 {
 
-Swal.fire({
+document.getElementById('reset_user_id').value = id;
+document.getElementById('reset_user_nama').value = nama;
+document.getElementById('password_baru').value = '';
+document.getElementById('password_ulang').value = '';
+document.getElementById('reset_error').classList.add('d-none');
 
-title:'Reset Password ?',
-text:'Password akan menjadi 123456',
-icon:'warning',
-showCancelButton:true,
-confirmButtonText:'Ya, Reset',
-cancelButtonText:'Batal'
+var modal = new bootstrap.Modal(
+document.getElementById('modalReset')
+);
+modal.show();
 
-})
-.then((result)=>{
+}
 
-if(result.isConfirmed){
+$(document).ready(function(){
 
-window.location=
-'reset_password.php?id=' + id;
+$('#formReset').on('submit', function(e){
+
+var p1 = $('#password_baru').val();
+var p2 = $('#password_ulang').val();
+
+if(p1 !== p2){
+
+e.preventDefault();
+$('#reset_error').removeClass('d-none');
+return false;
 
 }
 
 });
 
-}
+});
 
 </script>

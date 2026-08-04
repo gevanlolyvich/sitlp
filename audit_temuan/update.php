@@ -8,10 +8,12 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $id = (int)$_POST['id'];
 $audit_id = (int)$_POST['audit_id'];
+
+blockLockedAudit($conn, $audit_id);
 
 $nomor_temuan = mysqli_real_escape_string($conn, $_POST['nomor_temuan']);
 $judul_temuan = mysqli_real_escape_string($conn, $_POST['judul_temuan']);

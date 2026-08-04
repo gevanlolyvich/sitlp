@@ -8,19 +8,21 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $id = (int)$_POST['id'];
 $temuan_id = (int)$_POST['temuan_id'];
 
+$qAuditCheck = mysqli_query($conn,"SELECT audit_id FROM audit_temuan WHERE id=$temuan_id");
+$auditCheck = mysqli_fetch_assoc($qAuditCheck);
+blockLockedAudit($conn, (int)$auditCheck['audit_id']);
+
 $nomor_rekomendasi = mysqli_real_escape_string($conn, $_POST['nomor_rekomendasi']);
 $rekomendasi = mysqli_real_escape_string($conn, $_POST['rekomendasi']);
-$prioritas = mysqli_real_escape_string($conn, $_POST['prioritas']);
 
 mysqli_query($conn, "UPDATE audit_rekomendasi SET
     nomor_rekomendasi = '$nomor_rekomendasi',
-    rekomendasi = '$rekomendasi',
-    prioritas = '$prioritas'
+    rekomendasi = '$rekomendasi'
 WHERE id = $id");
 
 logActivity(

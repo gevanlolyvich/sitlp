@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $id = (int)$_GET['id'];
 
@@ -18,6 +18,8 @@ $temuan = mysqli_fetch_assoc($q);
 if(!$temuan){
     die("Temuan tidak ditemukan");
 }
+
+blockLockedAudit($conn, $temuan['audit_id']);
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -51,7 +53,7 @@ include "../templates/sidebar.php";
       <input type="text" name="judul_temuan" value="<?= htmlspecialchars($temuan['judul_temuan']) ?>" class="form-control" required>
       <br>
       <label>Kondisi</label>
-      <textarea name="kondisi" class="form-control" rows="4" required><?= htmlspecialchars($temuan['kondisi']) ?></textarea>
+      <textarea name="kondisi" id="kondisi" class="form-control" rows="4" required><?= htmlspecialchars($temuan['kondisi']) ?></textarea>
       <br>
       <label>Kriteria</label>
       <textarea name="kriteria" class="form-control" rows="4" required><?= htmlspecialchars($temuan['kriteria']) ?></textarea>
@@ -86,3 +88,10 @@ include "../templates/sidebar.php";
 <?php
 include "../templates/footer.php";
 ?>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#kondisi').summernote({height:250});
+});
+</script>

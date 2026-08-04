@@ -8,16 +8,18 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $id = (int)$_GET['id'];
 
-$q = mysqli_query($conn,"SELECT r.*, t.nomor_temuan, t.judul_temuan FROM audit_rekomendasi r LEFT JOIN audit_temuan t ON r.temuan_id=t.id WHERE r.id=$id");
+$q = mysqli_query($conn,"SELECT r.*, t.nomor_temuan, t.judul_temuan, t.audit_id FROM audit_rekomendasi r LEFT JOIN audit_temuan t ON r.temuan_id=t.id WHERE r.id=$id");
 $rekomendasi = mysqli_fetch_assoc($q);
 
 if(!$rekomendasi){
     die("Rekomendasi tidak ditemukan");
 }
+
+blockLockedAudit($conn, (int)$rekomendasi['audit_id']);
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -46,14 +48,6 @@ include "../templates/sidebar.php";
       <div class="mb-3">
        <label>Rekomendasi</label>
        <textarea name="rekomendasi" class="form-control" rows="5" required><?= htmlspecialchars($rekomendasi['rekomendasi']) ?></textarea>
-      </div>
-      <div class="mb-3">
-       <label>Prioritas</label>
-       <select name="prioritas" class="form-select">
-        <option value="RENDAH" <?= $rekomendasi['prioritas']=='RENDAH'?'selected':'' ?>>RENDAH</option>
-        <option value="SEDANG" <?= $rekomendasi['prioritas']=='SEDANG'?'selected':'' ?>>SEDANG</option>
-        <option value="TINGGI" <?= $rekomendasi['prioritas']=='TINGGI'?'selected':'' ?>>TINGGI</option>
-       </select>
       </div>
      </div>
      <div class="card-footer">

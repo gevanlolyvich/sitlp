@@ -15,19 +15,6 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-            <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'AUDITOR'): ?>
-            <div class="row mb-3 mt-3">
-                <div class="col-sm-6">
-                    <h3 class="mb-0">Dashboard</h3>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item">Home</li>
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
-                </div>
-            </div>
-            <?php else: ?>
             <div class="row justify-content-center mt-5">
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm">
@@ -46,7 +33,6 @@ include "../templates/sidebar.php";
                     </div>
                 </div>
             </div>
-            <?php endif; ?>
         </div>
     </div>
 </main>

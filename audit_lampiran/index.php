@@ -7,11 +7,12 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $audit_id = (int)$_GET['audit_id'];
-$qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit FROM audit_pemeriksaan WHERE id=$audit_id");
+$qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit, status FROM audit_pemeriksaan WHERE id=$audit_id");
 $audit = mysqli_fetch_assoc($qAudit);
+$locked = ($audit['status'] == 'SELESAI');
 $qLampiran = mysqli_query($conn,"SELECT l.*, u.nama 
 	FROM audit_lampiran l
 	LEFT JOIN users u ON l.uploaded_by=u.id
@@ -31,6 +32,7 @@ include "../templates/sidebar.php";
      <h3 class="card-title mb-0">Lampiran Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
      <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
     </div>
+    <?php if(!$locked): ?>
     <form action="store.php" method="post" enctype="multipart/form-data">
      <input type="hidden" name="audit_id" value="<?= $audit_id ?>">
      <div class="card-body">
@@ -59,6 +61,9 @@ include "../templates/sidebar.php";
       </div>
      </div>
     </form>
+    <?php else: ?>
+    <div class="alert alert-secondary mb-0"><i class="fas fa-lock"></i> Audit sudah ditutup. Lampiran tidak dapat diubah.</div>
+    <?php endif; ?>
    </div>
    <div class="card">
     <div class="card-body">
@@ -86,7 +91,9 @@ include "../templates/sidebar.php";
 	<td><?= $row['uploaded_at'] ?></td>
 	<td>
           <a href="../<?= htmlspecialchars($row['file_path']) ?>" target="_blank" class="btn btn-success btn-sm">Download</a>
+          <?php if(!$locked): ?>
           <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusLampiran(<?= $row['id'] ?>, <?= $audit_id ?>)">Hapus </a>
+          <?php endif; ?>
         </td>
        </tr>
        <?php } ?>

@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR','AUDITEE']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR','AUDITEE']);
 
 $id = (int)$_GET['id'];
 
@@ -108,7 +108,7 @@ foreach ($logs as $idx => $log):
     } elseif ($log['aksi'] == 'verifikasi') {
         $icon = 'fa-check-circle';
         $color = 'bg-success';
-        $title = 'Verifikasi Kepala SPI';
+        $title = 'Verifikasi Tim SIA';
     }
 
     // Arrow between items
@@ -138,7 +138,7 @@ foreach ($logs as $idx => $log):
                             <span class="badge <?= isset($badgeMap[$log['status_baru']]) ? $badgeMap[$log['status_baru']] : 'bg-info' ?>"><?= htmlspecialchars($log['status_baru']) ?></span>
                         </div>
                         <?php if ($log['catatan_spi']): ?>
-                            <div class="mt-1"><strong>Catatan SPI:</strong> <?= nl2br(htmlspecialchars($log['catatan_spi'])) ?></div>
+                            <div class="mt-1"><strong>Catatan SIA:</strong> <?= nl2br(htmlspecialchars($log['catatan_spi'])) ?></div>
                         <?php endif; ?>
                     <?php elseif ($log['aksi'] == 'upload_bukti'): ?>
                         <div>Upload bukti baru</div>
@@ -177,7 +177,7 @@ foreach ($logs as $idx => $log):
         <input type="hidden" name="rekomendasi_id" value="<?= $tl['rekomendasi_id'] ?>">
         <?php if (!empty($tl['catatan_spi'])): ?>
         <div class="mb-3">
-            <label>Catatan SPI</label>
+            <label>Catatan SIA</label>
             <textarea class="form-control" rows="3" readonly style="background-color:#f8f9fa;"><?= htmlspecialchars($tl['catatan_spi']) ?></textarea>
         </div>
         <?php endif; ?>
@@ -207,7 +207,7 @@ foreach ($logs as $idx => $log):
         ?>
     <?php else: ?>
         <div class="alert alert-info mb-0">
-            <i class="fas fa-clock"></i> Menunggu review Kepala SPI. Upload bukti belum dapat dilakukan.
+            <i class="fas fa-clock"></i> Menunggu review Tim SIA. Upload bukti belum dapat dilakukan.
         </div>
         <?php
         $hasFile = false;

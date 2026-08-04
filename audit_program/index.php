@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -16,21 +16,32 @@ include "../templates/sidebar.php";
 
 
 $where = "";
-if (
-    isset($_GET['keyword']) &&
-    trim($_GET['keyword']) != ''
-) {
-    $keyword = mysqli_real_escape_string(
-        $conn,
-        trim($_GET['keyword'])
-    );
+$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+if ($keyword != '') {
+    $kw = mysqli_real_escape_string($conn, $keyword);
     $where = "
         WHERE
-            p.kode_program LIKE '%$keyword%'
+            p.kode_program LIKE '%$kw%'
             OR
-            p.judul_program LIKE '%$keyword%'
+            p.judul_program LIKE '%$kw%'
     ";
 }
+
+$limit = 10;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$offset = ($limit * ($page - 1));
+
+$countResult = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) total
+    FROM audit_program p
+    LEFT JOIN unit_kerja u ON p.unit_id = u.id
+    LEFT JOIN auditor a ON p.penanggung_jawab_id = a.id
+    $where"
+);
+$totalRecords = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($totalRecords / $limit);
+
 $sql = mysqli_query(
     $conn,
     "
@@ -46,6 +57,7 @@ $sql = mysqli_query(
     $where
     ORDER BY p.tahun DESC,
              p.kode_program
+    LIMIT $limit OFFSET $offset
     "
 );
 
@@ -61,12 +73,13 @@ $sql = mysqli_query(
 
 <div class="col-md-6">
 
-<h3>Program Audit Tahunan</h3>
+<h3>Program Kerja Pengawasan Tahunan (PKPT)</h3>
 
 </div>
 
 <div class="col-md-6 text-end">
 
+<?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])): ?>
 <a
 href="create.php"
 class="btn btn-primary">
@@ -76,6 +89,7 @@ class="btn btn-primary">
 Tambah Program
 
 </a>
+<?php endif; ?>
 
 </div>
 
@@ -106,7 +120,7 @@ Tambah Program
 
 <div class="table-responsive-wrapper">
 <table
-id="tblPAT"
+id="tblPKPT"
 class="table table-bordered table-striped">
 
 <thead>
@@ -121,7 +135,6 @@ class="table table-bordered table-striped">
 <th>PIC</th>
 <th>Jenis Audit</th>
 <th>Risiko</th>
-<th>Prioritas</th>
 <th>Status</th>
 <th>Aksi</th>
 
@@ -167,26 +180,6 @@ else
 <td>
 
 <?php
-if($r['prioritas']=='TINGGI')
-{
-    echo '<span class="badge bg-danger">TINGGI</span>';
-}
-elseif($r['prioritas']=='SEDANG')
-{
-    echo '<span class="badge bg-warning">SEDANG</span>';
-}
-else
-{
-    echo '<span class="badge bg-success">RENDAH</span>';
-}
-?>
-
-
-</td>
-
-<td>
-
-<?php
 
 if($r['status']=='RENCANA')
 {
@@ -208,6 +201,7 @@ else
 
 <td>
 <?php if($r['status']=='RENCANA'): ?>
+<?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])): ?>
 <a href="edit.php?id=<?= $r['id'] ?>"
 class="btn btn-warning btn-sm">
 Edit
@@ -217,9 +211,20 @@ onclick="hapusProgram(<?= $r['id'] ?>)"
 class="btn btn-danger btn-sm">
 Hapus
 </button>
+<?php endif; ?>
 <a href="../audit_pemeriksaan/create.php?program_id=<?= $r['id'] ?>"
 class="btn btn-success btn-sm btn-blink-border">
 Buat Audit
+</a>
+<?php elseif($r['status']=='SELESAI' && !empty($r['lha_file'])): ?>
+<a href="../uploads/program_lha/<?= $r['lha_file'] ?>"
+target="_blank" class="btn btn-success btn-sm">
+<i class="fas fa-file-pdf"></i> Lihat LHA
+</a>
+<?php elseif($r['status']=='SELESAI'): ?>
+<a href="upload_lha.php?id=<?= $r['id'] ?>"
+class="btn btn-info btn-sm">
+<i class="fas fa-upload"></i> Upload LHA
 </a>
 <?php else: ?>
 <span class="text-muted small">-</span>
@@ -240,13 +245,23 @@ Buat Audit
 </div>
 
 
-<div class="mb-2">
-    <small class="text-muted">
-        Total Data:
-        <strong>
-            <?= mysqli_num_rows($sql) ?>
-        </strong>
-    </small>
+<div class="mt-3 d-flex justify-content-between align-items-center">
+<small class="text-muted">Total: <strong><?= $totalRecords ?></strong></small>
+<nav>
+<ul class="pagination pagination-sm mb-0">
+<li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+<a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Sebelumnya</a>
+</li>
+<?php for ($i = 1; $i <= $totalPages; $i++): ?>
+<li class="page-item <?= $i == $page ? 'active' : '' ?>">
+<a class="page-link" href="?page=<?= $i ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>"><?= $i ?></a>
+</li>
+<?php endfor; ?>
+<li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+<a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Selanjutnya</a>
+</li>
+</ul>
+</nav>
 </div>
 
 
@@ -257,30 +272,6 @@ Buat Audit
 </div>
 
 </main>
-
-<script>
-
-$(document).ready(function(){
-
-$('#tblPAT').DataTable({
-
-responsive:true,
-
-pageLength:10,
-
-dom:'Bfrtip',
-
-buttons:[
-'excel',
-'pdf',
-'print'
-]
-
-});
-
-});
-
-</script>
 
 <script>
 

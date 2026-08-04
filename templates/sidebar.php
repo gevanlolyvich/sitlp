@@ -9,7 +9,7 @@ class="nav-link">
 
 <span class="brand-text fw-light">
 
-SISIA JAKTOUR
+SI SIA JAKTOUR
 
 </span>
 
@@ -52,34 +52,34 @@ class="nav sidebar-menu flex-column"
 data-lte-toggle="treeview"
 role="menu">
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','DIREKSI'])): ?>
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI'])): ?>
 <li class="nav-item">
-<a href="../dashboard_spi/" class="nav-link">
+<a href="../dashboard_sia/" class="nav-link">
 <i class="nav-icon fas fa-chart-line"></i>
-<p>Dashboard Monitoring SPI</p>
+<p>Dashboard Monitoring SIA</p>
 </a>
 </li>
 <?php endif; ?>
 
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='AUDITOR'): ?>
 <li class="nav-item">
-<a href="../dashboard/" class="nav-link">
-<i class="nav-icon fas fa-home"></i>
-<p>Dashboard</p>
+<a href="../dashboard_sia/" class="nav-link">
+<i class="nav-icon fas fa-chart-line"></i>
+<p>Dashboard Monitoring SIA</p>
 </a>
 </li>
 <?php endif; ?>
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI'])): ?>
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','AUDITOR'])): ?>
 <li class="nav-item">
 <a href="../audit_program/" class="nav-link">
 <i class="nav-icon fas fa-calendar-alt"></i>
-<p>Program Audit (PAT)</p>
+<p>Program Kerja Pengawasan Tahunan (PKPT)</p>
 </a>
 </li>
 <?php endif; ?>
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','AUDITOR'])): ?>
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','AUDITOR'])): ?>
 <li class="nav-item">
 <a href="../audit_pemeriksaan/" class="nav-link">
 <i class="nav-icon fas fa-clipboard-check"></i>
@@ -88,7 +88,7 @@ role="menu">
 </li>
 <?php endif; ?>
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','DIREKSI'])): ?>
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','AUDITOR'])): ?>
 <li class="nav-item">
 <a href="../audit_tindak_lanjut/" class="nav-link">
 <i class="nav-icon fas fa-tasks"></i>
@@ -97,7 +97,7 @@ role="menu">
 </li>
 <?php endif; ?>
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI'])): ?>
+<?php if(isset($_SESSION['role']) && $_SESSION['role']==='ADMIN'): ?>
 <li class="nav-item">
 <a href="../audit_log/" class="nav-link">
 <i class="nav-icon fas fa-history"></i>
@@ -113,6 +113,9 @@ role="menu">
 <p>Master User</p>
 </a>
 </li>
+<?php endif; ?>
+
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])): ?>
 <li class="nav-item">
 <a href="../unit_kerja/" class="nav-link">
 <i class="nav-icon fas fa-building"></i>
@@ -123,6 +126,12 @@ role="menu">
 <a href="../auditor/" class="nav-link">
 <i class="nav-icon fas fa-user-shield"></i>
 <p>Auditor</p>
+</a>
+</li>
+<li class="nav-item">
+<a href="../hari_libur/" class="nav-link">
+<i class="nav-icon fas fa-calendar-times"></i>
+<p>Hari Libur</p>
 </a>
 </li>
 <?php endif; ?>
@@ -143,7 +152,7 @@ role="menu">
 </li>
 <?php endif; ?>
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SPI','DIREKSI'])): ?>
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI'])): ?>
 <li class="nav-item">
     <a href="../report" class="nav-link">
         <i class="nav-icon fas fa-file-excel"></i>

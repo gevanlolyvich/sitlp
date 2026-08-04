@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI']);
+checkRole(['ADMIN','KEPALA_SIA']);
 
 $id = (int) $_GET['id'];
 $q = mysqli_query($conn, "SELECT * FROM audit_program WHERE id=$id");
@@ -31,12 +31,6 @@ $risikoList = [
     'SEDANG',
     'TINGGI'
 ];
-$prioritasList = [
-    'RENDAH',
-    'SEDANG',
-    'TINGGI'
-];
-
 $unit = mysqli_query($conn, "SELECT * FROM unit_kerja WHERE aktif=1 ORDER BY nama_unit");
 $auditor = mysqli_query($conn, "SELECT * FROM auditor WHERE aktif=1 ORDER BY nama_auditor");
 
@@ -153,6 +147,9 @@ include "../templates/sidebar.php";
                                         <select name="jenis_audit" class="form-select">
                                             <?php
                                             $jenisAudit = [
+                                                'Operasional',
+                                                'Keuangan',
+                                                'Kepatuhan',
                                                 'Operasional|Keuangan|Kepatuhan',
                                                 'Verifikasi',
                                                 'Investigasi',
@@ -185,27 +182,6 @@ include "../templates/sidebar.php";
                                                       ? 'selected'
                                                       : '' ?>>
                                                     <?= $risiko ?>
-                                                </option>
-                                                <?php
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label>Prioritas</label>
-                                        <select name="prioritas" class="form-select">
-                                            <?php
-                                            $prioritasList = [
-                                                'RENDAH',
-                                                'SEDANG',
-                                                'TINGGI'
-                                            ];
-                                            foreach ($prioritasList as $prioritas) {
-                                                ?>
-                                                <option value="<?= $prioritas ?>" <?= $data['prioritas'] == $prioritas
-                                                      ? 'selected'
-                                                      : '' ?>>
-                                                    <?= $prioritas ?>
                                                 </option>
                                                 <?php
                                             }

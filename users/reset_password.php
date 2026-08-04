@@ -9,9 +9,24 @@ require_once "../auth/check.php";
 
 hasRole(['ADMIN']);
 
-$id = (int)$_GET['id'];
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: index.php");
+    exit;
+}
 
-$passwordBaru = '123456';
+$id = (int)$_POST['id'];
+$passwordBaru = $_POST['password_baru'] ?? '';
+$passwordUlang = $_POST['password_ulang'] ?? '';
+
+if ($passwordBaru !== $passwordUlang) {
+    header("Location: index.php?msg=reset_failed");
+    exit;
+}
+
+if (strlen($passwordBaru) < 6) {
+    header("Location: index.php?msg=reset_failed");
+    exit;
+}
 
 $hash = password_hash(
     $passwordBaru,

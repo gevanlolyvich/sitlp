@@ -8,21 +8,31 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR','AUDITEE']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR','AUDITEE']);
 
 $rekomendasi_id = (int)$_GET['rekomendasi_id'];
-$qRek = mysqli_query($conn,"SELECT r.*, t.audit_id FROM audit_rekomendasi r LEFT JOIN audit_temuan t ON r.temuan_id=t.id WHERE r.id=$rekomendasi_id");
+$qRek = mysqli_query($conn,"SELECT r.*, t.audit_id, ap.unit_id AS audit_unit_id, p.unit_id AS pkpt_unit_id, u.nama_unit
+    FROM audit_rekomendasi r
+    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+    LEFT JOIN audit_pemeriksaan ap ON ap.id=t.audit_id
+    LEFT JOIN audit_program p ON p.id=ap.program_id
+    LEFT JOIN unit_kerja u ON p.unit_id=u.id
+    WHERE r.id=$rekomendasi_id");
 $rek = mysqli_fetch_assoc($qRek);
 if(!$rek){die("Rekomendasi tidak ditemukan");}
 
 // Get audit end date for max target validation
 $audit_id = (int)$rek['audit_id'];
-$qAudit = mysqli_query($conn,"SELECT tanggal_selesai FROM audit_pemeriksaan WHERE id=$audit_id");
+
+blockLockedAudit($conn, $audit_id);
+
+$qAudit = mysqli_query($conn,"SELECT tanggal_mulai, tanggal_selesai FROM audit_pemeriksaan WHERE id=$audit_id");
 $auditData = mysqli_fetch_assoc($qAudit);
+$tanggal_mulai_audit = $auditData['tanggal_mulai'];
 $tanggal_selesai_audit = $auditData['tanggal_selesai'];
 
-$selected_unit_id = isset($_SESSION['unit_id']) ? (int)$_SESSION['unit_id'] : 0;
-$qUnit = mysqli_query($conn,"SELECT * FROM unit_kerja ORDER BY nama_unit");
+$selected_unit_id = (int)$rek['pkpt_unit_id'];
+$nama_unit_pkpt = $rek['nama_unit'] ?? '';
 
 // Generate nomor TL
 $qCount = mysqli_query($conn,"SELECT COUNT(*) total FROM audit_tindak_lanjut WHERE rekomendasi_id=$rekomendasi_id");
@@ -54,17 +64,9 @@ include "../templates/sidebar.php";
        </div>
        <div class="mb-3">
         <label>Unit Kerja</label>
-        <select name="unit_id" class="form-select" <?= $isAuditee ? 'disabled' : '' ?> required>
-	<option value="">Pilih Unit</option>
-	<?php
-	while($u=mysqli_fetch_assoc($qUnit)){
-	?>
-	<option value="<?= $u['id'] ?>" <?= $u['id']==$selected_unit_id?'selected':'' ?>><?= htmlspecialchars($u['nama_unit']) ?></option>
-	<?php } ?>
-        </select>
-        <?php if($isAuditee): ?>
+        <input type="text" class="form-control" value="<?= htmlspecialchars($nama_unit_pkpt) ?>" readonly>
         <input type="hidden" name="unit_id" value="<?= $selected_unit_id ?>">
-        <?php endif; ?>
+        <small class="text-muted">Unit kerja mengikuti PKPT</small>
       </div>
       <div class="mb-3">
        <label>PIC</label>
@@ -77,8 +79,8 @@ include "../templates/sidebar.php";
       <div class="row">
        <div class="col-md-6">
         <label>Target Selesai</label>
-        <input type="date" name="target_selesai" id="target_selesai" class="form-control" max="<?= $tanggal_selesai_audit ?>" required>
-        <small class="text-muted">Maksimal <?= date('d-m-Y', strtotime($tanggal_selesai_audit)) ?></small>
+        <input type="date" name="target_selesai" id="target_selesai" class="form-control" min="<?= $tanggal_mulai_audit ?>" max="<?= $tanggal_selesai_audit ?>" required>
+        <small class="text-muted">Rentang <?= date('d-m-Y', strtotime($tanggal_mulai_audit)) ?> s/d <?= date('d-m-Y', strtotime($tanggal_selesai_audit)) ?></small>
        </div>
        <div class="col-md-6">
         <label>Status</label>

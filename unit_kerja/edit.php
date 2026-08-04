@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN']);
+checkRole(['ADMIN','KEPALA_SIA']);
 
 $id = (int)$_GET['id'];
 

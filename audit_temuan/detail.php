@@ -16,6 +16,8 @@ if(!$temuan)
     die("Temuan tidak ditemukan");
 }
 
+$locked = isAuditLocked($conn, $temuan['audit_id']);
+
 $qRekomendasi = mysqli_query($conn,"SELECT * FROM audit_rekomendasi WHERE temuan_id=$id ORDER BY id");
 
 include "../templates/header.php";
@@ -67,7 +69,7 @@ include "../templates/sidebar.php";
      <hr>
      <h5>Kondisi</h5>
      <div class="alert alert-light">
-      <?= nl2br(htmlspecialchars($temuan['kondisi'])) ?>
+      <?= $temuan['kondisi'] ?>
      </div>
      <h5>Kriteria</h5>
      <div class="alert alert-light">
@@ -86,7 +88,9 @@ include "../templates/sidebar.php";
    <div class="card">
     <div class="card-header d-flex justify-content-between">
      <h3 class="card-title">Rekomendasi</h3>
+     <?php if(!$locked): ?>
      <a href="../audit_rekomendasi/create.php?temuan_id=<?= $temuan['id'] ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i>Tambah Rekomendasi</a>
+     <?php endif; ?>
     </div>
     <div class="card-body">
      <div class="table-responsive-wrapper"><table class="table table-bordered">
@@ -95,7 +99,6 @@ include "../templates/sidebar.php";
 	<th>No</th>
 	<th>Nomor</th>
 	<th>Rekomendasi</th>
-	<th>Prioritas</th>
 	<th width="180">Aksi</th>
        </tr>
       </thead>
@@ -108,9 +111,10 @@ include "../templates/sidebar.php";
         <td><?= $no++ ?></td>
 	<td><?= htmlspecialchars($r['nomor_rekomendasi']) ?></td>
 	<td><?= htmlspecialchars($r['rekomendasi']) ?></td>
-	<td><?= htmlspecialchars($r['prioritas']) ?></td>
 	<td><a href="../audit_tindak_lanjut/index.php?rekomendasi_id=<?= $r['id'] ?>" class="btn btn-success btn-sm">Tindak Lanjut</a>
+	    <?php if(!$locked): ?>
 	    <a href="../audit_rekomendasi/edit.php?id=<?= $r['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+	    <?php endif; ?>
         </td>
        </tr>
        <?php } ?>

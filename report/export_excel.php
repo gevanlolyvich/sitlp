@@ -9,7 +9,7 @@ require_once "../auth/role.php";
 
 checkRole([
     'ADMIN',
-    'KEPALA_SPI',
+    'KEPALA_SIA',
     'DIREKSI'
 ]);
 

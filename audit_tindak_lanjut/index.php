@@ -8,15 +8,16 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR','AUDITEE','DIREKSI']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR','AUDITEE']);
 
 $rekomendasi = null;
 $rekomendasi_id = 0;
+$locked = false;
 if(isset($_GET['rekomendasi_id']))
 {
     $rekomendasi_id = (int)$_GET['rekomendasi_id'];
     $qRek = mysqli_query($conn,"
-        SELECT r.*, t.nomor_temuan, t.judul_temuan
+        SELECT r.*, t.nomor_temuan, t.judul_temuan, t.audit_id
         FROM audit_rekomendasi r
         LEFT JOIN audit_temuan t ON r.temuan_id=t.id
         WHERE r.id=$rekomendasi_id");
@@ -25,6 +26,8 @@ if(isset($_GET['rekomendasi_id']))
     {
         die("Rekomendasi tidak ditemukan");
     }
+
+    $locked = isAuditLocked($conn, (int)$rekomendasi['audit_id']);
 }
 
 $where = [];
@@ -42,13 +45,28 @@ if(count($where))
     $sqlWhere = 'WHERE ' . implode(' AND ', $where);
 }
 
+$limit = 10;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$offset = ($limit * ($page - 1));
+$pageParam = $rekomendasi_id > 0 ? '&rekomendasi_id=' . $rekomendasi_id : '';
+
+$countResult = mysqli_query($conn,"SELECT COUNT(*) total
+    FROM audit_tindak_lanjut tl
+    LEFT JOIN unit_kerja u ON tl.unit_id=u.id
+    LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
+    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+    $sqlWhere");
+$totalRecords = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($totalRecords / $limit);
+
 $qTL = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_rekomendasi, t.judul_temuan, t.nomor_temuan
     FROM audit_tindak_lanjut tl
     LEFT JOIN unit_kerja u ON tl.unit_id=u.id
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
     LEFT JOIN audit_temuan t ON r.temuan_id=t.id
     $sqlWhere
-    ORDER BY tl.id DESC");
+    ORDER BY tl.id DESC
+    LIMIT $limit OFFSET $offset");
 
 $tlList = [];
 while ($row = mysqli_fetch_assoc($qTL)) {
@@ -115,7 +133,7 @@ Swal.fire({
 <div class="card">
 <div class="card-header d-flex justify-content-between">
 <h3 class="card-title">Daftar Tindak Lanjut</h3>
-<?php if(isset($_GET['rekomendasi_id']) && $_SESSION['role'] != 'AUDITEE'){ ?>
+<?php if(isset($_GET['rekomendasi_id']) && $_SESSION['role'] != 'AUDITEE' && !$locked){ ?>
 <a href="create.php?rekomendasi_id=<?= $rekomendasi_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Tindak Lanjut</a>
 <?php } ?>
 </div>
@@ -166,7 +184,7 @@ Swal.fire({
     <?php elseif (in_array($row['status'], ['Sesuai', 'Tidak Dapat Ditindak Lanjut'])): ?>
      <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm" title="History"><i class="fas fa-history"></i> History</a>
     <?php else: ?>
-      <?php if ($row['status'] == 'Proses' && !$hasUpload): ?>
+      <?php if ($row['status'] == 'Proses' && !$hasUpload && !$locked): ?>
       <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm mb-1" title="Edit"><i class="fas fa-edit"></i></a>
       <a href="javascript:void(0)" class="btn btn-danger btn-sm mb-1" onclick="hapusTL(<?= $row['id'] ?>,<?= $row['rekomendasi_id'] ?>)" title="Hapus"><i class="fas fa-trash"></i></a>
       <?php endif; ?>
@@ -180,6 +198,23 @@ Swal.fire({
  </tbody>
 </table>
 </div>
+<div class="card-footer d-flex justify-content-between align-items-center">
+<small class="text-muted">Total: <strong><?= $totalRecords ?></strong></small>
+<nav>
+<ul class="pagination pagination-sm mb-0">
+<li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+<a class="page-link" href="?page=<?= $page - 1 ?><?= $pageParam ?>">Sebelumnya</a>
+</li>
+<?php for ($i = 1; $i <= $totalPages; $i++): ?>
+<li class="page-item <?= $i == $page ? 'active' : '' ?>">
+<a class="page-link" href="?page=<?= $i ?><?= $pageParam ?>"><?= $i ?></a>
+</li>
+<?php endfor; ?>
+<li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+<a class="page-link" href="?page=<?= $page + 1 ?><?= $pageParam ?>">Selanjutnya</a>
+</li>
+</ul>
+</nav>
 </div>
 </div>
 
@@ -188,14 +223,6 @@ Swal.fire({
 </main>
 
 
-
-<script>
-$(document).ready(function(){
- $('#tblTL').DataTable({
-  responsive:true
- });
-});
-</script>
 
 <?php if (isset($_SESSION['success'])) : ?>
 <script>

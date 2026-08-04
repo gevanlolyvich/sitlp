@@ -12,7 +12,7 @@ $q = mysqli_query($conn, "SELECT COUNT(*) total FROM audit_program WHERE tahun='
 $d = mysqli_fetch_assoc($q);
 $urut = $d['total'] + 1;
 
-$kode_program = 'PAT-' . $tahun . '-' . str_pad($urut, 3, '0', STR_PAD_LEFT);
+$kode_program = 'PKPT-' . $tahun . '-' . str_pad($urut, 3, '0', STR_PAD_LEFT);
 
 $unit = mysqli_query($conn, "SELECT * FROM unit_kerja WHERE aktif=1 ORDER BY nama_unit");
 $auditor = mysqli_query($conn, "SELECT * FROM auditor WHERE aktif=1 ORDER BY nama_auditor");
@@ -96,6 +96,9 @@ include "../templates/sidebar.php";
 									<div class="col-md-4">
 										<label>Jenis Audit</label>
 										<select name="jenis_audit" class="form-select">
+											<option value="Operasional">Operasional</option>
+											<option value="Keuangan">Keuangan</option>
+											<option value="Kepatuhan">Kepatuhan</option>
 											<option value="Operasional|Keuangan|Kepatuhan">Operasional|Keuangan|Kepatuhan</option>
 											<option value="Verifikasi">Verifikasi</option>
 											<option value="Investigasi">Investigasi</option>
@@ -105,14 +108,6 @@ include "../templates/sidebar.php";
 									<div class="col-md-4">
 										<label>Level Risiko</label>
 										<select name="level_risiko" class="form-select">
-											<option>RENDAH</option>
-											<option selected>SEDANG</option>
-											<option>TINGGI</option>
-										</select>
-									</div>
-									<div class="col-md-4">
-										<label>Prioritas</label>
-										<select name="prioritas" class="form-select">
 											<option>RENDAH</option>
 											<option selected>SEDANG</option>
 											<option>TINGGI</option>

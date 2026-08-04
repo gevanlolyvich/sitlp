@@ -8,20 +8,24 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $id = (int)$_GET['id'];
 
 $rekomendasi_id = (int)$_GET['rekomendasi_id'];
 
 // Check if allowed to delete (only if status = Proses)
-$qCheck = mysqli_query($conn,"SELECT status, bukti_file FROM audit_tindak_lanjut WHERE id=$id");
+$qCheck = mysqli_query($conn,"SELECT status, bukti_file, rekomendasi_id FROM audit_tindak_lanjut WHERE id=$id");
 $d = mysqli_fetch_assoc($qCheck);
 if (!$d) {
     $_SESSION['error'] = "Data tidak ditemukan.";
     header("Location: index.php");
     exit;
 }
+
+$qAuditTrace = mysqli_query($conn,"SELECT t.audit_id FROM audit_rekomendasi r LEFT JOIN audit_temuan t ON r.temuan_id=t.id WHERE r.id=" . (int)$d['rekomendasi_id']);
+$auditTrace = mysqli_fetch_assoc($qAuditTrace);
+blockLockedAudit($conn, (int)$auditTrace['audit_id']);
 if ($d['status'] != 'Proses') {
     $_SESSION['error'] = "Hapus hanya diizinkan saat status masih Proses.";
     header("Location: index.php?rekomendasi_id=" . $rekomendasi_id);

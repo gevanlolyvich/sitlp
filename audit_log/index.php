@@ -7,13 +7,24 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI']);
+checkRole(['ADMIN']);
+
+$keyword = '';
+$limit = 25;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$offset = ($limit * ($page - 1));
+
+$countResult = mysqli_query($conn,"SELECT COUNT(*) total
+		FROM audit_log l
+		LEFT JOIN users u ON l.user_id = u.id");
+$totalRecords = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($totalRecords / $limit);
 
 $q = mysqli_query($conn,"SELECT l.*,u.nama
 		FROM audit_log l
 		LEFT JOIN users u ON l.user_id = u.id
 		ORDER BY l.created_at DESC
-		LIMIT 500");
+		LIMIT $limit OFFSET $offset");
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -49,21 +60,30 @@ include "../templates/sidebar.php";
        </tr>
        <?php } ?>
       </tbody>
-     </table>
-     </div>
+      </table>
+      </div>
+    </div>
+    <div class="card-footer mt-3 d-flex justify-content-between align-items-center">
+    <small class="text-muted">Total: <strong><?= $totalRecords ?></strong></small>
+    <nav>
+    <ul class="pagination pagination-sm mb-0">
+    <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+    <a class="page-link" href="?page=<?= $page - 1 ?>">Sebelumnya</a>
+    </li>
+    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+    <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+    </li>
+    <?php endfor; ?>
+    <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+    <a class="page-link" href="?page=<?= $page + 1 ?>">Selanjutnya</a>
+    </li>
+    </ul>
+    </nav>
     </div>
    </div>
   </div>
  </div>
 </main>
-
-<script>
-$(document).ready(function(){
-  $('#tblLog').DataTable({
-    order:[[0,'desc']],
-    pageLength:25
-  });
-});
-</script>
 
 <?php include "../templates/footer.php"; ?>

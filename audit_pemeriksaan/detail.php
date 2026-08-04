@@ -7,7 +7,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR','AUDITEE','DIREKSI']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR','AUDITEE']);
 
 $id = (int)$_GET['id'];
 
@@ -93,8 +93,6 @@ include "../templates/sidebar.php";
 
 
       <div class="mt-3">
-       <a href="lha_pdf.php?id=<?= $audit['id'] ?>" target="_blank" class="btn btn-danger">
-       <i class="fas fa-file-pdf"></i>Generate LHA</a>
        <?php if($audit['status']!='SELESAI'): ?>
        <a href="close.php?id=<?= $audit['id'] ?>" class="btn btn-success btn-attention btn-close-audit">
        <i class="fas fa-check-circle"></i>Tutup Audit</a>
@@ -114,11 +112,7 @@ include "../templates/sidebar.php";
       <div class="card-body text-center">
        <h5>Tim Audit</h5>
        <p>Kelola anggota tim audit</p>
-       <?php if($audit['status']!='SELESAI'): ?>
        <a href="../audit_tim/index.php?audit_id=<?= $audit['id'] ?>" class="btn btn-primary">Buka</a>
-       <?php else: ?>
-       <button class="btn btn-secondary" disabled><i class="fas fa-lock"></i> Terkunci</button>
-       <?php endif; ?>
       </div>
      </div>
     </div>
@@ -127,11 +121,7 @@ include "../templates/sidebar.php";
       <div class="card-body text-center">
        <h5>Lampiran</h5>
        <p>Dokumen audit</p>
-       <?php if($audit['status']!='SELESAI'): ?>
        <a href="../audit_lampiran/index.php?audit_id=<?= $audit['id'] ?>" class="btn btn-success">Buka</a>
-       <?php else: ?>
-       <button class="btn btn-secondary" disabled><i class="fas fa-lock"></i> Terkunci</button>
-       <?php endif; ?>
       </div>
      </div>
     </div>
@@ -140,11 +130,7 @@ include "../templates/sidebar.php";
       <div class="card-body text-center">
        <h5>Temuan Audit</h5>
        <p>Hasil pemeriksaan</p>
-       <?php if($audit['status']!='SELESAI'): ?>
        <a href="../audit_temuan/index.php?audit_id=<?= $audit['id'] ?>" class="btn btn-warning">Buka</a>
-       <?php else: ?>
-       <button class="btn btn-secondary" disabled><i class="fas fa-lock"></i> Terkunci</button>
-       <?php endif; ?>
       </div>
      </div>
     </div>

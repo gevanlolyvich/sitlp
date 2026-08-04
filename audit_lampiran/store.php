@@ -7,9 +7,11 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN','KEPALA_SPI','AUDITOR']);
+checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $audit_id = (int)$_POST['audit_id'];
+
+blockLockedAudit($conn, $audit_id);
 
 $jenis = mysqli_real_escape_string($conn,$_POST['jenis_dokumen']);
 $maxSize = 5 * 1024 * 1024;
