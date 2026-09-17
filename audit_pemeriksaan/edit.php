@@ -37,20 +37,28 @@ if($audit['status']=='Selesai')
 
 
 <main class="app-main"> <div class="app-content"> <div class="container-fluid">
+<div class="jxb-page-header">
+<div>
+ <h1 class="jxb-page-title"><i class="fas fa-edit me-2 text-primary"></i>Edit Pemeriksaan Audit</h1>
+ <div class="jxb-page-subtitle">Ubah data pemeriksaan audit <?= htmlspecialchars($audit['nomor_audit']) ?></div>
+</div>
+<div class="jxb-page-actions">
+ <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+</div>
+</div>
 <div class="card mt-3">
-<div class="card-header"> <h3 class="card-title"> Edit Pemeriksaan Audit </h3> </div>
 <form action="update.php" method="post">
 <input type="hidden" name="id" value="<?= $audit['id'] ?>">
 <div class="card-body">
 <div class="row">
-<div class="col-md-6"> <label>Nomor Audit</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nomor_audit']) ?>" readonly> </div>
-<div class="col-md-6"> <label>Nomor Surat Tugas</label> <input type="text" name="nomor_surat_tugas"class="form-control" value="<?= htmlspecialchars($audit['nomor_surat_tugas']) ?>" required> </div>
+<div class="col-md-6"> <label class="form-label">Nomor Audit</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nomor_audit']) ?>" readonly> </div>
+<div class="col-md-6"> <label class="form-label">Nomor Surat Tugas <span class="jxb-required">*</span></label> <input type="text" name="nomor_surat_tugas"class="form-control" value="<?= htmlspecialchars($audit['nomor_surat_tugas']) ?>" required> </div>
 </div>
 <br>
 <div class="row">
 
-<div class="col-md-4"> <label>Unit Kerja</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nama_unit']) ?>" readonly> </div>
-<div class="col-md-4"> <label>Jenis Audit</label>
+<div class="col-md-4"> <label class="form-label">Unit Kerja</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nama_unit']) ?>" readonly> </div>
+<div class="col-md-4"> <label class="form-label">Jenis Audit</label>
 <input type="hidden" name="jenis_audit" value="<?= htmlspecialchars($audit['jenis_audit']) ?>">
 <?php
 $displayJenis = $audit['jenis_audit'];
@@ -64,27 +72,27 @@ if (isset($mapJenis[$displayJenis])) $displayJenis = $mapJenis[$displayJenis];
 ?>
 <input type="text" class="form-control" value="<?= htmlspecialchars($displayJenis) ?>" readonly>
 </div>
-<div class="col-md-4"> <label>Ketua Auditor</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nama_auditor']) ?>" readonly> </div>
+<div class="col-md-4"> <label class="form-label">Ketua Auditor</label> <input type="text" class="form-control" value="<?=htmlspecialchars($audit['nama_auditor']) ?>" readonly> </div>
 </div>
 <br>
 <div class="row">
-<div class="col-md-6"> <label>Tanggal Surat Tugas</label> <input type="date" name="tanggal_surat_tugas"class="form-control" value="<?= $audit['tanggal_surat_tugas'] ?>" required> </div>
-<div class="col-md-6"> <label>Judul Audit</label> <input type="hidden" name="judul_audit" value="<?= htmlspecialchars($audit['judul_audit']) ?>"> <input type="text" class="form-control" value="<?= htmlspecialchars($audit['judul_audit']) ?>" readonly> </div>
+<div class="col-md-6"> <label class="form-label">Tanggal Surat Tugas <span class="jxb-required">*</span></label> <input type="date" name="tanggal_surat_tugas"class="form-control" value="<?= $audit['tanggal_surat_tugas'] ?>" required> </div>
+<div class="col-md-6"> <label class="form-label">Judul Audit</label> <input type="hidden" name="judul_audit" value="<?= htmlspecialchars($audit['judul_audit']) ?>"> <input type="text" class="form-control" value="<?= htmlspecialchars($audit['judul_audit']) ?>" readonly> </div>
 </div>
 <br>
 <div class="row">
-<div class="col-md-4"> <label>Tanggal Mulai Audit</label> <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control" value="<?= $audit['tanggal_mulai'] ?>" required> </div>
-<div class="col-md-4"> <label>Estimasi Hari</label> <input type="hidden" name="estimasi_hari" value="<?= $audit['estimasi_hari'] ?: 14 ?>"> <input type="number" id="estimasi_hari" value="<?= $audit['estimasi_hari'] ?: 14 ?>" class="form-control" readonly> </div>
-<div class="col-md-4"> <label>Tanggal Selesai Audit</label> <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" value="<?= $audit['tanggal_selesai'] ?>" readonly> </div>
+<div class="col-md-4"> <label class="form-label">Tanggal Mulai Audit <span class="jxb-required">*</span></label> <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control" value="<?= $audit['tanggal_mulai'] ?>" required> </div>
+<div class="col-md-4"> <label class="form-label">Estimasi Hari</label> <input type="hidden" name="estimasi_hari" value="<?= $audit['estimasi_hari'] ?: 14 ?>"> <input type="number" id="estimasi_hari" value="<?= $audit['estimasi_hari'] ?: 14 ?>" class="form-control" readonly> </div>
+<div class="col-md-4"> <label class="form-label">Tanggal Selesai Audit</label> <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" value="<?= $audit['tanggal_selesai'] ?>" readonly> </div>
 </div>
 <br>
-<label>Ruang Lingkup Audit</label>
+<label class="form-label">Ruang Lingkup Audit</label>
 <textarea name="ruang_lingkup" class="form-control" rows="5"><?=htmlspecialchars($audit['ruang_lingkup']) ?></textarea>
 <br>
 </div>
 <div class="card-footer">
 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-<a href="index.php" class="btn btn-secondary">Kembali</a>
+<a href="index.php" class="btn btn-outline-secondary">Kembali</a>
 </div>
 </form>
 </div>

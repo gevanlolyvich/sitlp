@@ -28,11 +28,16 @@ include "../templates/sidebar.php";
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header d-flex align-items-center">
-     <h3 class="card-title mb-0"><?= htmlspecialchars($temuan['nomor_temuan']) ?></h3>
-     <a href="index.php?audit_id=<?= $temuan['audit_id'] ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-eye me-2 text-primary"></i><?= htmlspecialchars($temuan['nomor_temuan']) ?></h1>
+     <div class="jxb-page-subtitle">Detail temuan audit</div>
     </div>
+    <div class="jxb-page-actions">
+     <a href="index.php?audit_id=<?= $temuan['audit_id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+   </div>
+   <div class="card mt-3">
     <div class="card-body">
     <div class="table-responsive-wrapper"><table class="table table-bordered">
      <tr>
@@ -44,18 +49,23 @@ include "../templates/sidebar.php";
        <td>
         <?php
          if($temuan['tingkat_risiko']=='Tinggi'){
-    	  echo '<span class="badge bg-danger">Tinggi</span>';
+    	  echo '<span class="jxb-status-badge is-danger">Tinggi</span>';
          }elseif($temuan['tingkat_risiko']=='Sedang'){
-          echo '<span class="badge bg-warning">Sedang</span>';
+          echo '<span class="jxb-status-badge is-warn">Sedang</span>';
          } else {
-          echo '<span class="badge bg-success">Rendah</span>';
+          echo '<span class="jxb-status-badge is-success">Rendah</span>';
          }
         ?>
        </td>
       </tr>
       <tr>
        <th>Status</th>
-        <td><?= htmlspecialchars($temuan['status']) ?></td>
+        <td><?php
+         $sts = $temuan['status'];
+         if($sts=='Selesai'){ echo '<span class="jxb-status-badge is-success">Selesai</span>'; }
+         elseif($sts=='Draft'){ echo '<span class="jxb-status-badge is-neutral">Draft</span>'; }
+         else { echo '<span class="jxb-status-badge is-info">' . htmlspecialchars($sts) . '</span>'; }
+        ?></td>
       </tr>
       <tr>
        <th>Dibuat Oleh</th>

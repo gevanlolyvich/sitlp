@@ -17,15 +17,23 @@ include "../templates/sidebar.php";
 <div class="app-content">
 <div class="container-fluid">
 
-<div class="mb-3">
- <a href="index.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+<div class="jxb-page-header">
+ <div>
+  <h1 class="jxb-page-title"><i class="fas fa-building me-2 text-primary"></i>Management Representative (MR)</h1>
+  <div class="jxb-page-subtitle">Pemantauan Management Representative</div>
+ </div>
+ <div class="jxb-page-actions">
+  <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+ </div>
 </div>
 
 <div class="card">
- <div class="card-body text-center py-5">
-  <i class="fas fa-tools text-muted mb-3" style="font-size:64px;"></i>
-  <h4 class="text-muted">Management Representative (MR)</h4>
-  <p class="text-muted">Fitur ini akan tersedia pada rilis berikutnya.</p>
+ <div class="card-body py-5">
+  <div class="jxb-empty">
+   <i class="fas fa-tools"></i>
+   <div class="jxb-empty-title mt-1">Belum tersedia</div>
+   <div>Fitur Management Representative akan tersedia pada rilis berikutnya.</div>
+  </div>
  </div>
 </div>
 

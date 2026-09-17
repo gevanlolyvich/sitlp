@@ -28,18 +28,23 @@ include "../templates/sidebar.php";
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-     <div class="card-header d-flex align-items-center">
-     <h3 class="card-title mb-0">Tim Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
-     <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-users me-2 text-primary"></i>Tim Audit</h1>
+     <div class="jxb-page-subtitle"><?= htmlspecialchars($audit['nomor_audit']) ?> &mdash; <?= htmlspecialchars($audit['judul_audit']) ?></div>
     </div>
+    <div class="jxb-page-actions">
+     <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+   </div>
+   <div class="card">
     <?php if(!$locked): ?>
     <form action="store.php" method="post">
      <input type="hidden" name="audit_id" value="<?= $audit_id ?>">
      <div class="card-body">
       <div class="row">
        <div class="col-md-5">
-        <label>Auditor</label>
+        <label class="form-label">Auditor <span class="jxb-required">*</span></label>
         <select name="auditor_id" class="form-select" required>
 	 <option value="">Pilih Auditor</option>
          <?php
@@ -50,14 +55,14 @@ include "../templates/sidebar.php";
         </select>
        </div>
        <div class="col-md-4">
-       <label>Peran</label>
+       <label class="form-label">Peran</label>
         <select name="peran" class="form-select">
 	<option value="Anggota" selected>Anggota</option>
 	<option value="Ketua Tim">Ketua Tim</option>
        </select>
        </div>
       <div class="col-md-3">
-       <label>&nbsp;</label>
+       <label class="form-label">&nbsp;</label>
        <button type="submit" class="btn btn-primary w-100">Tambah Tim</button>
       </div>
      </div>
@@ -68,6 +73,9 @@ include "../templates/sidebar.php";
    <?php endif; ?>
   </div>
   <div class="card">
+   <div class="card-header">
+    <h6 class="card-title mb-0"><i class="fas fa-list me-2 text-primary"></i>Daftar Anggota Tim</h6>
+   </div>
    <div class="card-body">
     <div class="table-responsive-wrapper"><table class="table table-bordered">
      <thead>
@@ -80,6 +88,19 @@ include "../templates/sidebar.php";
      </thead>
      <tbody>
       <?php
+       if(mysqli_num_rows($qTim) === 0){
+      ?>
+       <tr>
+        <td colspan="4" class="text-center py-4">
+         <div class="jxb-empty">
+          <i class="fas fa-users"></i>
+          <div class="jxb-empty-title mt-1">Belum ada anggota tim</div>
+          <div>Tambahkan auditor untuk membentuk tim pemeriksaan.</div>
+         </div>
+        </td>
+       </tr>
+      <?php
+       } else {
        $no=1;
        while($t=mysqli_fetch_assoc($qTim)){
        ?>
@@ -93,16 +114,16 @@ include "../templates/sidebar.php";
          ?></td>
 	 <td>
 	  <?php if(!$locked): ?>
-	  <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusAnggota(<?= $t['id'] ?>, <?= $audit_id ?>)">Hapus</a>
+	  <a href="javascript:void(0)" class="btn btn-danger btn-sm" title="Hapus" aria-label="Hapus" onclick="hapusAnggota(<?= $t['id'] ?>, <?= $audit_id ?>)"><i class="fas fa-trash"></i> Hapus</a>
 	  <?php endif; ?>
 	 </td>
 	</tr>
-       <?php } ?>
-      </tbody>
-     </table>
-     </div>
+       <?php } } ?>
+     </tbody>
+    </table>
     </div>
    </div>
+  </div>
   </div>
  </div>
 </main>

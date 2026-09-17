@@ -31,20 +31,23 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-<div class="card mt-3">
-<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-<h3 class="card-title mb-0">Daftar Hari Libur</h3>
-<div class="d-flex gap-2">
+<div class="jxb-page-header">
+    <div>
+        <h1 class="jxb-page-title"><i class="fas fa-calendar-times me-2 text-primary"></i>Hari Libur</h1>
+        <div class="jxb-page-subtitle">Kalender hari libur kerja untuk perhitungan estimasi</div>
+    </div>
+</div>
+<div class="card">
+<div class="card-body">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
 <form method="get" class="search-form">
 <div class="input-group">
-<input type="text" name="keyword" class="form-control" placeholder="Cari..." value="<?= htmlspecialchars($keyword) ?>">
-<button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
+<input type="text" name="keyword" class="form-control" placeholder="Cari keterangan/tanggal..." value="<?= htmlspecialchars($keyword) ?>">
+<button class="btn btn-primary" type="submit"><i class="fas fa-search"></i><span class="d-none d-sm-inline ps-1">Cari</span></button>
 </div>
 </form>
 <a href="create.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Hari Libur</a>
 </div>
-</div>
-<div class="card-body">
 <div class="table-responsive-wrapper">
 <table class="table table-bordered table-hover">
 <thead>
@@ -64,12 +67,12 @@ include "../templates/sidebar.php";
 <td><?= htmlspecialchars($r['keterangan']) ?></td>
 <td><?= htmlspecialchars($r['nama'] ?? '-') ?></td>
 <td>
-<a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+<a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
 <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="if(confirm('Yakin hapus?')){window.location='delete.php?id=<?= $r['id'] ?>'}"><i class="fas fa-trash"></i></a>
 </td>
 </tr>
 <?php endwhile; else: ?>
-<tr><td colspan="5" class="text-center">Belum ada data hari libur</td></tr>
+<tr><td colspan="5" class="text-center py-4"><div class="jxb-empty"><i class="fas fa-sun"></i><div class="jxb-empty-title mt-1">Belum ada data hari libur</div><div>Klik "Tambah Hari Libur" untuk menambahkan.</div></div></td></tr>
 <?php endif; ?>
 </tbody>
 </table>

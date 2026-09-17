@@ -23,29 +23,25 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                <h1 class="h4 mb-0">Generate Report Excel</h1>
-                <ol class="breadcrumb mb-0 d-none d-md-flex">
-                    <li class="breadcrumb-item"><a href="../dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Export Excel</li>
-                </ol>
-            </div>
-            <div class="card card-success">
-                <div class="card-header">
-                    <h3 class="card-title">Export Matrik Pemantauan Tindak Lanjut</h3>
+            <div class="jxb-page-header">
+                <div>
+                    <h1 class="jxb-page-title"><i class="fas fa-file-excel me-2 text-primary"></i>Export Excel</h1>
+                    <div class="jxb-page-subtitle">Matrik pemantauan tindak lanjut berdasarkan rentang tanggal</div>
                 </div>
+            </div>
+            <div class="card">
                 <form action="export_excel.php" method="GET">
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label>Tanggal Awal</label>
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal Awal <span class="jxb-required">*</span></label>
                                     <input type="date" name="tanggal_awal" class="form-control" required>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label>Tanggal Akhir</label>
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal Akhir <span class="jxb-required">*</span></label>
                                     <input type="date" name="tanggal_akhir" class="form-control" required>
                                 </div>
                             </div>
@@ -56,8 +52,8 @@ include "../templates/sidebar.php";
                         </div>
                     </div>
                     <div class="card-footer">
-                        <div class="d-grid d-sm-inline-grid">
-                            <button type="submit" class="btn btn-success">
+                        <div class="jxb-form-actions">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-file-excel"></i> Generate Excel
                             </button>
                         </div>

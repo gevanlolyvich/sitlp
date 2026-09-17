@@ -51,10 +51,13 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Pemeriksaan Audit</h3>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-clipboard-check me-2 text-primary"></i>Pemeriksaan Audit</h1>
+     <div class="jxb-page-subtitle">Daftar audit yang sedang atau telah dilaksanakan</div>
     </div>
+   </div>
+   <div class="card">
     <div class="card-body">
 
 
@@ -67,7 +70,7 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i>Cari</button>
                     <?php if(isset($_GET['keyword']) && $_GET['keyword'] != ''): ?>
-                    <a href="index.php" class="btn btn-secondary">Reset</a>
+                    <a href="index.php" class="btn btn-outline-secondary">Reset</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -98,17 +101,17 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
         <td><?php
 		$status = $row['status'];
 		if($status=='Draft'){
-		    echo '<span class="badge bg-secondary">Draft</span>';
+		    echo '<span class="jxb-status-badge is-neutral">Draft</span>';
 		} elseif($status=='Berjalan'){
-		    echo '<span class="badge bg-warning">Berjalan</span>';
+		    echo '<span class="jxb-status-badge is-info">Berjalan</span>';
 		} else{
-		    echo '<span class="badge bg-success">Selesai</span>';
+		    echo '<span class="jxb-status-badge is-success">Selesai</span>';
 		}
 	?></td>
 	<td>
-	 <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
+	 <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm">Detail</a>
 	 <?php if($row['status'] != 'Selesai'): ?>
-	 <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+	 <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline-warning btn-sm">Edit</a>
 	 <?php endif; ?>
 
 	</td>

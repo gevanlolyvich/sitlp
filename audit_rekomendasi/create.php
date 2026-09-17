@@ -31,15 +31,21 @@ include "../templates/sidebar.php";
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Tambah Rekomendasi</h3>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-plus-circle me-2 text-primary"></i>Tambah Rekomendasi</h1>
+     <div class="jxb-page-subtitle">Buat rekomendasi untuk temuan <?= htmlspecialchars($temuan['nomor_temuan']) ?></div>
     </div>
+    <div class="jxb-page-actions">
+     <a href="../audit_temuan/detail.php?id=<?= $temuan_id ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+   </div>
+   <div class="card mt-3">
     <form action="store.php" method="post" id="form-rekomendasi">
      <input type="hidden" name="temuan_id" value="<?= $temuan_id ?>">
      <div class="card-body">
       <div class="mb-3">
-       <label>Nomor Temuan</label>
+       <label class="form-label">Nomor Temuan</label>
        <input type="text" class="form-control" value="<?= htmlspecialchars($temuan['nomor_temuan']) ?>" readonly>
       </div>
       <div id="rekomendasi-container">
@@ -55,7 +61,7 @@ include "../templates/sidebar.php";
      </div>
      <div class="card-footer">
       <button type="submit" class="btn btn-primary">Simpan</button>
-      <a href="../audit_temuan/detail.php?id=<?= $temuan_id ?>" class="btn btn-secondary">Kembali</a>
+      <a href="../audit_temuan/detail.php?id=<?= $temuan_id ?>" class="btn btn-outline-secondary">Kembali</a>
      </div>
     </form>
     <script>

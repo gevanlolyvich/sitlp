@@ -51,16 +51,22 @@ include "../templates/sidebar.php";
 <main class="app-main">
 <div class="app-content">
 <div class="container-fluid">
-<div class="card mt-3">
-<div class="card-header">
-<h3 class="card-title">Edit Tindak Lanjut</h3>
+<div class="jxb-page-header">
+<div>
+<h1 class="jxb-page-title"><i class="fas fa-edit me-2 text-primary"></i>Edit Tindak Lanjut</h1>
+<div class="jxb-page-subtitle">Ubah data tindak lanjut <?= htmlspecialchars($tl['nomor_tindak_lanjut']) ?></div>
 </div>
+<div class="jxb-page-actions">
+<a href="index.php?<?= ($tlData && $tlData['temuan_id']) ? 'temuan_id=' . (int)$tlData['temuan_id'] : 'rekomendasi_id=' . $tl['rekomendasi_id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+</div>
+</div>
+<div class="card mt-3">
 <form action="update.php" method="post">
 <input type="hidden" name="id" value="<?= $tl['id'] ?>">
 <input type="hidden" name="rekomendasi_id" value="<?= $tl['rekomendasi_id'] ?>">
 <div class="card-body">
 <div class="mb-3">
-<label>Unit Kerja</label>
+<label class="form-label">Unit Kerja <span class="jxb-required">*</span></label>
 <select name="unit_id" class="form-select" <?= $isLocked ? 'disabled' : '' ?> required>
  <option value="">Pilih Unit</option>
  <?php
@@ -74,12 +80,12 @@ include "../templates/sidebar.php";
 <?php endif; ?>
 </div>
 <div class="mb-3">
-<label>Uraian Tindak Lanjut</label>
+<label class="form-label">Uraian Tindak Lanjut <span class="jxb-required">*</span></label>
 <textarea name="uraian_tindak_lanjut" class="form-control" rows="5" required><?= htmlspecialchars($tl['uraian_tindak_lanjut']) ?></textarea>
 </div>
 <div class="row">
 <div class="col-md-6">
-<label>Target Selesai</label>
+<label class="form-label">Target Selesai</label>
 <input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control" min="<?= $tanggal_mulai_audit ?>" max="<?= $tanggal_selesai_audit ?>" <?= $isLocked ? 'disabled' : '' ?>>
 <small class="text-muted"><?= ($tanggal_mulai_audit && $tanggal_selesai_audit) ? 'Rentang ' . date('d-m-Y', strtotime($tanggal_mulai_audit)) . ' s/d ' . date('d-m-Y', strtotime($tanggal_selesai_audit)) : '-' ?></small>
 <?php if($isLocked): ?>
@@ -87,14 +93,14 @@ include "../templates/sidebar.php";
 <?php endif; ?>
 </div>
 <div class="col-md-6">
-<label>Status</label>
+<label class="form-label">Status</label>
 <input type="text" class="form-control" value="<?= htmlspecialchars($tl['status']) ?>" readonly>
 <input type="hidden" name="status" value="<?= htmlspecialchars($tl['status']) ?>">
 </div>
 </div>
 <div class="card-footer">
 <button type="submit" class="btn btn-primary">Update</button>
-<a href="index.php?<?= ($tlData && $tlData['temuan_id']) ? 'temuan_id=' . (int)$tlData['temuan_id'] : 'rekomendasi_id=' . $tl['rekomendasi_id'] ?>" class="btn btn-secondary">Kembali</a>
+<a href="index.php?<?= ($tlData && $tlData['temuan_id']) ? 'temuan_id=' . (int)$tlData['temuan_id'] : 'rekomendasi_id=' . $tl['rekomendasi_id'] ?>" class="btn btn-outline-secondary">Kembali</a>
 </div>
 </form>
 </div>

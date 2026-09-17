@@ -27,6 +27,9 @@ href="/sisia/assets/adminlte/dist/css/adminlte.min.css">
 <link rel="stylesheet"
 href="/sisia/assets/css/custom.css">
 
+<link rel="stylesheet"
+href="/sisia/assets/css/jxb-design-system.css">
+
 <!-- DataTables -->
 <link rel="stylesheet"
 href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">

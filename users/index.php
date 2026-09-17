@@ -95,27 +95,20 @@ text:'Password baru dan ulangi password harus sama (minimal 6 karakter).'
 ?>
 
 <div class="row mt-3 mb-3">
-
 <div class="col-sm-6">
-
-<h3>Master User</h3>
-
+<div class="jxb-page-header">
+<div>
+<h1 class="jxb-page-title"><i class="fas fa-users me-2 text-primary"></i>Master User</h1>
+<div class="jxb-page-subtitle">Kelola akun pengguna sistem</div>
 </div>
-
+</div>
+</div>
 <div class="col-sm-6 text-end">
-
-<a
-href="create.php"
-class="btn btn-primary">
-
+<a href="create.php" class="btn btn-primary">
 <i class="fas fa-plus"></i>
-
 Tambah User
-
 </a>
-
 </div>
-
 </div>
 
 <div class="card">
@@ -159,16 +152,16 @@ $r=mysqli_fetch_assoc($sql)
 <td><?= $r['id'] ?></td>
 <td><?= htmlspecialchars($r['nama']) ?></td>
 <td><?= htmlspecialchars($r['username']) ?></td>
-<td><?= htmlspecialchars($r['nama_unit']) ?></td>
+<td><?= htmlspecialchars($r['nama_unit'] ?? '') ?></td>
 <td><?= htmlspecialchars($r['role']) ?></td>
 <td>
 
 <?=
 $r['aktif']
 ?
-'<span class="badge bg-success">Aktif</span>'
+'<span class="jxb-status-badge is-success">Aktif</span>'
 :
-'<span class="badge bg-danger">Nonaktif</span>'
+'<span class="jxb-status-badge is-danger">Nonaktif</span>'
 ?>
 
 </td>
@@ -177,13 +170,13 @@ $r['aktif']
 
 <a
 href="edit.php?id=<?= $r['id'] ?>"
-class="btn btn-warning btn-sm">
+class="btn btn-outline-warning btn-sm">
 
-Edit
+ Edit
 
 </a>
 
-<a href="#" class="btn btn-info btn-sm" onclick="resetPassword(<?= $r['id'] ?>, '<?= htmlspecialchars($r['nama'], ENT_QUOTES) ?>')">Reset</a>
+<a href="#" class="btn btn-outline-primary btn-sm" onclick="resetPassword(<?= $r['id'] ?>, '<?= htmlspecialchars($r['nama'], ENT_QUOTES) ?>')">Reset</a>
 
 </td>
 

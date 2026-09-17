@@ -116,12 +116,18 @@ while ($row = mysqli_fetch_assoc($qTL)) {
 }
 
 $badgeMap = [
-    'Proses' => 'bg-warning',
-    'Sesuai' => 'bg-success',
-    'Belum Sesuai' => 'bg-danger',
-    'Belum Ditindak Lanjut' => 'bg-secondary text-white',
-    'Tidak Dapat Ditindak Lanjut' => 'bg-dark text-white'
+    'Proses' => 'is-info',
+    'Sesuai' => 'is-success',
+    'Belum Sesuai' => 'is-danger',
+    'Belum Ditindak Lanjut' => 'is-warn',
+    'Tidak Dapat Ditindak Lanjut' => 'is-neutral'
 ];
+
+function jxbStatusBadge($status, $map)
+{
+    $cls = isset($map[$status]) ? $map[$status] : 'is-neutral';
+    return '<span class="jxb-status-badge ' . $cls . '">' . htmlspecialchars($status) . '</span>';
+}
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -146,17 +152,34 @@ Swal.fire({
 <div class="app-content">
 <div class="container-fluid">
 
-<div class="card mt-3">
-<div class="card-header d-flex align-items-center">
-<h3 class="card-title mb-0">Tindak Lanjut Rekomendasi</h3>
-<?php if($_SESSION['role'] != 'AUDITEE'): ?>
+<div class="jxb-page-header">
+<div>
+<h1 class="jxb-page-title"><i class="fas fa-tasks me-2 text-primary"></i>Tindak Lanjut Rekomendasi</h1>
+<div class="jxb-page-subtitle">
 <?php if($temuan_id > 0): ?>
-<a href="../audit_temuan/detail.php?id=<?= $temuan_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
+<?= htmlspecialchars($temuan['nomor_temuan']) ?> &mdash; <?= htmlspecialchars($temuan['judul_temuan']) ?>
 <?php elseif($rekomendasi_id > 0): ?>
-<a href="../audit_temuan/detail.php?id=<?= $rekomendasi['temuan_id'] ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
-<?php endif; ?>
+<?= htmlspecialchars($rekomendasi['nomor_temuan']) ?> &mdash; <?= htmlspecialchars($rekomendasi['judul_temuan']) ?>
+<?php else: ?>
+Daftar tindak lanjut seluruh rekomendasi
 <?php endif; ?>
 </div>
+</div>
+<div class="jxb-page-actions">
+<?php if($_SESSION['role'] != 'AUDITEE'): ?>
+<?php if($temuan_id > 0): ?>
+<a href="../audit_temuan/detail.php?id=<?= $temuan_id ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+<?php elseif($rekomendasi_id > 0): ?>
+<a href="../audit_temuan/detail.php?id=<?= $rekomendasi['temuan_id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+<?php endif; ?>
+<?php endif; ?>
+<?php if(isset($_GET['rekomendasi_id']) && $_SESSION['role'] != 'AUDITEE' && !$locked): ?>
+<a href="create.php?rekomendasi_id=<?= $rekomendasi_id ?>" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Tindak Lanjut</a>
+<?php endif; ?>
+</div>
+</div>
+
+<div class="card">
 <div class="card-body">
 <?php if($temuan_id > 0){ ?>
 <div class="table-responsive-wrapper"><table class="table table-bordered">
@@ -197,10 +220,10 @@ Swal.fire({
 </div>
 
 <div class="card">
-<div class="card-header d-flex justify-content-between">
-<h3 class="card-title">Daftar Tindak Lanjut</h3>
+<div class="d-flex justify-content-between align-items-center px-3 pt-3">
+<h6 class="card-title mb-0"><i class="fas fa-list me-2 text-primary"></i>Daftar Tindak Lanjut</h6>
 <?php if(isset($_GET['rekomendasi_id']) && $_SESSION['role'] != 'AUDITEE' && !$locked){ ?>
-<a href="create.php?rekomendasi_id=<?= $rekomendasi_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Tindak Lanjut</a>
+<a href="create.php?rekomendasi_id=<?= $rekomendasi_id ?>" class="btn btn-primary btn-sm d-md-none"><i class="fas fa-plus"></i></a>
 <?php } ?>
 </div>
 
@@ -227,7 +250,17 @@ Swal.fire({
   </tr>
  </thead>
  <tbody>
-   <?php foreach ($tlList as $row):
+<?php if (count($tlList) === 0): ?>
+   <tr>
+    <td colspan="10" class="text-center py-4">
+     <div class="jxb-empty">
+      <i class="fas fa-tasks"></i>
+      <div class="jxb-empty-title mt-1">Belum ada tindak lanjut</div>
+      <div>Belum ada data tindak lanjut untuk daftar ini.</div>
+     </div>
+    </td>
+   </tr>
+   <?php else: foreach ($tlList as $row):
     $hasUpload = false;
     $lastLogAksi = null;
     foreach ($row['logs'] as $l) { if ($l['aksi'] == 'upload_bukti') { $hasUpload = true; } }
@@ -235,21 +268,17 @@ Swal.fire({
    ?>
   <tr>
 <td><strong><?= htmlspecialchars($row['nomor_tindak_lanjut']) ?></strong>
-        <small class="text-muted d-block" style="font-size:11px;font-weight:400;"><?= htmlspecialchars($row['judul_temuan'] ?? '') ?></small>
+        <small class="text-muted d-block"><?= htmlspecialchars($row['judul_temuan'] ?? '') ?></small>
     </td>
-    <td style="white-space: pre-wrap; word-break: break-word; max-width: 220px;"><?= htmlspecialchars($row['rekomendasi']) ?></td>
+    <td><?= htmlspecialchars($row['rekomendasi']) ?></td>
     <td><?= htmlspecialchars($row['nama_unit']) ?></td>
-    <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 250px;"><?= htmlspecialchars($row['uraian_tindak_lanjut']) ?></td>
+    <td><?= htmlspecialchars($row['uraian_tindak_lanjut']) ?></td>
    <td><?= $row['target_selesai'] ? date('d-m-Y', strtotime($row['target_selesai'])) : '-' ?></td>
    <td>
-    <?php
-    $sts = $row['status'];
-    $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'bg-info';
-    echo '<span class="badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
-    ?>
+    <?php echo jxbStatusBadge($row['status'], $badgeMap); ?>
    </td>
     <td><?= htmlspecialchars($row['catatan_spi'] ?? '-') ?></td>
-    <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row['hasil_tindak_lanjut'] ?? '-') ?></td>
+    <td><?= htmlspecialchars($row['hasil_tindak_lanjut'] ?? '-') ?></td>
     <td><?= ($row['nilai_penyerahan'] !== null && $row['nilai_penyerahan'] !== '') ? 'Rp ' . number_format((float)$row['nilai_penyerahan'], 2, ',', '.') : '-' ?></td>
     <td>
     <?php if ($row['bukti_file']): ?>
@@ -258,10 +287,10 @@ Swal.fire({
     <?php if ($_SESSION['role'] == 'AUDITEE'): ?>
      <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Lihat</a>
     <?php elseif (in_array($row['status'], ['Sesuai', 'Tidak Dapat Ditindak Lanjut'])): ?>
-     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm" title="History"><i class="fas fa-history"></i> History</a>
+     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm" title="History"><i class="fas fa-history"></i> History</a>
     <?php else: ?>
       <?php if ($row['status'] == 'Proses' && !$hasUpload && !$locked): ?>
-      <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm mb-1" title="Edit"><i class="fas fa-edit"></i></a>
+      <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline-warning btn-sm mb-1" title="Edit"><i class="fas fa-edit"></i></a>
       <a href="javascript:void(0)" class="btn btn-danger btn-sm mb-1" onclick="hapusTL(<?= $row['id'] ?>,<?= $row['rekomendasi_id'] ?>)" title="Hapus"><i class="fas fa-trash"></i></a>
       <?php endif; ?>
       <?php if ($lastLogAksi == 'upload_bukti'): ?>
@@ -270,7 +299,7 @@ Swal.fire({
     <?php endif; ?>
    </td>
   </tr>
-  <?php endforeach; ?>
+  <?php endforeach; endif; ?>
  </tbody>
 </table>
 </div>

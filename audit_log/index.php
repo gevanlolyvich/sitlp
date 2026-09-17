@@ -34,10 +34,13 @@ include "../templates/sidebar.php";
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Audit Trail</h3>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-history me-2 text-primary"></i>Audit Trail</h1>
+     <div class="jxb-page-subtitle">Log aktivitas pengguna pada sistem</div>
     </div>
+   </div>
+   <div class="card">
     <div class="card-body">
      <div class="table-responsive-wrapper"><table id="tblLog" class="table table-bordered table-striped">
       <thead>

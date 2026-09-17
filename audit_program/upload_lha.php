@@ -21,26 +21,32 @@ include "../templates/sidebar.php";
 <main class="app-main">
   <div class="app-content">
     <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Upload LHA - <?= htmlspecialchars($program['kode_program']) ?></h3>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-upload me-2 text-primary"></i>Upload LHA</h1>
+     <div class="jxb-page-subtitle">Unggah Laporan Hasil Audit (LHA) untuk <?= htmlspecialchars($program['kode_program'] . ' - ' . $program['judul_program']) ?></div>
     </div>
+    <div class="jxb-page-actions">
+     <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+   </div>
+   <div class="card mt-3">
     <form action="upload_lha_process.php" method="post" enctype="multipart/form-data">
      <input type="hidden" name="id" value="<?= $program['id'] ?>">
      <div class="card-body">
       <div class="mb-3">
-       <label>Program</label>
+       <label class="form-label">Program</label>
        <input type="text" class="form-control" value="<?= htmlspecialchars($program['kode_program'].' - '.$program['judul_program']) ?>" readonly>
       </div>
       <div class="mb-3">
-       <label>File LHA (PDF)</label>
+       <label class="form-label">File LHA (PDF) <span class="jxb-required">*</span></label>
        <input type="file" name="lha_file" class="form-control" accept=".pdf" required>
        <small class="text-muted">Format file: PDF</small>
       </div>
      </div>
      <div class="card-footer">
       <button type="submit" class="btn btn-primary">Upload</button>
-      <a href="index.php" class="btn btn-secondary">Kembali</a>
+      <a href="index.php" class="btn btn-outline-secondary">Kembali</a>
      </div>
     </form>
     </div>

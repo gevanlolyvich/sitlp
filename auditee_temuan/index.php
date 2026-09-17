@@ -60,29 +60,18 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                <h1 class="h4 mb-0">
-                    Tindak Lanjut Saya
-                </h1>
-                <ol class="breadcrumb mb-0 d-none d-md-flex">
-                    <li class="breadcrumb-item">
-                        <a href="../dashboard">
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        Tindak Lanjut Saya
-                    </li>
-                </ol>
+            <div class="jxb-page-header">
+                <div>
+                    <h1 class="jxb-page-title"><i class="fas fa-tasks me-2 text-primary"></i>Tindak Lanjut Saya</h1>
+                    <div class="jxb-page-subtitle">Daftar temuan audit dan rekomendasi untuk unit kerja Anda</div>
+                </div>
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        Daftar Temuan Audit dan Rekomendasi
-                    </h3>
+                    <h6 class="card-title mb-0"><i class="fas fa-list me-2 text-primary"></i>Daftar Temuan Audit dan Rekomendasi</h6>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive-wrapper">
                     <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
@@ -99,6 +88,19 @@ include "../templates/sidebar.php";
                         </thead>
                         <tbody>
                             <?php
+                            if (mysqli_num_rows($qData) === 0):
+                                ?>
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <div class="jxb-empty">
+                                            <i class="fas fa-check-circle"></i>
+                                            <div class="jxb-empty-title mt-1">Tidak ada data tindak lanjut</div>
+                                            <div>Belum ada temuan/rekomendasi untuk unit Anda.</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php
+                            else:
                             $no = 1;
                             while ($row = mysqli_fetch_assoc($qData)):
                                 ?>
@@ -114,18 +116,10 @@ include "../templates/sidebar.php";
                                         <?= htmlspecialchars($row['judul_temuan']) ?>
                                     </td>
                                     <td>
-                                        <div style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word; max-width: 250px;">
-                                        <?= nl2br(
-                                            htmlspecialchars(
-                                                $row['uraian_tindak_lanjut']
-                                            )
-                                        ) ?>
-                                        </div>
+                                        <?= nl2br(htmlspecialchars($row['uraian_tindak_lanjut'])) ?>
                                     </td>
                                     <td>
-                                        <div style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word; max-width: 250px;">
-                                        <?= htmlspecialchars($row['hasil_tindak_lanjut']) ?>
-                                        </div>
+                                        <?= nl2br(htmlspecialchars($row['hasil_tindak_lanjut'])) ?>
                                     </td>
                                     <td>
                                         <?= date(
@@ -139,14 +133,14 @@ include "../templates/sidebar.php";
                                         <?php
                                         $sts = $row['status'];
                                         $badge = [
-                                            'Proses' => 'bg-warning',
-                                            'Sesuai' => 'bg-success',
-                                            'Belum Sesuai' => 'bg-danger',
-                                            'Belum Ditindak Lanjut' => 'bg-secondary',
-                                            'Tidak Dapat Ditindak Lanjut' => 'bg-dark'
+                                            'Proses' => 'is-info',
+                                            'Sesuai' => 'is-success',
+                                            'Belum Sesuai' => 'is-danger',
+                                            'Belum Ditindak Lanjut' => 'is-warn',
+                                            'Tidak Dapat Ditindak Lanjut' => 'is-neutral'
                                         ];
-                                        $badgeClass = isset($badge[$sts]) ? $badge[$sts] : 'bg-info';
-                                        echo '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($sts) . '</span>';
+                                        $badgeClass = isset($badge[$sts]) ? $badge[$sts] : 'is-neutral';
+                                        echo '<span class="jxb-status-badge ' . $badgeClass . '">' . htmlspecialchars($sts) . '</span>';
                                         ?>
                                     </td>
                                     <td>
@@ -157,7 +151,8 @@ include "../templates/sidebar.php";
                                             class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Lihat</a>
                                     </td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endwhile;
+                            endif; ?>
                         </tbody>
                     </table>
                     </div>

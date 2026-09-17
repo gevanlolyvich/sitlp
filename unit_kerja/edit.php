@@ -31,14 +31,16 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-            <h1 class="h4 mb-3">Edit Unit Kerja</h1>
-            <div class="card">
-
-            <div class="card-header">
-                <h3 class="card-title">
-                    Form Edit Unit Kerja
-                </h3>
+            <div class="jxb-page-header">
+                <div>
+                    <h1 class="jxb-page-title"><i class="fas fa-edit me-2 text-primary"></i>Edit Unit Kerja</h1>
+                    <div class="jxb-page-subtitle">Ubah data unit kerja</div>
+                </div>
+                <div class="jxb-page-actions">
+                    <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+                </div>
             </div>
+            <div class="card">
 
             <form action="update.php" method="POST">
 
@@ -51,7 +53,7 @@ include "../templates/sidebar.php";
                 <div class="card-body">
 
                     <div class="form-group">
-                        <label>Nama Unit</label>
+                        <label class="form-label">Nama Unit <span class="jxb-required">*</span></label>
 
                         <input
                             type="text"
@@ -75,7 +77,7 @@ include "../templates/sidebar.php";
 
                     <a
                         href="index.php"
-                        class="btn btn-secondary"
+                        class="btn btn-outline-secondary"
                     >
                         Kembali
                     </a>

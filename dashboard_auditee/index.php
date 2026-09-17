@@ -10,6 +10,8 @@ checkRole(['AUDITEE']);
 
 $unit_id = (int) $_SESSION['unit_id'];
 
+$unitRow = mysqli_fetch_row(mysqli_query($conn, "SELECT nama_unit FROM unit_kerja WHERE id=$unit_id"));
+$namaUnit = $unitRow ? $unitRow[0] : null;
 $totalTL = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id"))[0];
 
 $proses              = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id AND status='Proses'"))[0];
@@ -27,11 +29,11 @@ $statusCounts = [
 ];
 
 $statusConf = [
-    'Proses'                    => ['icon' => 'fa-hourglass-half', 'color' => 'linear-gradient(135deg,#4facfe,#00f2fe)'],
-    'Sesuai'                    => ['icon' => 'fa-check-circle',   'color' => 'linear-gradient(135deg,#43e97b,#38f9d7)'],
-    'Belum Sesuai'              => ['icon' => 'fa-times-circle',   'color' => 'linear-gradient(135deg,#f83600,#f9d423)'],
-    'Belum Ditindak Lanjut'     => ['icon' => 'fa-minus-circle',   'color' => 'linear-gradient(135deg,#667eea,#764ba2)'],
-    'Tidak Dapat Ditindak Lanjut' => ['icon' => 'fa-ban',          'color' => 'linear-gradient(135deg,#868f96,#596164)'],
+    'Proses'                    => ['icon' => 'fa-hourglass-half', 'soft' => '#E8F2FC', 'strong' => '#063F7A'],
+    'Sesuai'                    => ['icon' => 'fa-check-circle',   'soft' => '#E8F7EE', 'strong' => '#18794E'],
+    'Belum Sesuai'              => ['icon' => 'fa-times-circle',   'soft' => '#FDECEC', 'strong' => '#C53030'],
+    'Belum Ditindak Lanjut'     => ['icon' => 'fa-minus-circle',   'soft' => '#FFF6D8', 'strong' => '#A66A00'],
+    'Tidak Dapat Ditindak Lanjut' => ['icon' => 'fa-ban',          'soft' => '#F1F4F8', 'strong' => '#46526A'],
 ];
 
 function kpiCard($href, $bg)
@@ -43,158 +45,262 @@ function kpiCard($href, $bg)
     return ['open' => '<a href="' . $href . '" class="card kpi-card shadow" style="background:' . $bg . ';">', 'close' => '</a>'];
 }
 
-$kpiTL     = kpiCard('../auditee_temuan/', 'linear-gradient(135deg,#4facfe,#00f2fe)');
-$kpiProses = kpiCard(null, 'linear-gradient(135deg,#667eea,#764ba2)');
-$kpiSesuai = kpiCard(null, 'linear-gradient(135deg,#43e97b,#38f9d7)');
-$kpiBelum  = kpiCard(null, 'linear-gradient(135deg,#f83600,#f9d423)');
-$kpiBlm    = kpiCard(null, 'linear-gradient(135deg,#2af598,#009efd)');
-$kpiTdk    = kpiCard(null, 'linear-gradient(135deg,#868f96,#596164)');
+$kpiTL     = kpiCard('../auditee_temuan/', '#ffffff');
+$kpiProses = kpiCard(null, '#ffffff');
+$kpiSesuai = kpiCard(null, '#ffffff');
+$kpiBelum  = kpiCard(null, '#ffffff');
+$kpiBlm    = kpiCard(null, '#ffffff');
+$kpiTdk    = kpiCard(null, '#ffffff');
+
+$today      = date('Y-m-d');
+$qPerlu     = mysqli_query($conn, "SELECT tl.id, tl.status, tl.target_selesai, tl.pic, tl.uraian_tindak_lanjut,
+    r.prioritas, r.nomor_rekomendasi, t.judul_temuan, t.nomor_temuan
+    FROM audit_tindak_lanjut tl
+    LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
+    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+    WHERE tl.unit_id=$unit_id AND tl.status IN ('Proses','Belum Ditindak Lanjut')
+    ORDER BY (tl.target_selesai IS NULL), tl.target_selesai ASC, tl.id DESC
+    LIMIT 8");
+$perluTindakan = [];
+while ($row = mysqli_fetch_assoc($qPerlu)) {
+    $perluTindakan[] = $row;
+}
+
+function prioritasBadge($p)
+{
+    $map = [
+        'Tinggi'  => 'is-danger',
+        'Sedang'  => 'is-warn',
+        'Rendah'  => 'is-neutral',
+    ];
+    return $map[$p] ?? '';
+}
+
+function statusBadgeClass($s)
+{
+    $map = [
+        'Proses'                      => 'is-info',
+        'Sesuai'                      => 'is-success',
+        'Belum Sesuai'                => 'is-danger',
+        'Belum Ditindak Lanjut'       => 'is-warn',
+        'Tidak Dapat Ditindak Lanjut' => 'is-neutral',
+    ];
+    return $map[$s] ?? 'is-neutral';
+}
 
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../templates/sidebar.php";
 ?>
 
-<style>
-.kpi-card{
-    display:block;
-    border-radius:14px;
-    color:#fff;
-    text-decoration:none;
-    transition:transform .2s ease, box-shadow .2s ease;
-    position:relative;
-    overflow:hidden;
-    border:none;
-}
-.kpi-card:hover{ transform:translateY(-4px); box-shadow:0 12px 24px rgba(0,0,0,.15)!important; color:#fff; }
-.kpi-card .kpi-icon{
-    width:52px;height:52px;display:inline-flex;align-items:center;justify-content:center;
-    border-radius:14px;background:rgba(255,255,255,.25);color:#fff;font-size:22px;
-}
-.status-card{ height:100%; border:none; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease; }
-.status-card:hover{ transform:translateY(-3px); box-shadow:0 10px 20px rgba(0,0,0,.12)!important; }
-.status-card.active{ box-shadow:0 0 0 2px rgba(0,0,0,.15), 0 10px 20px rgba(0,0,0,.15)!important; }
-.status-card .fa-chevron-down{ transition:transform .2s; }
-.status-card.active .fa-chevron-down{ transform:rotate(180deg); }
-.status-icon{
-    width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;
-    border-radius:12px;color:#fff;font-size:20px;flex-shrink:0;
-}
-</style>
-
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="jxb-page-header">
     <div>
-        <h4 class="mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>Dashboard Auditee</h4>
-        <small class="text-muted">Monitoring tindak lanjut unit kerja Anda</small>
+        <h1 class="jxb-page-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Dashboard Auditee</h1>
+        <div class="jxb-page-subtitle">Monitoring tindak lanjut <?= htmlspecialchars($namaUnit ?? 'unit kerja Anda') ?></div>
     </div>
 </div>
 
 <!-- Kartu KPI -->
 <div class="row g-3 mb-4">
-    <div class="col-12 col-sm-6 col-lg">
+    <div class="col-12 col-sm-6 col-lg-4">
         <?= $kpiTL['open'] ?>
             <div class="card-body d-flex align-items-center gap-3">
                 <span class="kpi-icon"><i class="fas fa-tasks"></i></span>
                 <div>
-                    <h2 class="fw-bold mb-0"><?= $totalTL ?></h2>
-                    <small>Tindak Lanjut Saya</small>
+                    <h2 class="kpi-value mb-1"><?= $totalTL ?></h2>
+                    <div class="kpi-label">Tindak Lanjut Saya</div>
                 </div>
             </div>
         <?= $kpiTL['close'] ?>
     </div>
-    <div class="col-12 col-sm-6 col-lg">
+    <div class="col-12 col-sm-6 col-lg-4">
         <?= $kpiProses['open'] ?>
             <div class="card-body d-flex align-items-center gap-3">
                 <span class="kpi-icon"><i class="fas fa-hourglass-half"></i></span>
                 <div>
-                    <h2 class="fw-bold mb-0"><?= $proses ?></h2>
-                    <small>Proses</small>
+                    <h2 class="kpi-value mb-1"><?= $proses ?></h2>
+                    <div class="kpi-label">Proses</div>
                 </div>
             </div>
         <?= $kpiProses['close'] ?>
     </div>
-    <div class="col-12 col-sm-6 col-lg">
+    <div class="col-12 col-sm-6 col-lg-4">
         <?= $kpiSesuai['open'] ?>
             <div class="card-body d-flex align-items-center gap-3">
                 <span class="kpi-icon"><i class="fas fa-check-circle"></i></span>
                 <div>
-                    <h2 class="fw-bold mb-0"><?= $sesuai ?></h2>
-                    <small>Sesuai</small>
+                    <h2 class="kpi-value mb-1"><?= $sesuai ?></h2>
+                    <div class="kpi-label">Sesuai</div>
                 </div>
             </div>
         <?= $kpiSesuai['close'] ?>
     </div>
-    <div class="col-12 col-sm-6 col-lg">
+    <div class="col-12 col-sm-6 col-lg-4">
         <?= $kpiBelum['open'] ?>
             <div class="card-body d-flex align-items-center gap-3">
                 <span class="kpi-icon"><i class="fas fa-times-circle"></i></span>
                 <div>
-                    <h2 class="fw-bold mb-0"><?= $belumSesuai ?></h2>
-                    <small>Belum Sesuai</small>
+                    <h2 class="kpi-value mb-1"><?= $belumSesuai ?></h2>
+                    <div class="kpi-label">Belum Sesuai</div>
                 </div>
             </div>
         <?= $kpiBelum['close'] ?>
     </div>
-    <div class="col-12 col-sm-6 col-lg">
+    <div class="col-12 col-sm-6 col-lg-4">
         <?= $kpiBlm['open'] ?>
             <div class="card-body d-flex align-items-center gap-3">
                 <span class="kpi-icon"><i class="fas fa-minus-circle"></i></span>
                 <div>
-                    <h2 class="fw-bold mb-0"><?= $belumDitindakLanjut ?></h2>
-                    <small>Belum Ditindak Lanjut</small>
+                    <h2 class="kpi-value mb-1"><?= $belumDitindakLanjut ?></h2>
+                    <div class="kpi-label">Belum Ditindak Lanjut</div>
                 </div>
             </div>
         <?= $kpiBlm['close'] ?>
     </div>
-    <div class="col-12 col-sm-6 col-lg">
+    <div class="col-12 col-sm-6 col-lg-4">
         <?= $kpiTdk['open'] ?>
             <div class="card-body d-flex align-items-center gap-3">
                 <span class="kpi-icon"><i class="fas fa-ban"></i></span>
                 <div>
-                    <h2 class="fw-bold mb-0"><?= $tidakDapat ?></h2>
-                    <small>Tidak Dapat Ditindak Lanjut</small>
+                    <h2 class="kpi-value mb-1"><?= $tidakDapat ?></h2>
+                    <div class="kpi-label">Tidak Dapat Ditindak Lanjut</div>
                 </div>
             </div>
         <?= $kpiTdk['close'] ?>
     </div>
 </div>
 
-<!-- Status Tindak Lanjut -->
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-white">
-        <h6 class="card-title mb-0"><i class="fas fa-tasks me-2 text-primary"></i>Status Tindak Lanjut</h6>
+<div class="row g-3 mb-4">
+    <!-- Status Tindak Lanjut -->
+    <div class="col-12">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-tasks me-2 text-primary"></i>Status Tindak Lanjut</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <?php foreach($statusCounts as $sts => $cnt):
+                    $soft = $statusConf[$sts]['soft'];
+                    $strong = $statusConf[$sts]['strong'];
+                    $icon = $statusConf[$sts]['icon'];
+                ?>
+                <div class="col-12 col-sm-6 col-md-4 col-lg">
+                    <a href="javascript:void(0)" class="card shadow-sm text-decoration-none status-card"
+                        data-status="<?= htmlspecialchars($sts, ENT_QUOTES) ?>" onclick="toggleStatus(this)">
+                        <div class="card-body d-flex align-items-center justify-content-between py-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="status-icon" style="background:<?= $soft ?>;color:<?= $strong ?>;"><i class="fas <?= $icon ?>"></i></span>
+                                <div>
+                                    <div class="status-count mb-1"><?= $cnt ?></div>
+                                    <div class="status-name"><?= htmlspecialchars($sts) ?></div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </a>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="text-muted small mt-3"><i class="fas fa-info-circle me-1"></i>Klik status untuk menampilkan daftar tindak lanjut di bawah.</div>
+            <div id="statusResult" class="mt-3 d-none">
+                <div class="card shadow-sm border-0 overflow-hidden">
+                    <div class="card-body p-0" id="statusBody"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <div class="row g-3">
-            <?php foreach($statusCounts as $sts => $cnt):
-                $icon = $statusConf[$sts]['icon'];
-                $color = $statusConf[$sts]['color'];
-            ?>
-            <div class="col-12 col-sm-6 col-md-4 col-lg">
-                <a href="javascript:void(0)" class="card shadow-sm text-decoration-none text-dark status-card"
-                    data-status="<?= htmlspecialchars($sts, ENT_QUOTES) ?>" onclick="toggleStatus(this)">
-                    <div class="card-body d-flex align-items-center justify-content-between py-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="status-icon" style="background:<?= $color ?>;"><i class="fas <?= $icon ?>"></i></span>
-                            <div>
-                                <div class="fw-bold fs-4 lh-1 mb-1"><?= $cnt ?></div>
-                                <div class="text-muted small"><?= htmlspecialchars($sts) ?></div>
+    </div>
+</div>
+
+<!-- Baris kedua: Perlu tindakan + Distribusi status -->
+<div class="row g-3">
+    <div class="col-12 col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-exclamation-circle me-2 text-primary"></i>Perlu Tindakan</span>
+                <?php if(count($perluTindakan) > 0): ?>
+                <a href="../auditee_temuan/" class="btn btn-sm btn-link float-end p-0">Lihat semua</a>
+                <?php endif; ?>
+            </div>
+            <div class="card-body py-2">
+                <?php if(count($perluTindakan) === 0): ?>
+                <div class="jxb-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="jxb-empty-title mt-1">Tidak ada tindak lanjut yang menunggu</div>
+                    <div>Seluruh rekomendasi telah ditindaklanjuti.</div>
+                </div>
+                <?php else: foreach($perluTindakan as $pt):
+                    $overdue = ($pt['target_selesai'] && $pt['target_selesai'] < $today);
+                    $pb = prioritasBadge($pt['prioritas']);
+                    $judul = $pt['judul_temuan'] ?: ('Rekomendasi no. ' . $pt['nomor_rekomendasi']);
+                ?>
+                <div class="jxb-list-item">
+                    <div class="min-w-0">
+                        <a href="../audit_tindak_lanjut/detail.php?id=<?= (int)$pt['id'] ?>" class="fw-semibold text-decoration-none text-reset"><?= htmlspecialchars(mb_substr($judul, 0, 90)) ?></a>
+                        <div class="text-muted small mt-1">
+                            <?php if(!empty($pt['pic'])): ?>PIC: <?= htmlspecialchars($pt['pic']) ?><?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="text-end flex-shrink-0">
+                        <div class="d-flex align-items-center justify-content-end gap-2 mb-1">
+                            <?php if($pb !== ''): ?>
+                            <span class="jxb-status-badge <?= $pb ?>"><?= htmlspecialchars($pt['prioritas']) ?></span>
+                            <?php endif; ?>
+                            <span class="jxb-status-badge <?= statusBadgeClass($pt['status']) ?>"><?= htmlspecialchars($pt['status']) ?></span>
+                        </div>
+                        <div class="small <?= $overdue ? 'fw-semibold' : 'text-muted' ?>">
+                            <?php if(!empty($pt['target_selesai'])):
+                                $due = date('d M Y', strtotime($pt['target_selesai']));
+                                if($overdue): ?>
+                                <i class="fas fa-exclamation-triangle me-1 text-danger"></i><span class="text-danger"><?= $due ?></span>
+                                <?php else: ?>
+                                Target: <?= $due ?>
+                                <?php endif;
+                            else: ?>
+                            Target: belum ditetapkan
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; endif; ?>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Distribusi Status</span>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-5">
+                        <canvas id="distribusiChart" height="180" aria-label="Grafik distribusi status tindak lanjut" role="img"></canvas>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="jxb-legend">
+                            <?php
+                            $palette = ['#075AA8', '#18794E', '#C53030', '#F4B400', '#6E7B91'];
+                            $labels  = array_keys($statusCounts);
+                            $charts  = array_values($statusCounts);
+                            foreach($labels as $i => $label):
+                                $color = $palette[$i % count($palette)];
+                            ?>
+                            <div class="jxb-legend-item">
+                                <span class="jxb-legend-label"><span class="jxb-legend-dot" style="background:<?= $color ?>;"></span><?= htmlspecialchars($label) ?></span>
+                                <span class="jxb-legend-value"><?= (int)$charts[$i] ?></span>
+                            </div>
+                            <?php endforeach; ?>
+                            <div class="jxb-legend-item border-top pt-2">
+                                <span class="jxb-legend-label fw-semibold">Total</span>
+                                <span class="jxb-legend-value"><?= (int)$totalTL ?></span>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-down text-muted"></i>
                     </div>
-                </a>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <div class="text-muted small mt-3"><i class="fas fa-info-circle me-1"></i>Klik status untuk menampilkan daftar tindak lanjut di bawah.</div>
-        <div id="statusResult" class="mt-3 d-none">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-0" id="statusBody"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -230,6 +336,34 @@ document.addEventListener('DOMContentLoaded', function(){
                 body.innerHTML = '<div class="p-4 text-danger small"><i class="fas fa-exclamation-triangle me-1"></i>Gagal memuat data tindak lanjut.</div>';
             });
     };
+
+    var labels = <?= json_encode($labels) ?>;
+    var data   = <?= json_encode(array_map('intval', $charts)) ?>;
+    var colors = <?= json_encode($palette) ?>;
+    var ctx = document.getElementById('distribusiChart');
+    if(ctx && typeof Chart !== 'undefined'){
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                }
+            }
+        });
+    }
 });
 </script>
 

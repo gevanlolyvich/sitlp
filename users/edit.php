@@ -28,30 +28,35 @@ include "../templates/sidebar.php";
 <main class="app-main">
 <div class="app-content">
 <div class="container-fluid">
+<div class="jxb-page-header">
+    <div>
+        <h1 class="jxb-page-title"><i class="fas fa-edit me-2 text-primary"></i>Edit User</h1>
+        <div class="jxb-page-subtitle">Ubah data pengguna</div>
+    </div>
+    <div class="jxb-page-actions">
+        <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+</div>
 <div class="row mt-3">
 <div class="col-md-12">
 <div class="card">
-
-<div class="card-header">
- <h3 class="card-title">Edit User</h3>
-</div>
 
 <form action="update.php" method="post" enctype="multipart/form-data">
 <input type="hidden" name="id" value="<?= $user['id'] ?>">
 <div class="card-body">
  <div class="row">
   <div class="col-md-6">
-   <label>Nama Lengkap</label>
+   <label class="form-label">Nama Lengkap <span class="jxb-required">*</span></label>
    <input type="text" name="nama" value="<?= htmlspecialchars($user['nama']) ?>" class="form-control" required>
   </div>
   <div class="col-md-6">
-   <label>Username</label>
+   <label class="form-label">Username</label>
    <input type="text" value="<?= htmlspecialchars($user['username']) ?>" class="form-control" readonly>
   </div>
 
 
   <div class="col-md-6">
-   <label>Unit Kerja</label>
+   <label class="form-label">Unit Kerja</label>
    <select name="kode_unit" class="form-select">
      <option value="<?= $user['unit_id'] ?>" selected><?= $user['nama_unit'] ?></option>
     <?php
@@ -69,11 +74,11 @@ include "../templates/sidebar.php";
  <br>
  <div class="row">
   <div class="col-md-6">
-   <label>Email</label>
+   <label class="form-label">Email</label>
    <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" class="form-control">
   </div>
   <div class="col-md-6">
-   <label>Role</label>
+   <label class="form-label">Role</label>
    <select name="role" class="form-select">
     <option value="">Pilih Role</option>
     <option value="ADMIN"<?= $user['role']=='ADMIN'?'selected':'' ?>>ADMIN</option>
@@ -88,11 +93,11 @@ include "../templates/sidebar.php";
  <br>
  <div class="row">
   <div class="col-md-6">
-   <label>Foto Baru</label>
+   <label class="form-label">Foto Baru</label>
    <input type="file" name="foto" class="form-control">
   </div>
   <div class="col-md-6">
-   <label>Status</label>
+   <label class="form-label">Status</label>
    <div class="form-check">
     <input type="checkbox" name="aktif" value="1" <?= $user['aktif'] ? 'checked' : '' ?> class="form-check-input">
    <label class="form-check-label">Aktif</label>
@@ -102,7 +107,7 @@ include "../templates/sidebar.php";
 </div>
 <div class="card-footer">
  <button type="submit" class="btn btn-primary"> Update</button>
- <a href="index.php" class="btn btn-secondary">Kembali</a>
+ <a href="index.php" class="btn btn-outline-secondary">Kembali</a>
 </div>
 </form>
 </div>

@@ -17,26 +17,35 @@ include "../templates/sidebar.php";
 <div class="app-content">
 <div class="container-fluid">
 
-<div class="row justify-content-center" style="margin-top:60px;">
- <div class="col-md-6 col-lg-5 mb-4">
-  <a href="sia.php" class="text-decoration-none">
-   <div class="card bg-primary text-white text-center py-5 shadow-lg" style="border-radius:16px;cursor:pointer;transition:transform .2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-    <div class="card-body">
-     <i class="fas fa-clipboard-list mb-3" style="font-size:48px;"></i>
-     <h2 class="mb-1"><strong>SIA</strong></h2>
-     <small>Satuan Internal Audit</small>
+<div class="jxb-page-header">
+ <div>
+  <h1 class="jxb-page-title"><i class="fas fa-chart-line me-2 text-primary"></i>Dashboard Monitoring SPI</h1>
+  <div class="jxb-page-subtitle">Pilih unit pemantauan yang ingin dibuka</div>
+ </div>
+</div>
+
+<div class="row g-3">
+ <div class="col-12 col-md-6">
+  <a href="sia.php" class="jxb-choice-card">
+   <div class="d-flex align-items-center gap-3">
+    <span class="jxb-choice-icon"><i class="fas fa-clipboard-list"></i></span>
+    <div>
+     <div class="jxb-choice-title">SIA</div>
+     <div class="jxb-choice-desc">Satuan Internal Audit</div>
     </div>
+    <i class="fas fa-chevron-right ms-auto jxb-choice-arrow"></i>
    </div>
   </a>
  </div>
- <div class="col-md-6 col-lg-5 mb-4">
-  <a href="mr.php" class="text-decoration-none">
-   <div class="card bg-secondary text-white text-center py-5 shadow-lg" style="border-radius:16px;cursor:pointer;transition:transform .2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-    <div class="card-body">
-     <i class="fas fa-building mb-3" style="font-size:48px;"></i>
-     <h2 class="mb-1"><strong>MR</strong></h2>
-     <small>Management Representative</small>
+ <div class="col-12 col-md-6">
+  <a href="mr.php" class="jxb-choice-card">
+   <div class="d-flex align-items-center gap-3">
+    <span class="jxb-choice-icon"><i class="fas fa-building"></i></span>
+    <div>
+     <div class="jxb-choice-title">MR</div>
+     <div class="jxb-choice-desc">Management Representative</div>
     </div>
+    <i class="fas fa-chevron-right ms-auto jxb-choice-arrow"></i>
    </div>
   </a>
  </div>

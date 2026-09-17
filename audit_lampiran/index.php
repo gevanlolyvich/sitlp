@@ -27,18 +27,23 @@ include "../templates/sidebar.php";
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header d-flex align-items-center">
-     <h3 class="card-title mb-0">Lampiran Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
-     <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-paperclip me-2 text-primary"></i>Lampiran Audit</h1>
+     <div class="jxb-page-subtitle"><?= htmlspecialchars($audit['nomor_audit']) ?> &mdash; <?= htmlspecialchars($audit['judul_audit']) ?></div>
     </div>
+    <div class="jxb-page-actions">
+     <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+   </div>
+   <div class="card">
     <?php if(!$locked): ?>
     <form action="store.php" method="post" enctype="multipart/form-data">
      <input type="hidden" name="audit_id" value="<?= $audit_id ?>">
      <div class="card-body">
       <div class="row">
        <div class="col-md-4">
-        <label>Jenis Dokumen</label>
+        <label class="form-label">Jenis Dokumen <span class="jxb-required">*</span></label>
         <select name="jenis_dokumen" class="form-select" required>
 	<option value="">Pilih</option>
 	<option>Surat Tugas</option>
@@ -50,12 +55,12 @@ include "../templates/sidebar.php";
 	</select>
        </div>
        <div class="col-md-6">
-        <label>File</label>
+        <label class="form-label">File <span class="jxb-required">*</span></label>
         <input type="file" name="file" class="form-control" required>
 	<small class="text-muted">PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</small>
        </div>
        <div class="col-md-2">
-        <label>&nbsp;</label>
+        <label class="form-label">&nbsp;</label>
         <button type="submit" class="btn btn-primary w-100"> Upload </button>
        </div>
       </div>
@@ -66,6 +71,9 @@ include "../templates/sidebar.php";
     <?php endif; ?>
    </div>
    <div class="card">
+    <div class="card-header">
+     <h6 class="card-title mb-0"><i class="fas fa-list me-2 text-primary"></i>Daftar Lampiran</h6>
+    </div>
     <div class="card-body">
      <div class="table-responsive-wrapper"><table class="table table-bordered">
       <thead>
@@ -80,6 +88,19 @@ include "../templates/sidebar.php";
       </thead>
       <tbody>
       <?php
+       if(mysqli_num_rows($qLampiran) === 0){
+      ?>
+       <tr>
+        <td colspan="6" class="text-center py-4">
+         <div class="jxb-empty">
+          <i class="fas fa-paperclip"></i>
+          <div class="jxb-empty-title mt-1">Belum ada lampiran</div>
+          <div>Unggah dokumen pendukung pemeriksaan audit.</div>
+         </div>
+        </td>
+       </tr>
+      <?php
+       } else {
        $no = 1;
        while($row = mysqli_fetch_assoc($qLampiran)){
       ?>
@@ -90,13 +111,13 @@ include "../templates/sidebar.php";
 	<td><?= htmlspecialchars($row['nama']) ?></td>
 	<td><?= $row['uploaded_at'] ?></td>
 	<td>
-          <a href="../<?= htmlspecialchars($row['file_path']) ?>" target="_blank" class="btn btn-success btn-sm">Download</a>
+          <a href="../<?= htmlspecialchars($row['file_path']) ?>" target="_blank" class="btn btn-outline-primary btn-sm" title="Download"><i class="fas fa-download"></i> Download</a>
           <?php if(!$locked): ?>
-          <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusLampiran(<?= $row['id'] ?>, <?= $audit_id ?>)">Hapus </a>
+          <a href="javascript:void(0)" class="btn btn-danger btn-sm" title="Hapus" aria-label="Hapus" onclick="hapusLampiran(<?= $row['id'] ?>, <?= $audit_id ?>)"><i class="fas fa-trash"></i> Hapus</a>
           <?php endif; ?>
         </td>
        </tr>
-       <?php } ?>
+       <?php } } ?>
       </tbody>
      </table>
      </div>

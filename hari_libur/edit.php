@@ -22,27 +22,33 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-<div class="card mt-3">
-<div class="card-header">
-<h3 class="card-title">Edit Hari Libur</h3>
+<div class="jxb-page-header">
+    <div>
+        <h1 class="jxb-page-title"><i class="fas fa-edit me-2 text-primary"></i>Edit Hari Libur</h1>
+        <div class="jxb-page-subtitle">Ubah data hari libur</div>
+    </div>
+    <div class="jxb-page-actions">
+        <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
 </div>
+<div class="card mt-3">
 <form action="update.php" method="post">
 <input type="hidden" name="id" value="<?= $r['id'] ?>">
 <div class="card-body">
 <div class="row g-3">
 <div class="col-md-6">
-<label>Tanggal Libur</label>
+<label class="form-label">Tanggal Libur <span class="jxb-required">*</span></label>
 <input type="date" name="tanggal" class="form-control" value="<?= $r['tanggal'] ?>" required>
 </div>
 <div class="col-md-6">
-<label>Keterangan</label>
+<label class="form-label">Keterangan <span class="jxb-required">*</span></label>
 <input type="text" name="keterangan" class="form-control" value="<?= htmlspecialchars($r['keterangan']) ?>" required>
 </div>
 </div>
 </div>
 <div class="card-footer">
 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Perubahan</button>
-<a href="index.php" class="btn btn-secondary">Kembali</a>
+<a href="index.php" class="btn btn-outline-secondary">Kembali</a>
 </div>
 </form>
     </div>

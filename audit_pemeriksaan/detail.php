@@ -30,10 +30,16 @@ include "../templates/sidebar.php";
 <main class="app-main">
   <div class="app-content">
     <div class="container-fluid">
-      <div class="card mt-3">
-        <div class="card-header">
-          <h3 class="card-title"><?= htmlspecialchars($audit['nomor_audit']) ?></h3>
+      <div class="jxb-page-header">
+        <div>
+          <h1 class="jxb-page-title"><i class="fas fa-eye me-2 text-primary"></i><?= htmlspecialchars($audit['nomor_audit']) ?></h1>
+          <div class="jxb-page-subtitle">Detail pemeriksaan audit</div>
         </div>
+        <div class="jxb-page-actions">
+          <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+        </div>
+      </div>
+      <div class="card mt-3">
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
@@ -56,7 +62,16 @@ include "../templates/sidebar.php";
                 </tr>
                 <tr>
                   <th>Status</th>
-                  <td><?= htmlspecialchars($audit['status']) ?></td>
+                  <td><?php
+                    $status = $audit['status'];
+                    if ($status == 'Draft') {
+                      echo '<span class="jxb-status-badge is-neutral">Draft</span>';
+                    } elseif ($status == 'Berjalan') {
+                      echo '<span class="jxb-status-badge is-info">Berjalan</span>';
+                    } else {
+                      echo '<span class="jxb-status-badge is-success">Selesai</span>';
+                    }
+                  ?></td>
                 </tr>
               </table>
             </div>
@@ -96,7 +111,7 @@ include "../templates/sidebar.php";
 
           <div class="mt-3">
             <?php if ($audit['status'] != 'Selesai'): ?>
-              <a href="close.php?id=<?= $audit['id'] ?>" class="btn btn-success btn-attention btn-close-audit">
+              <a href="close.php?id=<?= $audit['id'] ?>" class="btn btn-primary btn-attention btn-close-audit">
                 <i class="fas fa-check-circle"></i>Tutup Audit</a>
             <?php else: ?>
               <button class="btn btn-secondary" disabled>

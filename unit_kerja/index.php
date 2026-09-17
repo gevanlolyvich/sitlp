@@ -20,14 +20,19 @@ $sql =mysqli_query($conn,"SELECT * FROM unit_kerja ORDER BY nama_unit");
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="row mt-3 mb-3">
-    <div class="col-md-6">
-     <h3>Master Unit Kerja</h3>
+<div class="row mt-3 mb-3">
+     <div class="col-md-6">
+      <div class="jxb-page-header">
+       <div>
+        <h1 class="jxb-page-title"><i class="fas fa-building me-2 text-primary"></i>Master Unit Kerja</h1>
+        <div class="jxb-page-subtitle">Kelola unit kerja auditee</div>
+       </div>
+      </div>
+     </div>
+     <div class="col-md-6 text-end">
+      <a href="create.php" class="btn btn-primary"><i class="fas fa-plus"></i>Tambah Unit</a>
+     </div>
     </div>
-    <div class="col-md-6 text-end">
-     <a href="create.php" class="btn btn-primary"><i class="fas fa-plus"></i>Tambah Unit</a>
-    </div>
-   </div>
    <div class="card">
     <div class="card-body">
      <div class="table-responsive-wrapper"><table id="tblUnit" class="table table-bordered table-striped">
@@ -51,7 +56,7 @@ $sql =mysqli_query($conn,"SELECT * FROM unit_kerja ORDER BY nama_unit");
 	<td><?= htmlspecialchars($r['nama_unit']) ?></td>
 	<td><?= htmlspecialchars($r['email']) ?></td>
 	<td>
-	<?=$r['aktif']?'<span class="badge bg-success">Aktif</span>':'<span class="badge bg-danger">Nonaktif</span>'?>
+	<?=$r['aktif']?'<span class="jxb-status-badge is-success">Aktif</span>':'<span class="jxb-status-badge is-danger">Nonaktif</span>'?>
 	</td>
 <!--
 <td>
@@ -63,11 +68,11 @@ Edit
 </td>
 -->
 	<td>
-	 <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+	 <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm">Edit</a>
          <?php if($r['aktif']){ ?>
          <a href="status.php?id=<?= $r['id'] ?>" class="btn btn-danger btn-sm">Nonaktif</a>
          <?php } else { ?>
-         <a href="status.php?id=<?= $r['id'] ?>" class="btn btn-success btn-sm">Aktifkan</a>
+         <a href="status.php?id=<?= $r['id'] ?>" class="btn btn-outline-success btn-sm">Aktifkan</a>
          <?php } ?>
         </td>
        </tr>

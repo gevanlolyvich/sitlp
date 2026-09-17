@@ -42,30 +42,34 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
+            <div class="jxb-page-header">
+                <div>
+                    <h1 class="jxb-page-title"><i class="fas fa-edit me-2 text-primary"></i>Edit Program Audit</h1>
+                    <div class="jxb-page-subtitle">Perbarui program audit <?= htmlspecialchars($data['kode_program']) ?></div>
+                </div>
+                <div class="jxb-page-actions">
+                    <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+                </div>
+            </div>
             <div class="row mt-3">
                 <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                Edit Program Audit
-                            </h3>
-                        </div>
                         <form action="update.php" method="post">
                             <input type="hidden" name="id" value="<?= $data['id'] ?>">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <label>Kode Program</label>
+                                    <label class="form-label">Kode Program</label>
                                         <input type="text" name="kode_program" value="<?= $data['kode_program'] ?>"
                                             class="form-control" readonly>
                                     </div>
                                     <div class="col-md-2">
-                                        <label>Tahun</label>
+                                        <label class="form-label">Tahun <span class="jxb-required">*</span></label>
                                         <input type="number" name="tahun" value="<?= $data['tahun'] ?>"
                                             class="form-control" required>
                                     </div>
                                     <div class="col-md-3">
-                                        <label>Triwulan</label>
+                                        <label class="form-label">Triwulan <span class="jxb-required">*</span></label>
                                         <select name="triwulan" class="form-select" required>
                                             <option value="TW1" <?= $data['triwulan'] == 'TW1'
                                                 ? 'selected'
@@ -90,7 +94,7 @@ include "../templates/sidebar.php";
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label>Bulan</label>
+                                        <label class="form-label">Bulan</label>
                                         <select name="bulan_rencana" class="form-select">
                                             <?php
                                             for ($i = 1; $i <= 12; $i++) {
@@ -107,7 +111,7 @@ include "../templates/sidebar.php";
                                 <br>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label>Unit Kerja</label>
+                                        <label class="form-label">Unit Kerja <span class="jxb-required">*</span></label>
                                         <select name="unit_id" class="form-select" required>
                                             <?php
                                             while ($u = mysqli_fetch_assoc($unit)) {
@@ -123,7 +127,7 @@ include "../templates/sidebar.php";
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label>Penanggung Jawab</label>
+                                        <label class="form-label">Penanggung Jawab</label>
                                         <select name="penanggung_jawab_id" class="form-select">
                                             <option value="">Pilih Auditor</option>
                                             <?php
@@ -143,7 +147,7 @@ include "../templates/sidebar.php";
                                 <br>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <label>Jenis Audit</label>
+                                        <label class="form-label">Jenis Audit</label>
                                         <select name="jenis_audit" class="form-select">
                                             <?php
                                             $jenisAudit = [
@@ -168,7 +172,7 @@ include "../templates/sidebar.php";
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label>Level Risiko</label>
+                                        <label class="form-label">Level Risiko</label>
                                         <select name="level_risiko" class="form-select">
                                             <?php
                                             $risikoList = [
@@ -191,24 +195,34 @@ include "../templates/sidebar.php";
                                 </div>
                                 <br>
                                 <div class="mb-3">
-                                    <label>Judul Program</label>
+                                    <label class="form-label">Judul Program <span class="jxb-required">*</span></label>
                                     <input type="text" name="judul_program"
                                         value="<?= htmlspecialchars($data['judul_program']) ?>" class="form-control"
                                         required>
                                 </div>
                                 <div class="mb-3">
-                                    <label>Estimasi Hari</label>
+                                    <label class="form-label">Estimasi Hari</label>
                                     <input type="number" name="estimasi_hari" value="<?= $data['estimasi_hari'] ?>"
                                         class="form-control">
                                 </div>
                                 <div class="mb-3">
-                                    <label>Keterangan</label>
+                                    <label class="form-label">Keterangan</label>
                                     <textarea name="keterangan" class="form-control"
                                         rows="3"><?= htmlspecialchars($data['keterangan']) ?></textarea>
                                 </div>
                             </div>
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary">Update</button>
-                                <a href="index.php" class="btn btn-secondary">Kembali</a>
+                                <a href="index.php" class="btn btn-outline-secondary">Kembali</a>
+                            </div>
                         </form>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<?php
+include "../templates/footer.php";
+?>

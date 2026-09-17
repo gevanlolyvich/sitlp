@@ -53,10 +53,17 @@ include "../templates/sidebar.php";
 <div class="app-content">
 <div class="container-fluid">
 
-<div class="card mt-3">
-<div class="card-header">
-<h3 class="card-title">Detail Tindak Lanjut</h3>
+<div class="jxb-page-header">
+<div>
+<h1 class="jxb-page-title"><i class="fas fa-eye me-2 text-primary"></i>Detail Tindak Lanjut</h1>
+<div class="jxb-page-subtitle">Nomor TL <?= htmlspecialchars($tl['nomor_tindak_lanjut']) ?><?= !empty($tl['nomor_audit']) ? ' &mdash; ' . htmlspecialchars($tl['nomor_audit']) : '' ?></div>
 </div>
+<div class="jxb-page-actions">
+<a href="<?= $isAuditee ? '../auditee_temuan/index.php' : 'index.php?rekomendasi_id=' . $tl['rekomendasi_id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+</div>
+</div>
+
+<div class="card mt-3">
 <div class="card-body">
 <table class="table table-bordered">
  <tr><th width="200">Nomor TL</th><td><?= htmlspecialchars($tl['nomor_tindak_lanjut']) ?></td></tr>
@@ -70,9 +77,9 @@ include "../templates/sidebar.php";
    <td>
     <?php
     $sts = $tl['status'];
-    $badgeMap = ['Proses'=>'bg-warning','Sesuai'=>'bg-success','Belum Sesuai'=>'bg-danger','Belum Ditindak Lanjut'=>'bg-secondary','Tidak Dapat Ditindak Lanjut'=>'bg-dark'];
-    $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'bg-info';
-    echo '<span class="badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
+    $badgeMap = ['Proses'=>'is-info','Sesuai'=>'is-success','Belum Sesuai'=>'is-danger','Belum Ditindak Lanjut'=>'is-warn','Tidak Dapat Ditindak Lanjut'=>'is-neutral'];
+    $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'is-neutral';
+    echo '<span class="jxb-status-badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
     ?>
    </td>
   </tr>
@@ -134,10 +141,10 @@ foreach ($logs as $idx => $log):
                         <div>
                             Status: 
                             <?php if ($log['status_lama']): ?>
-                                <span class="badge bg-secondary"><?= htmlspecialchars($log['status_lama']) ?></span>
+                                <span class="jxb-status-badge is-neutral"><?= htmlspecialchars($log['status_lama']) ?></span>
                                 <i class="fas fa-arrow-right mx-2"></i>
                             <?php endif; ?>
-                            <span class="badge <?= isset($badgeMap[$log['status_baru']]) ? $badgeMap[$log['status_baru']] : 'bg-info' ?>"><?= htmlspecialchars($log['status_baru']) ?></span>
+                            <span class="jxb-status-badge <?= isset($badgeMap[$log['status_baru']]) ? $badgeMap[$log['status_baru']] : 'is-neutral' ?>"><?= htmlspecialchars($log['status_baru']) ?></span>
                         </div>
                         <?php if ($log['catatan_spi']): ?>
                             <div class="mt-1"><strong>Catatan SIA:</strong> <?= nl2br(htmlspecialchars($log['catatan_spi'])) ?></div>
@@ -148,10 +155,10 @@ foreach ($logs as $idx => $log):
                             <div class="mt-1"><strong>Hasil:</strong> <?= nl2br(htmlspecialchars($log['hasil_tindak_lanjut'])) ?></div>
                         <?php endif; ?>
                         <?php if ($log['file_bukti']): ?>
-                            <div class="mt-1"><a href="../uploads/tindak_lanjut/<?= basename($log['file_bukti']) ?>" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-file"></i> Lihat Bukti</a></div>
+                            <div class="mt-1"><a href="../uploads/tindak_lanjut/<?= basename($log['file_bukti']) ?>" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fas fa-file"></i> Lihat Bukti</a></div>
                         <?php endif; ?>
                     <?php elseif ($log['aksi'] == 'buat'): ?>
-                        <div>Status awal: <span class="badge bg-warning">Proses</span></div>
+                        <div>Status awal: <span class="jxb-status-badge is-info">Proses</span></div>
                     <?php endif; ?>
                     <?php if ($log['keterangan'] && $log['aksi'] != 'buat'): ?>
                         <div class="mt-1 small text-muted"><?= htmlspecialchars($log['keterangan']) ?></div>
@@ -179,17 +186,17 @@ foreach ($logs as $idx => $log):
         <input type="hidden" name="rekomendasi_id" value="<?= $tl['rekomendasi_id'] ?>">
         <?php if (!empty($tl['catatan_spi'])): ?>
         <div class="mb-3">
-            <label>Catatan SIA</label>
+            <label class="form-label">Catatan SIA</label>
             <textarea class="form-control" rows="3" readonly style="background-color:#f8f9fa;"><?= htmlspecialchars($tl['catatan_spi']) ?></textarea>
         </div>
         <?php endif; ?>
         <div class="mb-3">
-            <label>File Bukti</label>
+            <label class="form-label">File Bukti <span class="jxb-required">*</span></label>
             <input type="file" name="bukti" class="form-control" required>
             <small>Format: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</small>
         </div>
         <div class="mb-3">
-            <label>Hasil Tindak Lanjut</label>
+            <label class="form-label">Hasil Tindak Lanjut <span class="jxb-required">*</span></label>
             <textarea name="hasil_tindak_lanjut" class="form-control" rows="4" required></textarea>
         </div>
         <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload</button>
@@ -200,7 +207,7 @@ foreach ($logs as $idx => $log):
         foreach ($logs as $log) {
             if ($log['file_bukti']) {
                 $hasFile = true;
-                echo '<a href="../uploads/tindak_lanjut/' . basename($log['file_bukti']) . '" target="_blank" class="btn btn-success btn-sm mr-2"><i class="fas fa-file"></i> Lihat Bukti</a>';
+                echo '<a href="../uploads/tindak_lanjut/' . basename($log['file_bukti']) . '" target="_blank" class="btn btn-outline-primary btn-sm mr-2"><i class="fas fa-file"></i> Lihat Bukti</a>';
             }
         }
         if (!$hasFile) {
@@ -216,7 +223,7 @@ foreach ($logs as $idx => $log):
         foreach ($logs as $log) {
             if ($log['file_bukti']) {
                 if (!$hasFile) { echo '<div class="mt-2"><strong>Bukti terakhir:</strong><br>'; $hasFile = true; }
-                echo '<a href="../uploads/tindak_lanjut/' . basename($log['file_bukti']) . '" target="_blank" class="btn btn-success btn-sm mr-2 mt-1"><i class="fas fa-file"></i> Lihat Bukti</a>';
+                echo '<a href="../uploads/tindak_lanjut/' . basename($log['file_bukti']) . '" target="_blank" class="btn btn-outline-primary btn-sm mr-2 mt-1"><i class="fas fa-file"></i> Lihat Bukti</a>';
             }
         }
         if ($hasFile) { echo '</div>'; }
@@ -227,7 +234,7 @@ foreach ($logs as $idx => $log):
 <?php endif; ?>
 
 <div class="mt-3 mb-3">
-    <a href="<?= $isAuditee ? '../auditee_temuan/index.php' : 'index.php?rekomendasi_id=' . $tl['rekomendasi_id'] ?>" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    <a href="<?= $isAuditee ? '../auditee_temuan/index.php' : 'index.php?rekomendasi_id=' . $tl['rekomendasi_id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
 </div>
 
 </div>

@@ -18,10 +18,16 @@ include "../templates/sidebar.php";
 <main class="app-main">
 <div class="app-content">
 <div class="container-fluid">
-<div class="card mt-3">
-<div class="card-header">
-Tambah Unit Kerja
+<div class="jxb-page-header">
+    <div>
+        <h1 class="jxb-page-title"><i class="fas fa-plus-circle me-2 text-primary"></i>Tambah Unit Kerja</h1>
+        <div class="jxb-page-subtitle">Buat data unit kerja baru</div>
+    </div>
+    <div class="jxb-page-actions">
+        <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
 </div>
+<div class="card mt-3">
 
 <form
 action="store.php"
@@ -33,7 +39,7 @@ method="post">
 
 <div class="col-md-6">
 
-<label>Kode Unit</label>
+<label class="form-label">Kode Unit <span class="jxb-required">*</span></label>
 
 <input
 type="text"
@@ -45,7 +51,7 @@ required>
 
 <div class="col-md-6">
 
-<label>Nama Unit</label>
+<label class="form-label">Nama Unit <span class="jxb-required">*</span></label>
 
 <input
 type="text"
@@ -57,7 +63,7 @@ required>
 
 <div class="col-md-6">
 
-<label>Email</label>
+<label class="form-label">Email</label>
 
 <input
 type="email"
@@ -68,7 +74,7 @@ class="form-control">
 
 <div class="col-md-6">
 
-<label>Telepon</label>
+<label class="form-label">Telepon</label>
 
 <input
 type="text"
@@ -79,7 +85,7 @@ class="form-control">
 
 <div class="col-12">
 
-<label>Alamat</label>
+<label class="form-label">Alamat</label>
 
 <textarea
 name="alamat"
@@ -102,7 +108,7 @@ Simpan
 
 <a
 href="index.php"
-class="btn btn-secondary">
+class="btn btn-outline-secondary">
 
 Kembali
 

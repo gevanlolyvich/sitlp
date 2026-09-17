@@ -41,13 +41,18 @@ include "../templates/sidebar.php";
 <main class="app-main">
     <div class="app-content">
         <div class="container-fluid">
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h3 class="card-title">Buat Pemeriksaan Audit</h3>
+            <div class="jxb-page-header">
+                <div>
+                    <h1 class="jxb-page-title"><i class="fas fa-plus-circle me-2 text-primary"></i>Buat Pemeriksaan Audit</h1>
+                    <div class="jxb-page-subtitle">Buat pemeriksaan audit untuk <?= htmlspecialchars($pat['judul_program']) ?></div>
                 </div>
-                <div class="card-body">
-                    <form action="store.php" method="post">
-                        <input type="hidden" name="program_id" value="<?= $pat['id'] ?>">
+                <div class="jxb-page-actions">
+                    <a href="../audit_program/index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <form action="store.php" method="post">
+                    <input type="hidden" name="program_id" value="<?= $pat['id'] ?>">
                         <input type="hidden" name="unit_id" value="<?= $pat['unit_id'] ?>">
                         <input type="hidden" name="ketua_auditor_id" value="<?= $pat['penanggung_jawab_id'] ?>">
                         <input type="hidden" name="tahun_audit" value="<?= $pat['tahun'] ?>">
@@ -55,23 +60,23 @@ include "../templates/sidebar.php";
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label>Nomor Audit</label>
+                                    <label class="form-label">Nomor Audit</label>
                                     <input type="text" class="form-control" value="<?= $nomor_audit ?>" readonly>
                                 </div>
                                 <div class="col-md-6">
-                                    <label>Nomor Surat Tugas</label>
+                                    <label class="form-label">Nomor Surat Tugas <span class="jxb-required">*</span></label>
                                     <input type="text" name="nomor_surat_tugas" class="form-control" required>
                                 </div>
                             </div>
                             <br>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <label>Unit Kerja</label>
+                                    <label class="form-label">Unit Kerja</label>
                                     <input type="text" class="form-control"
                                         value="<?= htmlspecialchars($pat['nama_unit']) ?>" readonly>
                                 </div>
                                 <div class="col-md-4">
-                                    <label>Jenis Audit</label>
+                                    <label class="form-label">Jenis Audit</label>
                                     <input type="hidden" name="jenis_audit"
                                         value="<?= htmlspecialchars($pat['jenis_audit']) ?>">
                                     <?php
@@ -94,7 +99,7 @@ include "../templates/sidebar.php";
                                         value="<?= htmlspecialchars($displayJenis) ?>" readonly>
                                 </div>
                                 <div class="col-md-4">
-                                    <label>Ketua Auditor</label>
+                                    <label class="form-label">Ketua Auditor</label>
                                     <input type="text" class="form-control"
                                         value="<?= htmlspecialchars($pat['nama_auditor']) ?>" readonly>
                                 </div>
@@ -102,11 +107,11 @@ include "../templates/sidebar.php";
                             <br>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label>Tanggal Surat Tugas</label>
+                                    <label class="form-label">Tanggal Surat Tugas <span class="jxb-required">*</span></label>
                                     <input type="date" name="tanggal_surat_tugas" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label>Judul Audit</label>
+                                    <label class="form-label">Judul Audit <span class="jxb-required">*</span></label>
                                     <input type="text" name="judul_audit"
                                         value="<?= htmlspecialchars($pat['judul_program']) ?>" class="form-control"
                                         readonly required>
@@ -115,32 +120,31 @@ include "../templates/sidebar.php";
                             <br>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <label>Tanggal Mulai Audit</label>
+                                    <label class="form-label">Tanggal Mulai Audit <span class="jxb-required">*</span></label>
                                     <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control"
                                         required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label>Estimasi Hari</label>
+                                    <label class="form-label">Estimasi Hari</label>
                                     <input type="number" name="estimasi_hari" id="estimasi_hari"
                                         value="<?= htmlspecialchars($pat['estimasi_hari']) ?>" min="1"
                                         class="form-control" readonly>
                                 </div>
                                 <div class="col-md-4">
-                                    <label>Tanggal Selesai Audit</label>
+                                    <label class="form-label">Tanggal Selesai Audit</label>
                                     <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control"
                                         readonly>
                                 </div>
                             </div>
                             <br>
-                            <label>Ruang Lingkup Audit</label>
+                            <label class="form-label">Ruang Lingkup Audit</label>
                             <textarea name="ruang_lingkup" class="form-control" rows="4"></textarea>
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary">Simpan Audit</button>
-                            <a href="../audit_program/index.php" class="btn btn-secondary">Kembali</a>
+                            <a href="../audit_program/index.php" class="btn btn-outline-secondary">Kembali</a>
                         </div>
                     </form>
-                </div>
             </div>
         </div>
     </div>

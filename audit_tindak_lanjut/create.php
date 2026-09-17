@@ -50,38 +50,44 @@ include "../templates/sidebar.php";
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Tambah Tindak Lanjut</h3>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-plus-circle me-2 text-primary"></i>Tambah Tindak Lanjut</h1>
+     <div class="jxb-page-subtitle">Buat tindak lanjut baru untuk rekomendasi <?= htmlspecialchars($rek['nomor_rekomendasi'] ?? '') ?></div>
     </div>
+    <div class="jxb-page-actions">
+     <a href="index.php?<?= isset($_GET['temuan_id']) ? 'temuan_id=' . (int)$_GET['temuan_id'] : 'rekomendasi_id=' . $rekomendasi_id ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+   </div>
+   <div class="card mt-3">
     <form action="store.php" method="post">
      <input type="hidden" name="rekomendasi_id" value="<?= $rekomendasi_id ?>">
       <div class="card-body">
        <div class="row g-3">
         <div class="col-md-4">
-         <label>Nomor Tindak Lanjut</label>
+         <label class="form-label">Nomor Tindak Lanjut</label>
          <input type="text" class="form-control" value="<?= $nomor_tl ?>" readonly>
          <input type="hidden" name="nomor_tindak_lanjut" value="<?= $nomor_tl ?>">
         </div>
         <div class="col-md-8">
-         <label>Unit Kerja</label>
+         <label class="form-label">Unit Kerja</label>
          <input type="text" class="form-control" value="<?= htmlspecialchars($nama_unit_pkpt) ?>" readonly>
          <input type="hidden" name="unit_id" value="<?= $selected_unit_id ?>">
          <small class="text-muted">Unit kerja mengikuti PKPT</small>
         </div>
        </div>
        <div class="mt-3">
-        <label>Uraian Tindak Lanjut</label>
+        <label class="form-label">Uraian Tindak Lanjut <span class="jxb-required">*</span></label>
         <textarea name="uraian_tindak_lanjut" class="form-control" rows="5" required></textarea>
        </div>
        <div class="row g-3 mt-1">
        <div class="col-md-6">
-        <label>Target Selesai</label>
+        <label class="form-label">Target Selesai <span class="jxb-required">*</span></label>
         <input type="date" name="target_selesai" id="target_selesai" class="form-control" min="<?= $tanggal_mulai_audit ?>" max="<?= $tanggal_selesai_audit ?>" required>
         <small class="text-muted">Rentang <?= date('d-m-Y', strtotime($tanggal_mulai_audit)) ?> s/d <?= date('d-m-Y', strtotime($tanggal_selesai_audit)) ?></small>
        </div>
        <div class="col-md-6">
-        <label>Status</label>
+        <label class="form-label">Status</label>
         <input type="text" class="form-control" value="Proses" readonly>
 <input type="hidden" name="status" value="Proses">
        </div>
@@ -89,7 +95,7 @@ include "../templates/sidebar.php";
      </div>
      <div class="card-footer">
       <button type="submit" class="btn btn-primary">Simpan</button>
-      <a href="index.php?<?= isset($_GET['temuan_id']) ? 'temuan_id=' . (int)$_GET['temuan_id'] : 'rekomendasi_id=' . $rekomendasi_id ?>" class="btn btn-secondary">Kembali</a>
+      <a href="index.php?<?= isset($_GET['temuan_id']) ? 'temuan_id=' . (int)$_GET['temuan_id'] : 'rekomendasi_id=' . $rekomendasi_id ?>" class="btn btn-outline-secondary">Kembali</a>
      </div>
     </form>
    </div>

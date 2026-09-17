@@ -35,10 +35,12 @@ $badge = $allowedStatus[$status];
 
 $total = mysqli_fetch_row(mysqli_query($conn,"SELECT COUNT(*) FROM audit_tindak_lanjut WHERE status='".mysqli_real_escape_string($conn,$status)."' $unitFilter"))[0];
 
-$q = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_rekomendasi
+$q = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_rekomendasi,
+    t.judul_temuan, t.nomor_temuan
     FROM audit_tindak_lanjut tl
     LEFT JOIN unit_kerja u ON tl.unit_id=u.id
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
+    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
     WHERE tl.status='".mysqli_real_escape_string($conn,$status)."' $unitFilter
     ORDER BY tl.created_at DESC
     LIMIT 20");
@@ -82,7 +84,11 @@ function potongTeks($teks, $max = 90)
  ?>
   <tr>
    <td class="text-center"><?= $no++ ?></td>
-   <td><strong><?= htmlspecialchars($nomor) ?></strong></td>
+   <td style="min-width:200px;"><strong><?= htmlspecialchars($nomor) ?></strong>
+    <?php if(!empty($tl['judul_temuan'])): ?>
+    <div class="small text-muted mt-1" style="line-height:1.45;"><?= htmlspecialchars(potongTeks($tl['judul_temuan'], 90)) ?></div>
+    <?php endif; ?>
+   </td>
    <td style="min-width:200px;white-space:pre-wrap;word-break:break-word;"><?= htmlspecialchars(potongTeks($rk)) ?></td>
    <td style="min-width:120px;"><?= htmlspecialchars($tl['nama_unit'] ?? '-') ?></td>
    <td style="min-width:100px;"><?= $tl['target_selesai'] ? date('d-m-Y', strtotime($tl['target_selesai'])) : '-' ?></td>

@@ -1,16 +1,16 @@
 <footer class="app-footer">
 
-<div class="float-end">
+    <div class="float-end">
 
-Version 1.0
+        Version 1.0
 
-</div>
+    </div>
 
-<strong>
+    <strong>
 
-&copy; <?= date('Y') ?> PT Jakarta Tourisindo &mdash; by MBG
+        &copy; <?= date('Y') ?> PT Jakarta Tourisindo By MBG
 
-</strong>
+    </strong>
 
 </footer>
 
@@ -54,4 +54,5 @@ Version 1.0
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
+
 </html>

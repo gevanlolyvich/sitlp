@@ -52,11 +52,11 @@ while ($log = mysqli_fetch_assoc($qLog)) {
 }
 
 $badgeMap = [
-    'Proses' => 'bg-warning',
-    'Sesuai' => 'bg-success',
-    'Belum Sesuai' => 'bg-danger',
-    'Belum Ditindak Lanjut' => 'bg-secondary text-white',
-    'Tidak Dapat Ditindak Lanjut' => 'bg-dark text-white'
+    'Proses' => 'is-info',
+    'Sesuai' => 'is-success',
+    'Belum Sesuai' => 'is-danger',
+    'Belum Ditindak Lanjut' => 'is-warn',
+    'Tidak Dapat Ditindak Lanjut' => 'is-neutral'
 ];
 
 include "../templates/header.php";
@@ -68,10 +68,17 @@ include "../templates/sidebar.php";
     <div class="app-content">
         <div class="container-fluid">
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h3 class="card-title">Review Tindak Lanjut</h3>
+            <div class="jxb-page-header">
+                <div>
+                    <h1 class="jxb-page-title"><i class="fas fa-check-circle me-2 text-primary"></i>Review Tindak Lanjut</h1>
+                    <div class="jxb-page-subtitle">Verifikasi tindak lanjut <?= htmlspecialchars($tl['nomor_tindak_lanjut']) ?></div>
                 </div>
+                <div class="jxb-page-actions">
+                    <a href="index.php<?= $tl['rekomendasi_id'] ? '?rekomendasi_id=' . $tl['rekomendasi_id'] : '' ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+                </div>
+            </div>
+
+            <div class="card mt-3">
 
                 <form action="verifikasi_process.php" method="post">
                     <input type="hidden" name="id" value="<?= $id ?>">
@@ -102,8 +109,8 @@ include "../templates/sidebar.php";
                                 <td>
                                     <?php
                                     $sts = $tl['status'];
-                                    $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'bg-info';
-                                    echo '<span class="badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
+                                    $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'is-neutral';
+                                    echo '<span class="jxb-status-badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
                                     ?>
                                 </td>
                             </tr>
@@ -129,16 +136,16 @@ include "../templates/sidebar.php";
                                                 <?php if ($log['aksi'] == 'verifikasi'): ?>
                                                     <div>
                                                         <?php if ($log['status_lama']): ?><span
-                                                                class="badge bg-secondary"><?= htmlspecialchars($log['status_lama']) ?></span>
+                                                                class="jxb-status-badge is-neutral"><?= htmlspecialchars($log['status_lama']) ?></span>
                                                             <i class="fas fa-arrow-right mx-1"></i><?php endif; ?>
                                                         <span
-                                                            class="badge <?= isset($badgeMap[$log['status_baru']]) ? $badgeMap[$log['status_baru']] : 'bg-info' ?>"><?= htmlspecialchars($log['status_baru']) ?></span>
+                                                            class="jxb-status-badge <?= isset($badgeMap[$log['status_baru']]) ? $badgeMap[$log['status_baru']] : 'is-neutral' ?>"><?= htmlspecialchars($log['status_baru']) ?></span>
                                                     </div>
                                                 <?php elseif ($log['aksi'] == 'upload_bukti'): ?>
                                                     <div class="small">Upload bukti baru</div>
                                                     <?php if ($log['file_bukti']): ?><a
                                                             href="../uploads/tindak_lanjut/<?= $log['file_bukti'] ?>" target="_blank"
-                                                            class="btn btn-xs btn-success mt-1">Lihat Bukti</a><?php endif; ?>
+                                                            class="btn btn-xs btn-outline-primary mt-1">Lihat Bukti</a><?php endif; ?>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -150,7 +157,7 @@ include "../templates/sidebar.php";
                         <?php endif; ?>
 
                         <div class="mb-3">
-                            <label>Status Tindak Lanjut</label>
+                            <label class="form-label">Status Tindak Lanjut <span class="jxb-required">*</span></label>
                             <select name="status" id="status_tl" class="form-select" required>
                                 <option value="">-- Pilih Status --</option>
                                 <option value="Sesuai">Sesuai</option>
@@ -167,7 +174,7 @@ include "../templates/sidebar.php";
                         </div>
 
                         <div class="mb-3" id="fieldNilaiPenyerahan" style="display:none;">
-                            <label>Nilai Penyetoran / Penyerahan Uang (Rp)</label>
+                            <label class="form-label">Nilai Penyetoran / Penyerahan Uang (Rp)</label>
                             <input type="number" name="nilai_penyerahan" id="nilai_penyerahan" class="form-control"
                                 min="0" step="0.01"
                                 value="<?= $tl['nilai_penyerahan'] !== null && $tl['nilai_penyerahan'] !== '' ? number_format((float)$tl['nilai_penyerahan'], 2, '.', '') : '' ?>"
@@ -179,7 +186,7 @@ include "../templates/sidebar.php";
                         </div>
 
                         <div class="mb-3">
-                            <label>Catatan SIA</label>
+                            <label class="form-label">Catatan SIA</label>
                             <textarea name="catatan_spi" class="form-control" rows="4"
                                 placeholder="Catatan untuk auditee..."><?= htmlspecialchars($tl['catatan_spi'] ?? '') ?></textarea>
                         </div>
@@ -188,7 +195,7 @@ include "../templates/sidebar.php";
 
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Review</button>
-                        <a href="index.php" class="btn btn-secondary">Kembali</a>
+                        <a href="index.php<?= $tl['rekomendasi_id'] ? '?rekomendasi_id=' . $tl['rekomendasi_id'] : '' ?>" class="btn btn-outline-secondary">Kembali</a>
                     </div>
 
                 </form>

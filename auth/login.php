@@ -20,71 +20,62 @@ if (isset($_SESSION['user_id'])) {
     <link rel="icon" href="/sisia/assets/images/favicon.ico">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/sisia/assets/css/jxb-design-system.css">
     <style>
         body {
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background:
-                linear-gradient(135deg, #003366, #005baa);
-            font-family: Arial, sans-serif;
+            background: var(--canvas);
+            font-family: "Segoe UI", Arial, sans-serif;
         }
 
         .login-card {
             width: 420px;
-            border: none;
-            border-radius: 20px;
-            box-shadow:
-                0 15px 40px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-card);
             overflow: hidden;
+            margin: 24px;
         }
 
         .login-header {
-            background: white;
-            padding: 30px;
+            background: var(--surface);
+            padding: 32px 32px 20px;
             text-align: center;
         }
 
         .login-header img {
-            max-height: 80px;
-            margin-bottom: 15px;
+            max-height: 72px;
+            margin-bottom: 16px;
         }
 
         .app-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #003366;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--jxb-blue-700);
         }
 
         .app-subtitle {
-            font-size: 14px;
-            color: #666;
+            font-size: 13px;
+            color: var(--neutral-500);
+            margin-top: 4px;
         }
 
-        .card-body {
-            padding: 35px;
-        }
-
-        .input-group-text {
-            background: #f8f9fa;
+        .login-body {
+            padding: 8px 32px 20px;
         }
 
         .btn-login {
-            background: #005baa;
-            border: none;
             font-weight: 600;
-            padding: 12px;
-        }
-
-        .btn-login:hover {
-            background: #003f7d;
+            padding: 11px 16px;
         }
 
         .footer-text {
             text-align: center;
             font-size: 12px;
-            color: #999;
+            color: var(--neutral-500);
             margin-top: 20px;
         }
     </style>
@@ -96,45 +87,51 @@ if (isset($_SESSION['user_id'])) {
             <img src="/sisia/assets/images/LogoJXB_new.png" alt="JXB Logo">
             <div class="app-title">SISIA JAKTOUR</div>
             <div class="app-subtitle">
-                Sistem Informasi Satuan Internal Audit Jakarta Tourisindo
+                Sistem Informasi Satuan Internal Audit
             </div>
-            <small class="text-muted">PT Jakarta Tourisindo</small>
         </div>
-        <div class="card-body">
+        <div class="login-body">
             <?php if (isset($_GET['error'])): ?>
-                <div class="alert alert-danger">
-                    Username atau password salah.
+                <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+                    <i class="fas fa-circle-exclamation mt-1"></i>
+                    <div>
+                        <strong>Gagal masuk.</strong><br>
+                        <?php if (($_GET['error'] ?? '') === 'username'): ?>
+                            Username tidak ditemukan atau akun tidak aktif.
+                        <?php elseif (($_GET['error'] ?? '') === 'password'): ?>
+                            Password yang Anda masukkan salah.
+                        <?php else: ?>
+                            Username atau password salah.
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endif; ?>
             <?php if (isset($_GET['expired'])): ?>
-                <div class="alert alert-warning">
-                    Session telah berakhir.
-                    Silakan login kembali.
+                <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+                    <i class="fas fa-clock mt-1"></i>
+                    <div>
+                        <strong>Session telah berakhir.</strong><br>
+                        Silakan login kembali.
+                    </div>
                 </div>
             <?php endif; ?>
             <form action="login_process.php" method="post">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <i class="fa fa-user"></i>
-                    </span>
-                    <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
+                <div class="mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Masukkan username" required autofocus>
                 </div>
-                <div class="input-group mb-4">
-                    <span class="input-group-text">
-                        <i class="fa fa-lock"></i>
-                    </span>
-                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <div class="mb-4">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Masukkan password" required>
                 </div>
                 <button type="submit" class="btn btn-primary btn-login w-100">
-                    <i class="fa fa-sign-in-alt"></i>
+                    <i class="fas fa-sign-in-alt"></i>
                     Masuk ke Sistem
                 </button>
             </form>
             <div class="footer-text">
                 © <?= date('Y') ?>
-                PT Jakarta Tourisindo
-                <br>
-                Satuan Internal Audit
+                PT Jakarta Tourisindo / Jakarta Experience Board
             </div>
         </div>
     </div>

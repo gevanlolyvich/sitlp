@@ -29,44 +29,50 @@ include "../templates/sidebar.php";
 <main class="app-main">
  <div class="app-content">
   <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header">
-     <h3 class="card-title">Edit Temuan Audit</h3>
+   <div class="jxb-page-header">
+    <div>
+     <h1 class="jxb-page-title"><i class="fas fa-edit me-2 text-primary"></i>Edit Temuan Audit</h1>
+     <div class="jxb-page-subtitle">Ubah data temuan <?= htmlspecialchars($temuan['nomor_temuan']) ?></div>
     </div>
+    <div class="jxb-page-actions">
+     <a href="index.php?audit_id=<?= $temuan['audit_id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+    </div>
+   </div>
+   <div class="card mt-3">
     <form action="update.php" method="post">
      <input type="hidden" name="id" value="<?= $temuan['id'] ?>">
      <input type="hidden" name="audit_id" value="<?= $temuan['audit_id'] ?>">
      <div class="card-body">
       <div class="row">
        <div class="col-md-6">
-        <label>Nomor Temuan</label>
+        <label class="form-label">Nomor Temuan <span class="jxb-required">*</span></label>
         <input type="text" name="nomor_temuan" value="<?= htmlspecialchars($temuan['nomor_temuan']) ?>" class="form-control" required>
        </div>
         <input type="hidden" name="status" value="Open">
         <div class="col-md-6">
-         <label>Status</label>
+         <label class="form-label">Status</label>
          <input type="text" class="form-control" value="Open" readonly>
         </div>
       </div>
       <br>
-      <label>Judul Temuan</label>
+      <label class="form-label">Judul Temuan <span class="jxb-required">*</span></label>
       <input type="text" name="judul_temuan" value="<?= htmlspecialchars($temuan['judul_temuan']) ?>" class="form-control" required>
       <br>
-      <label>Kondisi</label>
+      <label class="form-label">Kondisi <span class="jxb-required">*</span></label>
       <textarea name="kondisi" id="kondisi" class="form-control" rows="4" required><?= htmlspecialchars($temuan['kondisi']) ?></textarea>
       <br>
-      <label>Kriteria</label>
+      <label class="form-label">Kriteria <span class="jxb-required">*</span></label>
       <textarea name="kriteria" class="form-control" rows="4" required><?= htmlspecialchars($temuan['kriteria']) ?></textarea>
       <br>
-      <label>Sebab</label>
+      <label class="form-label">Sebab <span class="jxb-required">*</span></label>
       <textarea name="sebab" class="form-control" rows="4" required><?= htmlspecialchars($temuan['sebab']) ?></textarea>
       <br>
-      <label>Akibat</label>
+      <label class="form-label">Akibat <span class="jxb-required">*</span></label>
       <textarea name="akibat" class="form-control" rows="4" required><?= htmlspecialchars($temuan['akibat']) ?></textarea>
       <br>
       <div class="row">
        <div class="col-md-4">
-        <label>Tingkat Risiko</label>
+        <label class="form-label">Tingkat Risiko</label>
         <select name="tingkat_risiko" class="form-select">
          <option value="Rendah" <?= $temuan['tingkat_risiko']=='Rendah'?'selected':'' ?>>Rendah</option>
          <option value="Sedang" <?= $temuan['tingkat_risiko']=='Sedang'?'selected':'' ?>>Sedang</option>
@@ -77,7 +83,7 @@ include "../templates/sidebar.php";
      </div>
      <div class="card-footer">
       <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-      <a href="index.php?audit_id=<?= $temuan['audit_id'] ?>" class="btn btn-secondary">Kembali</a>
+      <a href="index.php?audit_id=<?= $temuan['audit_id'] ?>" class="btn btn-outline-secondary">Kembali</a>
      </div>
     </form>
    </div>

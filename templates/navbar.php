@@ -1,4 +1,4 @@
-<header class="app-header navbar navbar-expand bg-body">
+<header class="app-header navbar navbar-expand">
 
     <div class="container-fluid">
 
@@ -24,14 +24,25 @@
         </ul>
         <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-                <span class="nav-link">
-
-                    <?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
-
+                <?php
+                    $nama = $_SESSION['nama'] ?? 'User';
+                    $parts = array_filter(array_map('trim', explode(' ', $nama)));
+                    $initials = '';
+                    if (count($parts) > 1) {
+                        $initials = mb_strtoupper(mb_substr($parts[0], 0, 1) . mb_substr(end($parts), 0, 1));
+                    } elseif (count($parts) === 1) {
+                        $initials = mb_strtoupper(mb_substr($parts[0], 0, 1));
+                    }
+                    $roleMap = ['ADMIN' => 'A', 'KEPALA_SIA' => 'K', 'AUDITOR' => 'R', 'AUDITEE' => 'E', 'DIREKSI' => 'D', 'KOMISARIS' => 'C'];
+                    $role = $_SESSION['role'] ?? '';
+                    $roleAlias = $roleMap[$role] ?? mb_strtoupper(mb_substr($role, 0, 1));
+                ?>
+                <span class="nav-link d-inline-flex align-items-center gap-2 py-2">
+                    <span class="jxb-avatar"><?= htmlspecialchars($initials) ?></span>
+                    <span class="d-none d-md-inline"><?= htmlspecialchars($nama) ?></span>
+                    <span class="badge jxb-status-badge is-neutral d-none d-lg-inline" title="<?= htmlspecialchars($role) ?>"><?= htmlspecialchars($roleAlias) ?></span>
                 </span>
-
             </li>
-
         </ul>
 
     </div>

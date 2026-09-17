@@ -24,19 +24,22 @@ include "../templates/sidebar.php";
 ?>
 
 <main class="app-main">
- <div class="app-content">
-  <div class="container-fluid">
-   <div class="card mt-3">
-    <div class="card-header d-flex align-items-center">
-     <h3 class="card-title mb-0">Temuan Audit : <?= htmlspecialchars($audit['nomor_audit']) ?></h3>
-     <div class="ms-auto">
-      <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Kembali</a>
+  <div class="app-content">
+   <div class="container-fluid">
+    <div class="jxb-page-header">
+     <div>
+      <h1 class="jxb-page-title"><i class="fas fa-search me-2 text-primary"></i>Temuan Audit</h1>
+      <div class="jxb-page-subtitle"><?= htmlspecialchars($audit['nomor_audit']) ?> &mdash; <?= htmlspecialchars($audit['judul_audit']) ?></div>
+     </div>
+     <div class="jxb-page-actions">
+      <a href="../audit_pemeriksaan/detail.php?id=<?= $audit_id ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
       <?php if(!$locked): ?>
-      <a href="create.php?audit_id=<?= $audit_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i>Tambah Temuan</a>
+      <a href="create.php?audit_id=<?= $audit_id ?>" class="btn btn-primary"><i class="fas fa-plus"></i>Tambah Temuan</a>
       <?php endif; ?>
      </div>
     </div>
-    <div class="card-body">
+    <div class="card">
+     <div class="card-body">
       <div class="table-responsive-wrapper"><table id="tblTemuan" class="table table-bordered table-striped">
       <thead>
        <tr>
@@ -51,13 +54,28 @@ include "../templates/sidebar.php";
        <?php while($row=mysqli_fetch_assoc($q)){ ?>
        <tr>
         <td><?= htmlspecialchars($row['nomor_temuan']) ?></td>
-	<td><?= htmlspecialchars($row['judul_temuan']) ?></td>
-	<td><?= htmlspecialchars($row['tingkat_risiko']) ?></td>
-	<td><?= htmlspecialchars($row['status']) ?></td>
+	<td class="fw-semibold"><?= htmlspecialchars($row['judul_temuan']) ?></td>
 	<td>
-	<a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
+	 <?php
+	 $tr = $row['tingkat_risiko'];
+	 if($tr=='Tinggi'){ echo '<span class="jxb-status-badge is-danger">Tinggi</span>'; }
+	 elseif($tr=='Sedang'){ echo '<span class="jxb-status-badge is-warn">Sedang</span>'; }
+	 elseif($tr=='Rendah'){ echo '<span class="jxb-status-badge is-success">Rendah</span>'; }
+	 else { echo htmlspecialchars($tr); }
+	 ?>
+	</td>
+	<td>
+	 <?php
+	 $ts = $row['status'];
+	 if($ts=='Selesai'){ echo '<span class="jxb-status-badge is-success">Selesai</span>'; }
+	 elseif($ts=='Draft'){ echo '<span class="jxb-status-badge is-neutral">Draft</span>'; }
+	 else { echo htmlspecialchars($ts); }
+	 ?>
+	</td>
+	<td>
+	<a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm">Detail</a>
 	<?php if(!$locked): ?>
-	<a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+	<a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline-warning btn-sm">Edit</a>
 	<a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="hapusTemuan(<?= $row['id'] ?>, <?= $audit_id ?>)">Hapus</a>
 	<?php endif; ?>
 	</td>

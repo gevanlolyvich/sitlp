@@ -32,15 +32,14 @@ $brandActive = ($curModule === 'dashboard') ? ' active' : '';
 ?>
 
 <aside
-class="app-sidebar bg-body-secondary shadow"
-data-bs-theme="dark">
+class="app-sidebar">
 
 <div class="sidebar-brand">
 
 <a href="../dashboard/"
 class="nav-link<?= $brandActive ?>">
 
-<span class="brand-text fw-light">
+<span class="brand-text">
 
 SI SIA JAKTOUR
 
@@ -62,11 +61,9 @@ SI SIA JAKTOUR
         class="img-circle elevation-2"
         style="width:80px;height:80px;object-fit:cover;">
 
-    <div class="mt-2 text-white">
+    <div class="mt-2 fw-semibold">
 
-        <strong>
-            <?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
-        </strong>
+        <?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
 
     </div>
 
@@ -86,6 +83,7 @@ data-lte-toggle="treeview"
 role="menu">
 
 <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI','KOMISARIS'])): ?>
+<li class="nav-item jxb-sidebar-label"><span>Operasional</span></li>
 <li class="nav-item<?= $isActiveLink('dashboard_sia') ?>">
 <a href="../dashboard_sia/" class="nav-link<?= $isActiveLink('dashboard_sia') ?>">
 <i class="nav-icon fas fa-chart-line"></i>
@@ -95,6 +93,7 @@ role="menu">
 <?php endif; ?>
 
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='AUDITOR'): ?>
+<li class="nav-item jxb-sidebar-label"><span>Operasional</span></li>
 <li class="nav-item<?= $isActiveLink('dashboard_sia') ?>">
 <a href="../dashboard_sia/" class="nav-link<?= $isActiveLink('dashboard_sia') ?>">
 <i class="nav-icon fas fa-chart-line"></i>
@@ -140,6 +139,7 @@ role="menu">
 <?php endif; ?>
 
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='ADMIN'): ?>
+<li class="nav-item jxb-sidebar-label"><span>Master Data</span></li>
 <li class="nav-item">
 <a href="../users/" class="nav-link<?= $isActiveLink('users') ?>">
 <i class="nav-icon fas fa-users"></i>
@@ -149,6 +149,9 @@ role="menu">
 <?php endif; ?>
 
 <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])): ?>
+<?php if(isset($_SESSION['role']) && $_SESSION['role']!=='ADMIN'): ?>
+<li class="nav-item jxb-sidebar-label"><span>Master Data</span></li>
+<?php endif; ?>
 <li class="nav-item">
 <a href="../unit_kerja/" class="nav-link<?= $isActiveLink('unit_kerja') ?>">
 <i class="nav-icon fas fa-building"></i>
@@ -171,6 +174,7 @@ role="menu">
 
 <!-- AUDITEE -->
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='AUDITEE'): ?>
+<li class="nav-item jxb-sidebar-label"><span>Operasional</span></li>
 <li class="nav-item">
     <a href="../dashboard_auditee/" class="nav-link<?= $isActiveLink('dashboard_auditee') ?>">
         <i class="nav-icon fas fa-chart-pie"></i>
@@ -186,6 +190,7 @@ role="menu">
 <?php endif; ?>
 
 <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI','KOMISARIS'])): ?>
+<li class="nav-item jxb-sidebar-label"><span>Laporan</span></li>
 <li class="nav-item">
     <a href="../report" class="nav-link<?= $isActiveLink('report') ?>">
         <i class="nav-icon fas fa-file-excel"></i>
@@ -194,6 +199,7 @@ role="menu">
 </li>
 <?php endif; ?>
 
+<li class="nav-item jxb-sidebar-label"><span>Akun</span></li>
 <li class="nav-item">
 <a href="../auth/logout.php" class="nav-link">
 <i class="nav-icon fas fa-sign-out-alt"></i>
