@@ -13,19 +13,24 @@ $qAuditCheck = mysqli_query($conn,"SELECT audit_id FROM audit_temuan WHERE id=$t
 $auditCheck = mysqli_fetch_assoc($qAuditCheck);
 blockLockedAudit($conn, (int)$auditCheck['audit_id']);
 
-$nomor_rekomendasi = mysqli_real_escape_string($conn,$_POST['nomor_rekomendasi']);
-$rekomendasi = mysqli_real_escape_string($conn,$_POST['rekomendasi']);
 $created_by = $_SESSION['user_id'];
-mysqli_query($conn,"INSERT INTO audit_rekomendasi(temuan_id, nomor_rekomendasi, rekomendasi, created_by)
-	VALUES('$temuan_id','$nomor_rekomendasi','$rekomendasi','$created_by')");
+$rekomendasi_list = $_POST['rekomendasi'] ?? [];
+foreach($rekomendasi_list as $isi){
+    $isi = trim($isi);
+    if($isi === '') continue;
 
-$id = mysqli_insert_id($conn);
-logActivity(
-    $conn,
-    "Membuat Rekomendasi Audit",
-    "audit_rekomendasi",
-    $id
-);
+    $rekomendasi = mysqli_real_escape_string($conn,$isi);
+    mysqli_query($conn,"INSERT INTO audit_rekomendasi(temuan_id, rekomendasi, created_by)
+        VALUES('$temuan_id','$rekomendasi','$created_by')");
+
+    $id = mysqli_insert_id($conn);
+    logActivity(
+        $conn,
+        "Membuat Rekomendasi Audit",
+        "audit_rekomendasi",
+        $id
+    );
+}
 
 header("Location:../audit_temuan/detail.php?id=".$temuan_id);
 

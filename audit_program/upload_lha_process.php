@@ -14,7 +14,7 @@ $q = mysqli_query($conn, "SELECT * FROM audit_program WHERE id=$id");
 $program = mysqli_fetch_assoc($q);
 if(!$program){ $_SESSION['error'] = "Program tidak ditemukan"; header("Location: index.php"); exit; }
 
-if($program['status'] != 'SELESAI'){ $_SESSION['error'] = "Program belum selesai"; header("Location: index.php"); exit; }
+if($program['status'] != 'Selesai'){ $_SESSION['error'] = "Program belum selesai"; header("Location: index.php"); exit; }
 
 if(isset($_FILES['lha_file']) && $_FILES['lha_file']['error'] == 0){
     $allowed = ['pdf'];

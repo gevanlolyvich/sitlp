@@ -90,7 +90,7 @@ function isAuditLocked($conn, $audit_id)
     $audit_id = (int)$audit_id;
     $q = mysqli_query($conn, "SELECT status FROM audit_pemeriksaan WHERE id=$audit_id");
     $r = mysqli_fetch_assoc($q);
-    return ($r && $r['status'] == 'SELESAI');
+    return ($r && $r['status'] == 'Selesai');
 }
 
 function blockLockedAudit($conn, $audit_id)

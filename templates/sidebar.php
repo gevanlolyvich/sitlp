@@ -1,3 +1,36 @@
+<?php
+$curPath = rtrim($_SERVER['SCRIPT_NAME'] ?? '', '/');
+$curModule = (substr($curPath, -4) === '.php')
+    ? basename(dirname($curPath))
+    : basename($curPath);
+
+$parentMenuMap = [
+    'dashboard_sia'       => 'dashboard_sia',
+    'dashboard_spi'       => 'dashboard_sia',
+    'audit_program'       => 'audit_program',
+    'audit_pemeriksaan'   => 'audit_pemeriksaan',
+    'audit_temuan'        => 'audit_pemeriksaan',
+    'audit_rekomendasi'   => 'audit_pemeriksaan',
+    'audit_tim'           => 'audit_pemeriksaan',
+    'audit_lampiran'      => 'audit_pemeriksaan',
+    'audit_tindak_lanjut' => 'audit_tindak_lanjut',
+    'audit_log'           => 'audit_log',
+    'users'               => 'users',
+    'unit_kerja'          => 'unit_kerja',
+    'auditor'             => 'auditor',
+    'hari_libur'          => 'hari_libur',
+    'dashboard_auditee'   => 'dashboard_auditee',
+    'auditee_temuan'      => 'auditee_temuan',
+    'report'              => 'report',
+];
+
+$activeMenu = $parentMenuMap[$curModule] ?? '';
+$isActiveLink = function (string $key) use ($activeMenu): string {
+    return $activeMenu === $key ? ' active' : '';
+};
+$brandActive = ($curModule === 'dashboard') ? ' active' : '';
+?>
+
 <aside
 class="app-sidebar bg-body-secondary shadow"
 data-bs-theme="dark">
@@ -5,7 +38,7 @@ data-bs-theme="dark">
 <div class="sidebar-brand">
 
 <a href="../dashboard/"
-class="nav-link">
+class="nav-link<?= $brandActive ?>">
 
 <span class="brand-text fw-light">
 
@@ -52,9 +85,9 @@ class="nav sidebar-menu flex-column"
 data-lte-toggle="treeview"
 role="menu">
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI'])): ?>
-<li class="nav-item">
-<a href="../dashboard_sia/" class="nav-link">
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI','KOMISARIS'])): ?>
+<li class="nav-item<?= $isActiveLink('dashboard_sia') ?>">
+<a href="../dashboard_sia/" class="nav-link<?= $isActiveLink('dashboard_sia') ?>">
 <i class="nav-icon fas fa-chart-line"></i>
 <p>Dashboard Monitoring SIA</p>
 </a>
@@ -62,8 +95,8 @@ role="menu">
 <?php endif; ?>
 
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='AUDITOR'): ?>
-<li class="nav-item">
-<a href="../dashboard_sia/" class="nav-link">
+<li class="nav-item<?= $isActiveLink('dashboard_sia') ?>">
+<a href="../dashboard_sia/" class="nav-link<?= $isActiveLink('dashboard_sia') ?>">
 <i class="nav-icon fas fa-chart-line"></i>
 <p>Dashboard Monitoring SIA</p>
 </a>
@@ -72,7 +105,7 @@ role="menu">
 
 <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','AUDITOR'])): ?>
 <li class="nav-item">
-<a href="../audit_program/" class="nav-link">
+<a href="../audit_program/" class="nav-link<?= $isActiveLink('audit_program') ?>">
 <i class="nav-icon fas fa-calendar-alt"></i>
 <p>Program Kerja Pengawasan Tahunan (PKPT)</p>
 </a>
@@ -81,7 +114,7 @@ role="menu">
 
 <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','AUDITOR'])): ?>
 <li class="nav-item">
-<a href="../audit_pemeriksaan/" class="nav-link">
+<a href="../audit_pemeriksaan/" class="nav-link<?= $isActiveLink('audit_pemeriksaan') ?>">
 <i class="nav-icon fas fa-clipboard-check"></i>
 <p>Pemeriksaan Audit</p>
 </a>
@@ -90,7 +123,7 @@ role="menu">
 
 <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','AUDITOR'])): ?>
 <li class="nav-item">
-<a href="../audit_tindak_lanjut/" class="nav-link">
+<a href="../audit_tindak_lanjut/" class="nav-link<?= $isActiveLink('audit_tindak_lanjut') ?>">
 <i class="nav-icon fas fa-tasks"></i>
 <p>Monitoring Tindak Lanjut</p>
 </a>
@@ -99,7 +132,7 @@ role="menu">
 
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='ADMIN'): ?>
 <li class="nav-item">
-<a href="../audit_log/" class="nav-link">
+<a href="../audit_log/" class="nav-link<?= $isActiveLink('audit_log') ?>">
 <i class="nav-icon fas fa-history"></i>
 <p>LOG Audit Trail</p>
 </a>
@@ -108,7 +141,7 @@ role="menu">
 
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='ADMIN'): ?>
 <li class="nav-item">
-<a href="../users/" class="nav-link">
+<a href="../users/" class="nav-link<?= $isActiveLink('users') ?>">
 <i class="nav-icon fas fa-users"></i>
 <p>Master User</p>
 </a>
@@ -117,19 +150,19 @@ role="menu">
 
 <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])): ?>
 <li class="nav-item">
-<a href="../unit_kerja/" class="nav-link">
+<a href="../unit_kerja/" class="nav-link<?= $isActiveLink('unit_kerja') ?>">
 <i class="nav-icon fas fa-building"></i>
 <p>Unit Kerja</p>
 </a>
 </li>
 <li class="nav-item">
-<a href="../auditor/" class="nav-link">
+<a href="../auditor/" class="nav-link<?= $isActiveLink('auditor') ?>">
 <i class="nav-icon fas fa-user-shield"></i>
 <p>Auditor</p>
 </a>
 </li>
 <li class="nav-item">
-<a href="../hari_libur/" class="nav-link">
+<a href="../hari_libur/" class="nav-link<?= $isActiveLink('hari_libur') ?>">
 <i class="nav-icon fas fa-calendar-times"></i>
 <p>Hari Libur</p>
 </a>
@@ -139,22 +172,22 @@ role="menu">
 <!-- AUDITEE -->
 <?php if(isset($_SESSION['role']) && $_SESSION['role']==='AUDITEE'): ?>
 <li class="nav-item">
-    <a href="../dashboard_auditee/" class="nav-link">
+    <a href="../dashboard_auditee/" class="nav-link<?= $isActiveLink('dashboard_auditee') ?>">
         <i class="nav-icon fas fa-chart-pie"></i>
         <p>Dashboard Auditee</p>
     </a>
 </li>
 <li class="nav-item">
-    <a href="../auditee_temuan/" class="nav-link">
+    <a href="../auditee_temuan/" class="nav-link<?= $isActiveLink('auditee_temuan') ?>">
         <i class="nav-icon fas fa-tasks"></i>
         <p>Tindak Lanjut Saya</p>
     </a>
 </li>
 <?php endif; ?>
 
-<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI'])): ?>
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA','DIREKSI','KOMISARIS'])): ?>
 <li class="nav-item">
-    <a href="../report" class="nav-link">
+    <a href="../report" class="nav-link<?= $isActiveLink('report') ?>">
         <i class="nav-icon fas fa-file-excel"></i>
         <p>Export Excel</p>
     </a>

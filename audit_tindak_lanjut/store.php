@@ -12,14 +12,14 @@ checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
 $rekomendasi_id = (int)$_POST['rekomendasi_id'];
 $nomor_tindak_lanjut = mysqli_real_escape_string($conn, $_POST['nomor_tindak_lanjut']);
-$pic = mysqli_real_escape_string($conn,$_POST['pic']);
+$pic = '';
 $uraian = mysqli_real_escape_string($conn,$_POST['uraian_tindak_lanjut']);
 $target = $_POST['target_selesai'];
 $status = 'Proses';
 $created_by = $_SESSION['user_id'];
 
 // Unit kerja mengikuti PKPT
-$qRek = mysqli_query($conn, "SELECT r.id, t.audit_id, p.unit_id AS pkpt_unit_id
+$qRek = mysqli_query($conn, "SELECT r.id, t.audit_id, t.id AS temuan_id, p.unit_id AS pkpt_unit_id
     FROM audit_rekomendasi r
     LEFT JOIN audit_temuan t ON r.temuan_id=t.id
     LEFT JOIN audit_pemeriksaan ap ON ap.id=t.audit_id
@@ -27,6 +27,7 @@ $qRek = mysqli_query($conn, "SELECT r.id, t.audit_id, p.unit_id AS pkpt_unit_id
     WHERE r.id=$rekomendasi_id");
 $rek = mysqli_fetch_assoc($qRek);
 $unit_id = $rek ? (int)$rek['pkpt_unit_id'] : (int)$_POST['unit_id'];
+$temuan_id = $rek ? (int)$rek['temuan_id'] : 0;
 
 // Validate target_selesai berada di rentang tanggal audit
 if ($rek) {
@@ -36,12 +37,12 @@ if ($rek) {
     if ($auditData) {
         if ($target < $auditData['tanggal_mulai']) {
             $_SESSION['error'] = "Target selesai tidak boleh sebelum tanggal mulai audit (" . $auditData['tanggal_mulai'] . ").";
-            header("Location: create.php?rekomendasi_id=" . $rekomendasi_id);
+            header("Location: create.php?rekomendasi_id=" . $rekomendasi_id . "&temuan_id=" . $temuan_id);
             exit;
         }
         if ($target > $auditData['tanggal_selesai']) {
             $_SESSION['error'] = "Target selesai tidak boleh melebihi tanggal selesai audit (" . $auditData['tanggal_selesai'] . ").";
-            header("Location: create.php?rekomendasi_id=" . $rekomendasi_id);
+            header("Location: create.php?rekomendasi_id=" . $rekomendasi_id . "&temuan_id=" . $temuan_id);
             exit;
         }
     }
@@ -85,6 +86,6 @@ logActivity(
 );
 
 
-header("Location:index.php?rekomendasi_id=".$rekomendasi_id);
+header("Location:index.php?temuan_id=".$temuan_id);
 
 exit;

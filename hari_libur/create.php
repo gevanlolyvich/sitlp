@@ -21,13 +21,15 @@ include "../templates/sidebar.php";
 </div>
 <form action="store.php" method="post">
 <div class="card-body">
-<div class="mb-3">
+<div class="row g-3">
+<div class="col-md-6">
 <label>Tanggal Libur</label>
 <input type="date" name="tanggal" class="form-control" required>
 </div>
-<div class="mb-3">
+<div class="col-md-6">
 <label>Keterangan</label>
 <input type="text" name="keterangan" class="form-control" placeholder="Contoh: Hari Raya Idul Fitri" required>
+</div>
 </div>
 </div>
 <div class="card-footer">

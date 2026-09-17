@@ -1,38 +1,39 @@
 <header class="app-header navbar navbar-expand bg-body">
 
-<div class="container-fluid">
+    <div class="container-fluid">
 
-<ul class="navbar-nav">
+        <ul class="navbar-nav">
 
-<li class="nav-item">
+            <li class="nav-item">
 
-<a
-class="nav-link"
-data-lte-toggle="sidebar"
-href="#">
+                <a class="nav-link" data-lte-toggle="sidebar" href="#">
 
-<i class="fas fa-bars"></i>
+                    <i class="fas fa-bars"></i>
 
-</a>
+                </a>
 
-</li>
+            </li>
 
-</ul>
+        </ul>
+        <ul class="navbar-nav app-title-nav">
+            <li class="nav-item">
+                <span class="nav-link app-title">
+                    Sistem Informasi Satuan Internal Audit
+                </span>
+            </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+                <span class="nav-link">
 
-<ul class="navbar-nav ms-auto">
+                    <?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
 
-<li class="nav-item">
+                </span>
 
-<span class="nav-link">
+            </li>
 
-<?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
+        </ul>
 
-</span>
-
-</li>
-
-</ul>
-
-</div>
+    </div>
 
 </header>

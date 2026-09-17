@@ -16,18 +16,28 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
+#statusResult .table-responsive-wrapper {
+    max-height: min(60vh, 480px);
+    overflow-y: auto;
+}
+
 .table-responsive-wrapper .table {
     margin-bottom: 0;
-    min-width: 600px;
 }
 
 .table th, .table td {
-    white-space: nowrap;
+    word-break: break-word;
     vertical-align: middle;
+}
+
+.table th.text-nowrap,
+.table td.text-nowrap {
+    white-space: nowrap;
 }
 
 .table td .btn {
     margin: 1px;
+    white-space: nowrap;
 }
 
 .table td .btn-sm {
@@ -101,6 +111,125 @@ body {
 
 .search-form .input-group {
     flex-wrap: nowrap;
+}
+
+.sidebar-wrapper .sidebar-menu>.nav-item>.nav-link.active {
+    color: #fff;
+    background-color: #0d6efd;
+    font-weight: 600;
+}
+
+label,
+.form-label {
+    font-weight: 600;
+}
+
+.equal-height {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.equal-height > .col,
+.equal-height > [class*="col-"] {
+    display: flex;
+    flex-direction: column;
+}
+
+.equal-height > .col > .card,
+.equal-height > [class*="col-"] > .card {
+    width: 100%;
+    height: 100%;
+}
+
+.kpi-card {
+    height: 100%;
+}
+
+.app-content-header h1,
+.app-content-header h2,
+.app-content-header h3,
+.app-content-header .breadcrumb {
+    word-break: break-word;
+}
+
+.app-header .app-title-nav {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.app-header .app-title-nav .nav-item {
+    min-width: 0;
+}
+
+.app-header .app-title-nav .app-title {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: clamp(0.7rem, 3.2vw, 1rem);
+}
+
+.card-footer > nav,
+.mt-3.d-flex.justify-content-between.align-items-center > nav {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.card-footer .pagination,
+.mt-3.d-flex.justify-content-between.align-items-center .pagination {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 767.98px) {
+    .card-footer.d-flex.justify-content-between.align-items-center,
+    .mt-3.d-flex.justify-content-between.align-items-center {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    .card-footer > nav,
+    .mt-3.d-flex.justify-content-between.align-items-center > nav {
+        width: 100%;
+        overflow-x: visible;
+    }
+    .card-footer .pagination,
+    .mt-3.d-flex.justify-content-between.align-items-center .pagination {
+        justify-content: center;
+    }
+    .card-footer .page-link,
+    .mt-3.d-flex.justify-content-between.align-items-center .page-link {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+.word-break-all {
+    word-break: break-all;
+}
+
+@media (max-width: 767.98px) {
+    .app-content {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    .card-body {
+        padding: 1rem 0.75rem;
+    }
+    .table-responsive-wrapper .table {
+        min-width: 0;
+    }
+    .timeline-item .float-right {
+        float: none !important;
+        display: block;
+        margin-top: 4px;
+    }
+    .d-flex.align-items-end.gap-2 {
+        align-items: flex-start !important;
+        flex-wrap: wrap;
+    }
 }
 
 @media (max-width: 576px) {

@@ -29,7 +29,9 @@ method="post">
 
 <div class="card-body">
 
-<div class="mb-3">
+<div class="row g-3">
+
+<div class="col-md-6">
 
 <label>Kode Unit</label>
 
@@ -41,7 +43,7 @@ required>
 
 </div>
 
-<div class="mb-3">
+<div class="col-md-6">
 
 <label>Nama Unit</label>
 
@@ -53,7 +55,7 @@ required>
 
 </div>
 
-<div class="mb-3">
+<div class="col-md-6">
 
 <label>Email</label>
 
@@ -64,7 +66,7 @@ class="form-control">
 
 </div>
 
-<div class="mb-3">
+<div class="col-md-6">
 
 <label>Telepon</label>
 
@@ -75,13 +77,15 @@ class="form-control">
 
 </div>
 
-<div class="mb-3">
+<div class="col-12">
 
 <label>Alamat</label>
 
 <textarea
 name="alamat"
 class="form-control"></textarea>
+
+</div>
 
 </div>
 

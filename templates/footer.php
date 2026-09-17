@@ -8,7 +8,7 @@ Version 1.0
 
 <strong>
 
-PT Jakarta Tourisindo
+&copy; <?= date('Y') ?> PT Jakarta Tourisindo &mdash; by MBG
 
 </strong>
 

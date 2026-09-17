@@ -12,7 +12,7 @@ checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 $audit_id = (int)$_GET['audit_id'];
 $qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit, status FROM audit_pemeriksaan WHERE id=$audit_id");
 $audit = mysqli_fetch_assoc($qAudit);
-$locked = ($audit['status'] == 'SELESAI');
+$locked = ($audit['status'] == 'Selesai');
 $qLampiran = mysqli_query($conn,"SELECT l.*, u.nama 
 	FROM audit_lampiran l
 	LEFT JOIN users u ON l.uploaded_by=u.id

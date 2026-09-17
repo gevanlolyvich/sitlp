@@ -55,8 +55,7 @@ $sql = mysqli_query(
     LEFT JOIN auditor a
         ON p.penanggung_jawab_id = a.id
     $where
-    ORDER BY p.tahun DESC,
-             p.kode_program
+    ORDER BY p.created_at DESC
     LIMIT $limit OFFSET $offset
     "
 );
@@ -160,17 +159,17 @@ class="table table-bordered table-striped">
 
 <?php
 
-if($r['level_risiko']=='TINGGI')
+if($r['level_risiko']=='Tinggi')
 {
-    echo '<span class="badge bg-danger">TINGGI</span>';
+    echo '<span class="badge bg-danger">Tinggi</span>';
 }
-elseif($r['level_risiko']=='SEDANG')
+elseif($r['level_risiko']=='Sedang')
 {
-    echo '<span class="badge bg-warning">SEDANG</span>';
+    echo '<span class="badge bg-warning">Sedang</span>';
 }
 else
 {
-    echo '<span class="badge bg-success">RENDAH</span>';
+    echo '<span class="badge bg-success">Rendah</span>';
 }
 
 ?>
@@ -181,17 +180,17 @@ else
 
 <?php
 
-if($r['status']=='RENCANA')
+if($r['status']=='Rencana')
 {
-    echo '<span class="badge bg-secondary">RENCANA</span>';
+    echo '<span class="badge bg-secondary">Rencana</span>';
 }
-elseif($r['status']=='BERJALAN')
+elseif($r['status']=='Berjalan')
 {
-    echo '<span class="badge bg-primary">BERJALAN</span>';
+    echo '<span class="badge bg-primary">Berjalan</span>';
 }
 else
 {
-    echo '<span class="badge bg-success">SELESAI</span>';
+    echo '<span class="badge bg-success">Selesai</span>';
 }
 
 ?>
@@ -200,7 +199,7 @@ else
 
 
 <td>
-<?php if($r['status']=='RENCANA'): ?>
+<?php if($r['status']=='Rencana'): ?>
 <?php if(in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])): ?>
 <a href="edit.php?id=<?= $r['id'] ?>"
 class="btn btn-warning btn-sm">
@@ -216,12 +215,12 @@ Hapus
 class="btn btn-success btn-sm btn-blink-border">
 Buat Audit
 </a>
-<?php elseif($r['status']=='SELESAI' && !empty($r['lha_file'])): ?>
+<?php elseif($r['status']=='Selesai' && !empty($r['lha_file'])): ?>
 <a href="../uploads/program_lha/<?= $r['lha_file'] ?>"
 target="_blank" class="btn btn-success btn-sm">
 <i class="fas fa-file-pdf"></i> Lihat LHA
 </a>
-<?php elseif($r['status']=='SELESAI'): ?>
+<?php elseif($r['status']=='Selesai'): ?>
 <a href="upload_lha.php?id=<?= $r['id'] ?>"
 class="btn btn-info btn-sm">
 <i class="fas fa-upload"></i> Upload LHA
@@ -250,15 +249,28 @@ class="btn btn-info btn-sm">
 <nav>
 <ul class="pagination pagination-sm mb-0">
 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-<a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Sebelumnya</a>
+<a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>" aria-label="Sebelumnya"><i class="fas fa-chevron-left"></i><span class="d-none d-sm-inline ps-1">Sebelumnya</span></a>
 </li>
-<?php for ($i = 1; $i <= $totalPages; $i++): ?>
+<?php
+$range = [];
+for ($i = 1; $i <= $totalPages; $i++) {
+    if ($i == 1 || $i == $totalPages || abs($i - $page) <= 1) {
+        $range[] = $i;
+    } elseif (end($range) !== '...') {
+        $range[] = '...';
+    }
+}
+foreach ($range as $i):
+    if ($i === '...'):
+?>
+<li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+<?php else: ?>
 <li class="page-item <?= $i == $page ? 'active' : '' ?>">
 <a class="page-link" href="?page=<?= $i ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>"><?= $i ?></a>
 </li>
-<?php endfor; ?>
+<?php endif; endforeach; ?>
 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-<a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Selanjutnya</a>
+<a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>" aria-label="Selanjutnya"><span class="d-none d-sm-inline pe-1">Selanjutnya</span><i class="fas fa-chevron-right"></i></a>
 </li>
 </ul>
 </nav>

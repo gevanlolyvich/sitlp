@@ -8,7 +8,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN', 'KEPALA_SIA']);
+checkRole(['ADMIN', 'KEPALA_SIA', 'AUDITOR']);
 
 $id = (int) $_GET['id'];
 
@@ -26,7 +26,7 @@ if (!$tl) {
 }
 
 if ($tl['status'] == 'Sesuai') {
-    $_SESSION['error'] = "Status sudah Sesuai (final). Tidak dapat diubah lagi.";
+    $_SESSION['error'] = "Status sudah Sesuai. Tidak dapat diubah lagi.";
     header("Location: index.php");
     exit;
 }
@@ -89,13 +89,8 @@ include "../templates/sidebar.php";
                                 <td><?= htmlspecialchars($tl['nama_unit']) ?></td>
                             </tr>
                             <tr>
-                                <th>PIC</th>
-                                <td><?= htmlspecialchars($tl['pic']) ?></td>
-                            </tr>
-                            <tr>
                                 <th>Uraian Tindak Lanjut</th>
-                                <td style="white-space: pre-wrap;">
-                                    <?= nl2br(htmlspecialchars($tl['uraian_tindak_lanjut'])) ?></td>
+                                <td style="white-space: pre-wrap;"><?= htmlspecialchars($tl['uraian_tindak_lanjut']) ?></td>
                             </tr>
                             <tr>
                                 <th>Target Selesai</th>
@@ -156,9 +151,9 @@ include "../templates/sidebar.php";
 
                         <div class="mb-3">
                             <label>Status Tindak Lanjut</label>
-                            <select name="status" class="form-select" required>
+                            <select name="status" id="status_tl" class="form-select" required>
                                 <option value="">-- Pilih Status --</option>
-                                <option value="Sesuai">Sesuai (Final)</option>
+                                <option value="Sesuai">Sesuai</option>
                                 <option value="Belum Sesuai">Belum Sesuai</option>
                                 <option value="Belum Ditindak Lanjut">Belum Ditindak Lanjut</option>
                                 <option value="Tidak Dapat Ditindak Lanjut">Tidak Dapat Ditindak Lanjut</option>
@@ -168,6 +163,18 @@ include "../templates/sidebar.php";
                                 Auditee tidak bisa upload ulang.<br>
                                 * <strong>Belum Sesuai / Belum Ditindak Lanjut</strong> = Perlu revisi, Auditee bisa
                                 upload ulang.
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="fieldNilaiPenyerahan" style="display:none;">
+                            <label>Nilai Penyetoran / Penyerahan Uang (Rp)</label>
+                            <input type="number" name="nilai_penyerahan" id="nilai_penyerahan" class="form-control"
+                                min="0" step="0.01"
+                                value="<?= $tl['nilai_penyerahan'] !== null && $tl['nilai_penyerahan'] !== '' ? number_format((float)$tl['nilai_penyerahan'], 2, '.', '') : '' ?>"
+                                placeholder="0">
+                            <div class="form-text text-muted">
+                                * Jumlah uang yang disetor / nilai aset yang diserahkan ke kas negara/daerah.<br>
+                                * Jika dikosongkan maka dianggap Rp 0.
                             </div>
                         </div>
 
@@ -191,6 +198,18 @@ include "../templates/sidebar.php";
         </div>
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var select = document.getElementById('status_tl');
+    var field = document.getElementById('fieldNilaiPenyerahan');
+    function toggleNilai() {
+        field.style.display = (select.value === 'Sesuai') ? '' : 'none';
+    }
+    select.addEventListener('change', toggleNilai);
+    toggleNilai();
+});
+</script>
 
 <style>
     .btn-xs {

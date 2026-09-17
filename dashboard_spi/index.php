@@ -6,7 +6,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN', 'KEPALA_SIA', 'DIREKSI']);
+checkRole(['ADMIN', 'KEPALA_SIA', 'DIREKSI', 'KOMISARIS']);
 
 include "../templates/header.php";
 include "../templates/navbar.php";

@@ -22,7 +22,7 @@ $kriteria     = mysqli_real_escape_string($conn, $_POST['kriteria']);
 $sebab        = mysqli_real_escape_string($conn, $_POST['sebab']);
 $akibat       = mysqli_real_escape_string($conn, $_POST['akibat']);
 $tingkat_risiko = $_POST['tingkat_risiko'];
-$status       = 'OPEN';
+$status       = 'Open';
 
 mysqli_query($conn, "UPDATE audit_temuan SET
     nomor_temuan = '$nomor_temuan',

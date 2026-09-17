@@ -43,7 +43,7 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 	LEFT JOIN unit_kerja uk ON ap.unit_id = uk.id
 	LEFT JOIN auditor au ON ap.ketua_auditor_id = au.id
         $where
-	ORDER BY ap.id DESC
+	ORDER BY ap.created_at DESC
 	LIMIT $limit OFFSET $offset");
 
 ?>
@@ -52,9 +52,8 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
  <div class="app-content">
   <div class="container-fluid">
    <div class="card mt-3">
-    <div class="card-header d-flex justify-content-between">
+    <div class="card-header">
      <h3 class="card-title">Pemeriksaan Audit</h3>
-     <a href="../audit_program/index.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i>Dari Program Audit</a>
     </div>
     <div class="card-body">
 
@@ -98,17 +97,17 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 	<td><?= htmlspecialchars($row['nama_auditor']) ?></td>
         <td><?php
 		$status = $row['status'];
-		if($status=='DRAFT'){
-		    echo '<span class="badge bg-secondary">DRAFT</span>';
-		} elseif($status=='BERJALAN'){
-		    echo '<span class="badge bg-warning">BERJALAN</span>';
+		if($status=='Draft'){
+		    echo '<span class="badge bg-secondary">Draft</span>';
+		} elseif($status=='Berjalan'){
+		    echo '<span class="badge bg-warning">Berjalan</span>';
 		} else{
-		    echo '<span class="badge bg-success">SELESAI</span>';
+		    echo '<span class="badge bg-success">Selesai</span>';
 		}
 	?></td>
 	<td>
 	 <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
-	 <?php if($row['status'] != 'SELESAI'): ?>
+	 <?php if($row['status'] != 'Selesai'): ?>
 	 <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
 	 <?php endif; ?>
 
@@ -125,15 +124,28 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
     <nav>
     <ul class="pagination pagination-sm mb-0">
     <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-    <a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Sebelumnya</a>
+    <a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>" aria-label="Sebelumnya"><i class="fas fa-chevron-left"></i><span class="d-none d-sm-inline ps-1">Sebelumnya</span></a>
     </li>
-    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+    <?php
+    $range = [];
+    for ($i = 1; $i <= $totalPages; $i++) {
+        if ($i == 1 || $i == $totalPages || abs($i - $page) <= 1) {
+            $range[] = $i;
+        } elseif (end($range) !== '...') {
+            $range[] = '...';
+        }
+    }
+    foreach ($range as $i):
+        if ($i === '...'):
+    ?>
+    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+    <?php else: ?>
     <li class="page-item <?= $i == $page ? 'active' : '' ?>">
     <a class="page-link" href="?page=<?= $i ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>"><?= $i ?></a>
     </li>
-    <?php endfor; ?>
+    <?php endif; endforeach; ?>
     <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-    <a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Selanjutnya</a>
+    <a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>" aria-label="Selanjutnya"><span class="d-none d-sm-inline pe-1">Selanjutnya</span><i class="fas fa-chevron-right"></i></a>
     </li>
     </ul>
     </nav>

@@ -68,7 +68,7 @@ mysqli_query(
     $conn,
     "
     UPDATE audit_pemeriksaan
-    SET status='SELESAI'
+    SET status='Selesai'
     WHERE id='$id'
     "
 );
@@ -89,7 +89,7 @@ if(
         $conn,
         "
         UPDATE audit_program
-        SET status='SELESAI'
+        SET status='Selesai'
         WHERE id='".$audit['program_id']."'
         "
     );

@@ -29,13 +29,15 @@ include "../templates/sidebar.php";
 <form action="update.php" method="post">
 <input type="hidden" name="id" value="<?= $r['id'] ?>">
 <div class="card-body">
-<div class="mb-3">
+<div class="row g-3">
+<div class="col-md-6">
 <label>Tanggal Libur</label>
 <input type="date" name="tanggal" class="form-control" value="<?= $r['tanggal'] ?>" required>
 </div>
-<div class="mb-3">
+<div class="col-md-6">
 <label>Keterangan</label>
 <input type="text" name="keterangan" class="form-control" value="<?= htmlspecialchars($r['keterangan']) ?>" required>
+</div>
 </div>
 </div>
 <div class="card-footer">

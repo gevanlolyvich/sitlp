@@ -19,26 +19,6 @@ $audit = mysqli_fetch_assoc($qAudit);
 
 if(!$audit){die("Audit tidak ditemukan");}
 
-/*
-Generate Nomor Temuan
-Format:
-TM-2026-001-001
-*/
-
-$qCount = mysqli_query($conn,"SELECT COUNT(*) total FROM audit_temuan WHERE audit_id=$audit_id");
-$d = mysqli_fetch_assoc($qCount);
-$urut = $d['total'] + 1;
-$bagianAudit = explode('-',$audit['nomor_audit']);
-
-/*
-AUD-2026-001
-      ↓
-001
-*/
-
-$nomorAudit = end($bagianAudit);
-$nomor_temuan ='TM-' . $audit['tahun_audit'] . '-' . $nomorAudit . '-' . str_pad($urut,3,'0',STR_PAD_LEFT);
-
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../templates/sidebar.php";
@@ -57,12 +37,12 @@ include "../templates/sidebar.php";
       <div class="row">
         <div class="col-md-6">
  	<label>Nomor Temuan</label>
- 	<input type="text" name="nomor_temuan" value="<?= $nomor_temuan ?>" class="form-control" readonly>
+ 	<input type="text" name="nomor_temuan" class="form-control" placeholder="Masukkan nomor temuan" required>
         </div>
         <div class="col-md-6">
          <label>Status</label>
-         <input type="text" class="form-control" value="OPEN" readonly>
-         <input type="hidden" name="status" value="OPEN">
+         <input type="text" class="form-control" value="Open" readonly>
+         <input type="hidden" name="status" value="Open">
         </div>
        </div>
       <br>
@@ -85,9 +65,9 @@ include "../templates/sidebar.php";
        <div class="col-md-4">
         <label>Tingkat Risiko</label>
         <select name="tingkat_risiko" class="form-select">
-	<option value="RENDAH">RENDAH</option>
-	<option value="SEDANG" selected>SEDANG</option>
-	<option value="TINGGI">TINGGI</option>
+	<option value="Rendah">Rendah</option>
+	<option value="Sedang" selected>Sedang</option>
+	<option value="Tinggi">Tinggi</option>
 	</select>
       </div>
      </div>

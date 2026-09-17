@@ -91,7 +91,7 @@ VALUES
     '$estimasi_hari',
     '$tanggal_selesai',
     '$tahun_audit',
-    'DRAFT',
+    'Draft',
     '',
     '$created_by',
     '$jenis_audit',
@@ -107,10 +107,10 @@ if(!$q)
     die("Gagal menyimpan data pemeriksaan audit. Silakan coba lagi.");
 }
 
-//RENCANA --> BERJALAN 
+//RENCANA --> Berjalan 
 mysqli_query($conn,"
     UPDATE audit_program
-    SET status='BERJALAN'
+    SET status='Berjalan'
     WHERE id='$program_id'");
 
 

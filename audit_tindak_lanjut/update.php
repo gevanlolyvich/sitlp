@@ -13,10 +13,14 @@ checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 $id = (int)$_POST['id'];
 $rekomendasi_id = (int)$_POST['rekomendasi_id'];
 $unit_id = (int)$_POST['unit_id'];
-$pic = mysqli_real_escape_string($conn,$_POST['pic']);
+$pic = '';
 $uraian = mysqli_real_escape_string($conn,$_POST['uraian_tindak_lanjut']);
 $target = $_POST['target_selesai'];
 $status = $_POST['status'];
+
+$qTemuanMap = mysqli_query($conn, "SELECT temuan_id FROM audit_rekomendasi WHERE id=$rekomendasi_id");
+$tmap = mysqli_fetch_assoc($qTemuanMap);
+$temuan_id = $tmap ? (int)$tmap['temuan_id'] : 0;
 
 // Only Kepala SPI/Admin can change status
 if (!in_array($_SESSION['role'], ['ADMIN','KEPALA_SIA'])) {
@@ -30,7 +34,7 @@ $qCheck = mysqli_query($conn, "SELECT status FROM audit_tindak_lanjut WHERE id=$
 $current = mysqli_fetch_assoc($qCheck);
 if ($current['status'] == 'Sesuai') {
     $_SESSION['error'] = "Tidak dapat mengubah. Status sudah Sesuai (final).";
-    header("Location: index.php?rekomendasi_id=" . $rekomendasi_id);
+    header("Location: index.php?temuan_id=" . $temuan_id);
     exit;
 }
 
@@ -74,6 +78,6 @@ logActivity(
 );
 
 $_SESSION['success'] = "Tindak lanjut berhasil diperbarui.";
-header("Location:index.php?rekomendasi_id=" . $rekomendasi_id);
+header("Location:index.php?temuan_id=" . $temuan_id);
 
 exit;

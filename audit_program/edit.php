@@ -16,7 +16,7 @@ $data = mysqli_fetch_assoc($q);
 if (!$data) {
     die("Program Audit tidak ditemukan");
 }
-if ($data['status'] != 'RENCANA') {
+if ($data['status'] != 'Rencana') {
     die("Program Audit dengan status " . $data['status'] . " tidak dapat diedit.");
 }
 $triwulanList = ['TW1', 'TW2', 'TW3', 'TW4'];
@@ -27,9 +27,9 @@ $jenisAuditList = [
     'Khusus'
 ];
 $risikoList = [
-    'RENDAH',
-    'SEDANG',
-    'TINGGI'
+    'Rendah',
+    'Sedang',
+    'Tinggi'
 ];
 $unit = mysqli_query($conn, "SELECT * FROM unit_kerja WHERE aktif=1 ORDER BY nama_unit");
 $auditor = mysqli_query($conn, "SELECT * FROM auditor WHERE aktif=1 ORDER BY nama_auditor");
@@ -172,9 +172,9 @@ include "../templates/sidebar.php";
                                         <select name="level_risiko" class="form-select">
                                             <?php
                                             $risikoList = [
-                                                'RENDAH',
-                                                'SEDANG',
-                                                'TINGGI'
+                                                'Rendah',
+                                                'Sedang',
+                                                'Tinggi'
                                             ];
                                             foreach ($risikoList as $risiko) {
                                                 ?>

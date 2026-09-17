@@ -27,7 +27,7 @@ include "../templates/header.php";
 include "../templates/navbar.php"; 
 include "../templates/sidebar.php"; 
 
-if($audit['status']=='SELESAI')
+if($audit['status']=='Selesai')
 {
     die(
         'Audit sudah ditutup dan tidak dapat diubah.'
@@ -81,9 +81,6 @@ if (isset($mapJenis[$displayJenis])) $displayJenis = $mapJenis[$displayJenis];
 <label>Ruang Lingkup Audit</label>
 <textarea name="ruang_lingkup" class="form-control" rows="5"><?=htmlspecialchars($audit['ruang_lingkup']) ?></textarea>
 <br>
-<label>Keterangan</label>
-
-<textarea name="keterangan" class="form-control" rows="3"><?= htmlspecialchars($audit['keterangan']) ?></textarea>
 </div>
 <div class="card-footer">
 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>

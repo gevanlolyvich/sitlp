@@ -12,7 +12,7 @@ $id = (int)$_GET['id'];
 $q = mysqli_query($conn, "SELECT * FROM audit_program WHERE id=$id");
 $program = mysqli_fetch_assoc($q);
 if(!$program) die("Program tidak ditemukan");
-if($program['status'] != 'SELESAI') die("Program belum selesai");
+if($program['status'] != 'Selesai') die("Program belum selesai");
 
 include "../templates/header.php";
 include "../templates/navbar.php";

@@ -16,7 +16,7 @@ blockLockedAudit($conn, $audit_id);
 
 $auditor_id = (int)$_POST['auditor_id'];
 $peran      = $_POST['peran'];
-$allowedPeran = ['Anggota', 'Pengendali'];
+$allowedPeran = ['Anggota', 'Ketua Tim'];
 if (!in_array($peran, $allowedPeran)) {
     $_SESSION['error'] = "Peran tidak valid.";
     header("Location: index.php?audit_id=" . $audit_id);

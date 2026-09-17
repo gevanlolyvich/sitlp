@@ -12,7 +12,16 @@ checkRole(['ADMIN','KEPALA_SIA','AUDITOR','AUDITEE']);
 
 $rekomendasi = null;
 $rekomendasi_id = 0;
+$temuan = null;
+$temuan_id = 0;
+$rekomendasiTemuan = [];
 $locked = false;
+$status = '';
+$allowedStatus = ['Proses','Sesuai','Belum Sesuai','Belum Ditindak Lanjut','Tidak Dapat Ditindak Lanjut'];
+if(isset($_GET['status']) && in_array($_GET['status'], $allowedStatus, true))
+{
+    $status = $_GET['status'];
+}
 if(isset($_GET['rekomendasi_id']))
 {
     $rekomendasi_id = (int)$_GET['rekomendasi_id'];
@@ -29,11 +38,34 @@ if(isset($_GET['rekomendasi_id']))
 
     $locked = isAuditLocked($conn, (int)$rekomendasi['audit_id']);
 }
+if(isset($_GET['temuan_id']))
+{
+    $temuan_id = (int)$_GET['temuan_id'];
+    $qTemuan = mysqli_query($conn,"SELECT * FROM audit_temuan WHERE id=$temuan_id");
+    $temuan = mysqli_fetch_assoc($qTemuan);
+    if(!$temuan)
+    {
+        die("Temuan tidak ditemukan");
+    }
+
+    $locked = isAuditLocked($conn, (int)$temuan['audit_id']);
+
+    $qRekTemuan = mysqli_query($conn,"SELECT * FROM audit_rekomendasi WHERE temuan_id=$temuan_id ORDER BY id");
+    while($row = mysqli_fetch_assoc($qRekTemuan)){ $rekomendasiTemuan[] = $row; }
+}
 
 $where = [];
 if($rekomendasi_id > 0)
 {
     $where[] = "tl.rekomendasi_id=$rekomendasi_id";
+}
+if($temuan_id > 0)
+{
+    $where[] = "tl.rekomendasi_id IN (SELECT id FROM audit_rekomendasi WHERE temuan_id=$temuan_id)";
+}
+if($status !== '')
+{
+    $where[] = "tl.status='" . mysqli_real_escape_string($conn, $status) . "'";
 }
 if($_SESSION['role'] == 'AUDITEE'){
     $unit_id = (int)$_SESSION['unit_id'];
@@ -48,7 +80,10 @@ if(count($where))
 $limit = 10;
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($limit * ($page - 1));
-$pageParam = $rekomendasi_id > 0 ? '&rekomendasi_id=' . $rekomendasi_id : '';
+$pageParam = '';
+if($rekomendasi_id > 0){ $pageParam = '&rekomendasi_id=' . $rekomendasi_id; }
+if($temuan_id > 0){ $pageParam .= '&temuan_id=' . $temuan_id; }
+if($status !== ''){ $pageParam .= '&status=' . urlencode($status); }
 
 $countResult = mysqli_query($conn,"SELECT COUNT(*) total
     FROM audit_tindak_lanjut tl
@@ -65,7 +100,7 @@ $qTL = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_reko
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
     LEFT JOIN audit_temuan t ON r.temuan_id=t.id
     $sqlWhere
-    ORDER BY tl.id DESC
+    ORDER BY tl.created_at DESC
     LIMIT $limit OFFSET $offset");
 
 $tlList = [];
@@ -114,17 +149,48 @@ Swal.fire({
 <div class="card mt-3">
 <div class="card-header d-flex align-items-center">
 <h3 class="card-title mb-0">Tindak Lanjut Rekomendasi</h3>
-<?php if(isset($_GET['rekomendasi_id']) && $rekomendasi && $_SESSION['role'] != 'AUDITEE'): ?>
+<?php if($_SESSION['role'] != 'AUDITEE'): ?>
+<?php if($temuan_id > 0): ?>
+<a href="../audit_temuan/detail.php?id=<?= $temuan_id ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
+<?php elseif($rekomendasi_id > 0): ?>
 <a href="../audit_temuan/detail.php?id=<?= $rekomendasi['temuan_id'] ?>" class="btn btn-secondary btn-sm ms-auto"><i class="fas fa-arrow-left"></i> Kembali</a>
+<?php endif; ?>
 <?php endif; ?>
 </div>
 <div class="card-body">
-<?php if(isset($_GET['rekomendasi_id'])){ ?>
+<?php if($temuan_id > 0){ ?>
+<div class="table-responsive-wrapper"><table class="table table-bordered">
+<tr><th width="220">Nomor Temuan</th><td><?= htmlspecialchars($temuan['nomor_temuan']) ?></td></tr>
+<tr><th>Judul Temuan</th><td><?= htmlspecialchars($temuan['judul_temuan']) ?></td></tr>
+</table></div>
+<h6 class="mt-2"><i class="fas fa-list-ol me-1"></i> Rekomendasi Temuan</h6>
+<div class="table-responsive-wrapper"><table class="table table-bordered table-sm">
+ <thead>
+  <tr>
+   <th width="40">No</th>
+   <th>Rekomendasi</th>
+   <th width="120">Aksi</th>
+  </tr>
+ </thead>
+ <tbody>
+  <?php $noRek = 1; foreach($rekomendasiTemuan as $rk): ?>
+  <tr>
+   <td><?= $noRek++ ?></td>
+   <td style="white-space: pre-wrap;"><?= htmlspecialchars($rk['rekomendasi']) ?></td>
+   <td>
+    <?php if($_SESSION['role'] != 'AUDITEE' && !$locked): ?>
+    <a href="create.php?rekomendasi_id=<?= $rk['id'] ?>&temuan_id=<?= $temuan_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> TL</a>
+    <?php endif; ?>
+   </td>
+  </tr>
+  <?php endforeach; ?>
+ </tbody>
+</table></div>
+<?php }elseif(isset($_GET['rekomendasi_id'])){ ?>
 <div class="table-responsive-wrapper"><table class="table table-bordered">
 <tr><th width="220">Nomor Temuan</th><td><?= htmlspecialchars($rekomendasi['nomor_temuan']) ?></td></tr>
 <tr><th>Judul Temuan</th><td><?= htmlspecialchars($rekomendasi['judul_temuan']) ?></td></tr>
-<tr><th>Nomor Rekomendasi</th><td><?= htmlspecialchars($rekomendasi['nomor_rekomendasi']) ?></td></tr>
-<tr><th>Rekomendasi</th><td><?= nl2br(htmlspecialchars($rekomendasi['rekomendasi'])) ?></td></tr>
+<tr><th>Rekomendasi</th><td style="white-space: pre-wrap; word-break: break-word;"><?= nl2br(htmlspecialchars($rekomendasi['rekomendasi'])) ?></td></tr>
 </table></div>
 <?php } ?>
 </div>
@@ -139,18 +205,25 @@ Swal.fire({
 </div>
 
 <div class="card-body">
+<?php if($status !== ''): ?>
+<div class="alert alert-warning py-2 d-flex justify-content-between align-items-center mb-3" role="alert">
+    <span class="small"><i class="fas fa-filter me-1"></i>Menampilkan status: <strong><?= htmlspecialchars($status) ?></strong></span>
+    <a href="index.php" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i> Hapus filter</a>
+</div>
+<?php endif; ?>
 <div class="table-responsive-wrapper"><table id="tblTL" class="table table-bordered table-hover">
  <thead>
   <tr>
    <th>Nomor TL</th>
-   <th>Unit</th>
-   <th>PIC</th>
+   <th>Rekomendasi</th>
+   <th>Unit Kerja</th>
    <th>Uraian</th>
    <th>Target</th>
-   <th>Status</th>
-   <th>Catatan SPI</th>
-   <th>Hasil Tindak Lanjut</th>
-   <th width="200">Aksi</th>
+<th>Status</th>
+    <th>Catatan SIA</th>
+    <th>Hasil Tindak Lanjut</th>
+    <th>Nilai Penyetoran</th>
+    <th width="200">Aksi</th>
   </tr>
  </thead>
  <tbody>
@@ -161,10 +234,12 @@ Swal.fire({
     if (count($row['logs']) > 0) { $lastLogAksi = $row['logs'][count($row['logs'])-1]['aksi']; }
    ?>
   <tr>
-   <td><strong><?= htmlspecialchars($row['nomor_tindak_lanjut']) ?></strong></td>
-   <td><?= htmlspecialchars($row['nama_unit']) ?></td>
-   <td><?= htmlspecialchars($row['pic']) ?></td>
-   <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 250px;"><?= htmlspecialchars($row['uraian_tindak_lanjut']) ?></td>
+<td><strong><?= htmlspecialchars($row['nomor_tindak_lanjut']) ?></strong>
+        <small class="text-muted d-block" style="font-size:11px;font-weight:400;"><?= htmlspecialchars($row['judul_temuan'] ?? '') ?></small>
+    </td>
+    <td style="white-space: pre-wrap; word-break: break-word; max-width: 220px;"><?= htmlspecialchars($row['rekomendasi']) ?></td>
+    <td><?= htmlspecialchars($row['nama_unit']) ?></td>
+    <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 250px;"><?= htmlspecialchars($row['uraian_tindak_lanjut']) ?></td>
    <td><?= $row['target_selesai'] ? date('d-m-Y', strtotime($row['target_selesai'])) : '-' ?></td>
    <td>
     <?php
@@ -175,6 +250,7 @@ Swal.fire({
    </td>
     <td><?= htmlspecialchars($row['catatan_spi'] ?? '-') ?></td>
     <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 200px;"><?= htmlspecialchars($row['hasil_tindak_lanjut'] ?? '-') ?></td>
+    <td><?= ($row['nilai_penyerahan'] !== null && $row['nilai_penyerahan'] !== '') ? 'Rp ' . number_format((float)$row['nilai_penyerahan'], 2, ',', '.') : '-' ?></td>
     <td>
     <?php if ($row['bukti_file']): ?>
     <a href="../uploads/tindak_lanjut/<?= basename($row['bukti_file']) ?>" target="_blank" class="btn btn-success btn-sm mb-1" title="Lihat Bukti"><i class="fas fa-file"></i></a>
@@ -203,15 +279,28 @@ Swal.fire({
 <nav>
 <ul class="pagination pagination-sm mb-0">
 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-<a class="page-link" href="?page=<?= $page - 1 ?><?= $pageParam ?>">Sebelumnya</a>
+<a class="page-link" href="?page=<?= $page - 1 ?><?= $pageParam ?>" aria-label="Sebelumnya"><i class="fas fa-chevron-left"></i><span class="d-none d-sm-inline ps-1">Sebelumnya</span></a>
 </li>
-<?php for ($i = 1; $i <= $totalPages; $i++): ?>
+<?php
+$range = [];
+for ($i = 1; $i <= $totalPages; $i++) {
+    if ($i == 1 || $i == $totalPages || abs($i - $page) <= 1) {
+        $range[] = $i;
+    } elseif (end($range) !== '...') {
+        $range[] = '...';
+    }
+}
+foreach ($range as $i):
+    if ($i === '...'):
+?>
+<li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+<?php else: ?>
 <li class="page-item <?= $i == $page ? 'active' : '' ?>">
 <a class="page-link" href="?page=<?= $i ?><?= $pageParam ?>"><?= $i ?></a>
 </li>
-<?php endfor; ?>
+<?php endif; endforeach; ?>
 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-<a class="page-link" href="?page=<?= $page + 1 ?><?= $pageParam ?>">Selanjutnya</a>
+<a class="page-link" href="?page=<?= $page + 1 ?><?= $pageParam ?>" aria-label="Selanjutnya"><span class="d-none d-sm-inline pe-1">Selanjutnya</span><i class="fas fa-chevron-right"></i></a>
 </li>
 </ul>
 </nav>

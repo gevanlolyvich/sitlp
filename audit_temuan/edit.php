@@ -40,12 +40,12 @@ include "../templates/sidebar.php";
       <div class="row">
        <div class="col-md-6">
         <label>Nomor Temuan</label>
-        <input type="text" name="nomor_temuan" value="<?= htmlspecialchars($temuan['nomor_temuan']) ?>" class="form-control" readonly>
+        <input type="text" name="nomor_temuan" value="<?= htmlspecialchars($temuan['nomor_temuan']) ?>" class="form-control" required>
        </div>
-        <input type="hidden" name="status" value="OPEN">
+        <input type="hidden" name="status" value="Open">
         <div class="col-md-6">
          <label>Status</label>
-         <input type="text" class="form-control" value="OPEN" readonly>
+         <input type="text" class="form-control" value="Open" readonly>
         </div>
       </div>
       <br>
@@ -68,9 +68,9 @@ include "../templates/sidebar.php";
        <div class="col-md-4">
         <label>Tingkat Risiko</label>
         <select name="tingkat_risiko" class="form-select">
-         <option value="RENDAH" <?= $temuan['tingkat_risiko']=='RENDAH'?'selected':'' ?>>RENDAH</option>
-         <option value="SEDANG" <?= $temuan['tingkat_risiko']=='SEDANG'?'selected':'' ?>>SEDANG</option>
-         <option value="TINGGI" <?= $temuan['tingkat_risiko']=='TINGGI'?'selected':'' ?>>TINGGI</option>
+         <option value="Rendah" <?= $temuan['tingkat_risiko']=='Rendah'?'selected':'' ?>>Rendah</option>
+         <option value="Sedang" <?= $temuan['tingkat_risiko']=='Sedang'?'selected':'' ?>>Sedang</option>
+         <option value="Tinggi" <?= $temuan['tingkat_risiko']=='Tinggi'?'selected':'' ?>>Tinggi</option>
         </select>
        </div>
       </div>

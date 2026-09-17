@@ -57,32 +57,24 @@ include "../templates/navbar.php";
 include "../templates/sidebar.php";
 ?>
 
-<div class="content-wrapper">
-    <section class="content-header">
+<main class="app-main">
+    <div class="app-content">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <h1 class="h4 mb-0">
+                    Tindak Lanjut Saya
+                </h1>
+                <ol class="breadcrumb mb-0 d-none d-md-flex">
+                    <li class="breadcrumb-item">
+                        <a href="../dashboard">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">
                         Tindak Lanjut Saya
-                    </h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item">
-                            <a href="../dashboard">
-                                Dashboard
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active">
-                            Tindak Lanjut Saya
-                        </li>
-                    </ol>
-                </div>
+                    </li>
+                </ol>
             </div>
-        </div>
-    </section>
-    <section class="content">
-        <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
@@ -101,7 +93,7 @@ include "../templates/sidebar.php";
                                 <th style="width: 18%;">Hasil Tindak Lanjut</th>
                                 <th>Target</th>
                                 <th>Status Tindak Lanjut</th>
-                                <th>Catatan SPI</th>
+                                <th>Catatan SIA</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -172,8 +164,8 @@ include "../templates/sidebar.php";
                 </div>
             </div>
         </div>
-    </section>
-</div>
+    </div>
+</main>
 <?php if (isset($_GET['upload']) && $_GET['upload'] == 'success'): ?>
     <script>
         Swal.fire({

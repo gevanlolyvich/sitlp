@@ -18,25 +18,27 @@ include "../templates/sidebar.php";
     <div class="card-header">Tambah Auditor</div>
      <form action="store.php" method="post">
       <div class="card-body">
-       <div class="mb-3">
-        <label>NIP</label>
-        <input type="text" name="nip" class="form-control">
-       </div>
-       <div class="mb-3">
-        <label>Nama Auditor</label>
-        <input type="text" name="nama" class="form-control" required>
-       </div>
-       <div class="mb-3">
-        <label>Jabatan</label>
-        <input type="text" name="jabatan" class="form-control">
-       </div>
-       <div class="mb-3">
-        <label>Email</label>
-        <input type="email" name="email" class="form-control">
-       </div>
-       <div class="mb-3">
-        <label>Telepon</label>
-        <input type="text" name="telepon" class="form-control">
+       <div class="row g-3">
+        <div class="col-md-6">
+         <label>NIP</label>
+         <input type="text" name="nip" class="form-control">
+        </div>
+        <div class="col-md-6">
+         <label>Nama Auditor</label>
+         <input type="text" name="nama" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+         <label>Jabatan</label>
+         <input type="text" name="jabatan" class="form-control">
+        </div>
+        <div class="col-md-6">
+         <label>Email</label>
+         <input type="email" name="email" class="form-control">
+        </div>
+        <div class="col-md-6">
+         <label>Telepon</label>
+         <input type="text" name="telepon" class="form-control">
+        </div>
        </div>
       </div>
       <div class="card-footer">

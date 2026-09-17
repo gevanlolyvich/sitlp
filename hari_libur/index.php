@@ -81,15 +81,28 @@ include "../templates/sidebar.php";
 <nav>
 <ul class="pagination pagination-sm mb-0">
 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-<a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Sebelumnya</a>
+<a class="page-link" href="?page=<?= $page - 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>" aria-label="Sebelumnya"><i class="fas fa-chevron-left"></i><span class="d-none d-sm-inline ps-1">Sebelumnya</span></a>
 </li>
-<?php for ($i = 1; $i <= $totalPages; $i++): ?>
+<?php
+$range = [];
+for ($i = 1; $i <= $totalPages; $i++) {
+    if ($i == 1 || $i == $totalPages || abs($i - $page) <= 1) {
+        $range[] = $i;
+    } elseif (end($range) !== '...') {
+        $range[] = '...';
+    }
+}
+foreach ($range as $i):
+    if ($i === '...'):
+?>
+<li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+<?php else: ?>
 <li class="page-item <?= $i == $page ? 'active' : '' ?>">
 <a class="page-link" href="?page=<?= $i ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>"><?= $i ?></a>
 </li>
-<?php endfor; ?>
+<?php endif; endforeach; ?>
 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-<a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>">Selanjutnya</a>
+<a class="page-link" href="?page=<?= $page + 1 ?><?= $keyword ? '&keyword=' . urlencode($keyword) : '' ?>" aria-label="Selanjutnya"><span class="d-none d-sm-inline pe-1">Selanjutnya</span><i class="fas fa-chevron-right"></i></a>
 </li>
 </ul>
 </nav>

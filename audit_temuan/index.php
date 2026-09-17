@@ -15,7 +15,7 @@ $audit_id = (int)$_GET['audit_id'];
 $qAudit = mysqli_query($conn,"SELECT nomor_audit,judul_audit,status FROM audit_pemeriksaan WHERE id=$audit_id");
 
 $audit = mysqli_fetch_assoc($qAudit);
-$locked = ($audit['status'] == 'SELESAI');
+$locked = ($audit['status'] == 'Selesai');
 $q = mysqli_query($conn,"SELECT * FROM audit_temuan WHERE audit_id=$audit_id ORDER BY id DESC");
 
 include "../templates/header.php";

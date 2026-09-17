@@ -11,7 +11,7 @@ $audit_id = (int)$_GET['audit_id'];
 
 $qAudit = mysqli_query($conn,"SELECT nomor_audit, judul_audit, ketua_auditor_id, status FROM audit_pemeriksaan WHERE id=$audit_id");
 $audit = mysqli_fetch_assoc($qAudit);
-$locked = ($audit['status'] == 'SELESAI');
+$locked = ($audit['status'] == 'Selesai');
 $ketuaId = (int)$audit['ketua_auditor_id'];
 $qAuditor = mysqli_query($conn,"SELECT * FROM auditor WHERE aktif=1 AND id != $ketuaId AND id NOT IN (SELECT auditor_id FROM audit_tim WHERE audit_id=$audit_id) ORDER BY nama_auditor");
 
@@ -53,7 +53,7 @@ include "../templates/sidebar.php";
        <label>Peran</label>
         <select name="peran" class="form-select">
 	<option value="Anggota" selected>Anggota</option>
-	<option value="Pengendali">Pengendali</option>
+	<option value="Ketua Tim">Ketua Tim</option>
        </select>
        </div>
       <div class="col-md-3">
@@ -87,7 +87,7 @@ include "../templates/sidebar.php";
 	 <td><?= $no++ ?></td>
 	 <td><?= htmlspecialchars($t['nama_auditor']) ?></td>
  	 <td><?php
-             $mapPeran = ['KETUA'=>'Ketua','ANGGOTA'=>'Anggota','PENGENDALI'=>'Pengendali'];
+             $mapPeran = ['KETUA'=>'Ketua Tim','Ketua Tim'=>'Ketua Tim','ANGGOTA'=>'Anggota','Anggota'=>'Anggota','PENGENDALI'=>'Pengendali'];
              $peranTampil = isset($mapPeran[$t['peran']]) ? $mapPeran[$t['peran']] : $t['peran'];
              echo htmlspecialchars($peranTampil);
          ?></td>

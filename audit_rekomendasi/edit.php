@@ -10,16 +10,23 @@ require_once "../auth/role.php";
 
 checkRole(['ADMIN','KEPALA_SIA','AUDITOR']);
 
-$id = (int)$_GET['id'];
+$temuan_id = (int)$_GET['temuan_id'];
 
-$q = mysqli_query($conn,"SELECT r.*, t.nomor_temuan, t.judul_temuan, t.audit_id FROM audit_rekomendasi r LEFT JOIN audit_temuan t ON r.temuan_id=t.id WHERE r.id=$id");
-$rekomendasi = mysqli_fetch_assoc($q);
+$qTemuan = mysqli_query($conn,"SELECT id, audit_id, nomor_temuan, judul_temuan FROM audit_temuan WHERE id=$temuan_id");
+$temuan = mysqli_fetch_assoc($qTemuan);
 
-if(!$rekomendasi){
-    die("Rekomendasi tidak ditemukan");
+if(!$temuan){
+    die("Temuan tidak ditemukan");
 }
 
-blockLockedAudit($conn, (int)$rekomendasi['audit_id']);
+blockLockedAudit($conn, (int)$temuan['audit_id']);
+
+$qRek = mysqli_query($conn,"SELECT * FROM audit_rekomendasi WHERE temuan_id=$temuan_id ORDER BY id");
+$rekomendasiList = [];
+while($r = mysqli_fetch_assoc($qRek)){ $rekomendasiList[] = $r; }
+if(count($rekomendasiList) === 0){
+    die("Tidak ada rekomendasi untuk temuan ini.");
+}
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -33,28 +40,114 @@ include "../templates/sidebar.php";
     <div class="card-header">
      <h3 class="card-title">Edit Rekomendasi</h3>
     </div>
-    <form action="update.php" method="post">
-     <input type="hidden" name="id" value="<?= $rekomendasi['id'] ?>">
-     <input type="hidden" name="temuan_id" value="<?= $rekomendasi['temuan_id'] ?>">
+    <form action="update.php" method="post" id="form-rekomendasi">
+     <input type="hidden" name="temuan_id" value="<?= $temuan_id ?>">
      <div class="card-body">
       <div class="mb-3">
        <label>Nomor Temuan</label>
-       <input type="text" class="form-control" value="<?= htmlspecialchars($rekomendasi['nomor_temuan']) ?>" readonly>
+       <input type="text" class="form-control" value="<?= htmlspecialchars($temuan['nomor_temuan']) ?>" readonly>
       </div>
-       <div class="mb-3">
-        <label>Nomor Rekomendasi</label>
-        <input type="text" name="nomor_rekomendasi" value="<?= htmlspecialchars($rekomendasi['nomor_rekomendasi']) ?>" class="form-control" required>
+      <div id="rekomendasi-container">
+       <?php foreach($rekomendasiList as $i => $rek): ?>
+       <div class="rekomendasi-item d-flex gap-2 mb-2">
+        <input type="hidden" name="rekomendasi_id[]" value="<?= $rek['id'] ?>">
+        <textarea name="rekomendasi[]" class="form-control" rows="2" placeholder="Rekomendasi <?= $i + 1 ?>"><?= htmlspecialchars($rek['rekomendasi']) ?></textarea>
+        <div class="d-flex flex-column align-self-start">
+         <button type="button" class="btn btn-sm btn-outline-primary rounded-circle btn-add-rekomendasi mb-1" title="Tambah Rekomendasi"><i class="fas fa-plus"></i></button>
+         <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-remove-rekomendasi" title="Hapus Rekomendasi"><i class="fas fa-minus"></i></button>
+        </div>
        </div>
-      <div class="mb-3">
-       <label>Rekomendasi</label>
-       <textarea name="rekomendasi" class="form-control" rows="5" required><?= htmlspecialchars($rekomendasi['rekomendasi']) ?></textarea>
+       <?php endforeach; ?>
       </div>
+      <small class="text-muted d-block mt-1"><i class="fas fa-info-circle"></i> Gunakan tombol <b>+</b> untuk menambah rekomendasi lain.</small>
+      <small class="text-muted d-block"><i class="fas fa-info-circle"></i> Tombol <b>−</b> pada baris akan menghapus rekomendasi tersebut dari database saat Simpan.</small>
      </div>
      <div class="card-footer">
       <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-      <a href="../audit_temuan/detail.php?id=<?= $rekomendasi['temuan_id'] ?>" class="btn btn-secondary">Kembali</a>
+      <a href="../audit_temuan/detail.php?id=<?= $temuan_id ?>" class="btn btn-secondary">Kembali</a>
      </div>
     </form>
+    <script>
+    (function () {
+        var container = document.getElementById('rekomendasi-container');
+        var form = document.getElementById('form-rekomendasi');
+        var itemTemplate =
+            '<div class="rekomendasi-item d-flex gap-2 mb-2">' +
+            ' <textarea name="rekomendasi_baru[]" class="form-control" rows="2"></textarea>' +
+            ' <div class="d-flex flex-column align-self-start">' +
+            '  <button type="button" class="btn btn-sm btn-outline-primary rounded-circle btn-add-rekomendasi mb-1" title="Tambah Rekomendasi"><i class="fas fa-plus"></i></button>' +
+            '  <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-remove-rekomendasi" title="Hapus Rekomendasi"><i class="fas fa-minus"></i></button>' +
+            ' </div>' +
+            '</div>';
+
+        function refresh() {
+            var items = container.querySelectorAll('.rekomendasi-item');
+            for (var i = 0; i < items.length; i++) {
+                var ta = items[i].querySelector('textarea');
+                ta.placeholder = 'Rekomendasi ' + (i + 1);
+                items[i].querySelector('.btn-remove-rekomendasi').disabled = (items.length === 1);
+            }
+        }
+
+        function addItem(refItem) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = itemTemplate;
+            var item = tmp.firstChild;
+            if (refItem && refItem.parentNode === container) {
+                refItem.insertAdjacentElement('afterend', item);
+            } else {
+                container.appendChild(item);
+            }
+            item.querySelector('textarea').focus();
+            refresh();
+        }
+
+        container.addEventListener('click', function (e) {
+            if (e.target.closest('.btn-add-rekomendasi')) {
+                addItem(e.target.closest('.rekomendasi-item'));
+                return;
+            }
+            if (e.target.closest('.btn-remove-rekomendasi')) {
+                if (container.querySelectorAll('.rekomendasi-item').length > 1) {
+                    var item = e.target.closest('.rekomendasi-item');
+                    var hid = item.querySelector('input[name="rekomendasi_id[]"]');
+                    if (hid && hid.value) {
+                        Swal.fire({
+                            title: 'Hapus Rekomendasi?',
+                            text: 'Rekomendasi ini akan dihapus dari database saat Simpan.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Ya, Hapus',
+                            cancelButtonText: 'Batal'
+                        }).then(function (result) {
+                            if (result.isConfirmed) {
+                                item.remove();
+                                refresh();
+                            }
+                        });
+                    } else {
+                        item.remove();
+                        refresh();
+                    }
+                }
+            }
+        });
+
+        form.addEventListener('submit', function (e) {
+            var tas = container.querySelectorAll('textarea');
+            var filled = false;
+            for (var i = 0; i < tas.length; i++) {
+                if (tas[i].value.trim() !== '') { filled = true; break; }
+            }
+            if (!filled) {
+                e.preventDefault();
+                alert('Isi minimal satu rekomendasi.');
+            }
+        });
+
+        refresh();
+    })();
+    </script>
    </div>
   </div>
  </div>

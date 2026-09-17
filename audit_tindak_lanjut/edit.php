@@ -74,15 +74,11 @@ include "../templates/sidebar.php";
 <?php endif; ?>
 </div>
 <div class="mb-3">
-<label>PIC</label>
-<input type="text" name="pic" class="form-control" value="<?= htmlspecialchars($tl['pic']) ?>" required>
-</div>
-<div class="mb-3">
 <label>Uraian Tindak Lanjut</label>
 <textarea name="uraian_tindak_lanjut" class="form-control" rows="5" required><?= htmlspecialchars($tl['uraian_tindak_lanjut']) ?></textarea>
 </div>
 <div class="row">
-<div class="col-md-4">
+<div class="col-md-6">
 <label>Target Selesai</label>
 <input type="date" name="target_selesai" value="<?= $tl['target_selesai'] ?>" class="form-control" min="<?= $tanggal_mulai_audit ?>" max="<?= $tanggal_selesai_audit ?>" <?= $isLocked ? 'disabled' : '' ?>>
 <small class="text-muted"><?= ($tanggal_mulai_audit && $tanggal_selesai_audit) ? 'Rentang ' . date('d-m-Y', strtotime($tanggal_mulai_audit)) . ' s/d ' . date('d-m-Y', strtotime($tanggal_selesai_audit)) : '-' ?></small>
@@ -90,7 +86,7 @@ include "../templates/sidebar.php";
 <input type="hidden" name="target_selesai" value="<?= $tl['target_selesai'] ?>">
 <?php endif; ?>
 </div>
-<div class="col-md-4">
+<div class="col-md-6">
 <label>Status</label>
 <input type="text" class="form-control" value="<?= htmlspecialchars($tl['status']) ?>" readonly>
 <input type="hidden" name="status" value="<?= htmlspecialchars($tl['status']) ?>">
@@ -98,7 +94,7 @@ include "../templates/sidebar.php";
 </div>
 <div class="card-footer">
 <button type="submit" class="btn btn-primary">Update</button>
-<a href="index.php" class="btn btn-secondary">Kembali</a>
+<a href="index.php?<?= ($tlData && $tlData['temuan_id']) ? 'temuan_id=' . (int)$tlData['temuan_id'] : 'rekomendasi_id=' . $tl['rekomendasi_id'] ?>" class="btn btn-secondary">Kembali</a>
 </div>
 </form>
 </div>

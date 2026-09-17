@@ -108,9 +108,9 @@ include "../templates/sidebar.php";
 									<div class="col-md-4">
 										<label>Level Risiko</label>
 										<select name="level_risiko" class="form-select">
-											<option>RENDAH</option>
-											<option selected>SEDANG</option>
-											<option>TINGGI</option>
+											<option>Rendah</option>
+											<option selected>Sedang</option>
+											<option>Tinggi</option>
 										</select>
 									</div>
 								</div>

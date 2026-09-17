@@ -28,13 +28,11 @@ include "../templates/navbar.php";
 include "../templates/sidebar.php";
 ?>
 
-<div class="content-wrapper">
-    <section class="content-header">
-        <h1>Edit Unit Kerja</h1>
-    </section>
-
-    <section class="content">
-        <div class="card">
+<main class="app-main">
+    <div class="app-content">
+        <div class="container-fluid">
+            <h1 class="h4 mb-3">Edit Unit Kerja</h1>
+            <div class="card">
 
             <div class="card-header">
                 <h3 class="card-title">
@@ -87,7 +85,7 @@ include "../templates/sidebar.php";
             </form>
 
         </div>
-    </section>
-</div>
+    </div>
+</main>
 
 <?php include "../templates/footer.php"; ?>

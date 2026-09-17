@@ -14,6 +14,10 @@ $id = (int)$_GET['id'];
 
 $rekomendasi_id = (int)$_GET['rekomendasi_id'];
 
+$qTemuanMap = mysqli_query($conn, "SELECT temuan_id FROM audit_rekomendasi WHERE id=$rekomendasi_id");
+$tmap = mysqli_fetch_assoc($qTemuanMap);
+$temuan_id = $tmap ? (int)$tmap['temuan_id'] : 0;
+
 // Check if allowed to delete (only if status = Proses)
 $qCheck = mysqli_query($conn,"SELECT status, bukti_file, rekomendasi_id FROM audit_tindak_lanjut WHERE id=$id");
 $d = mysqli_fetch_assoc($qCheck);
@@ -28,7 +32,7 @@ $auditTrace = mysqli_fetch_assoc($qAuditTrace);
 blockLockedAudit($conn, (int)$auditTrace['audit_id']);
 if ($d['status'] != 'Proses') {
     $_SESSION['error'] = "Hapus hanya diizinkan saat status masih Proses.";
-    header("Location: index.php?rekomendasi_id=" . $rekomendasi_id);
+    header("Location: index.php?temuan_id=" . $temuan_id);
     exit;
 }
 
@@ -52,6 +56,6 @@ logActivity(
 );
 
 $_SESSION['success'] = "Tindak lanjut berhasil dihapus.";
-header("Location:index.php?rekomendasi_id=".$rekomendasi_id);
+header("Location:index.php?temuan_id=".$temuan_id);
 
 exit;

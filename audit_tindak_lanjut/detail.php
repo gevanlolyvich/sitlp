@@ -62,21 +62,23 @@ include "../templates/sidebar.php";
  <tr><th width="200">Nomor TL</th><td><?= htmlspecialchars($tl['nomor_tindak_lanjut']) ?></td></tr>
  <tr><th>Nomor Audit</th><td><?= htmlspecialchars($tl['nomor_audit']) ?> - <?= htmlspecialchars($tl['judul_audit']) ?></td></tr>
  <tr><th>Nomor Temuan</th><td><?= htmlspecialchars($tl['nomor_temuan']) ?> - <?= htmlspecialchars($tl['judul_temuan']) ?></td></tr>
- <tr><th>Rekomendasi</th><td><?= nl2br(htmlspecialchars($tl['rekomendasi'])) ?></td></tr>
+ <tr><th>Rekomendasi</th><td style="white-space: pre-wrap; word-break: break-word;"><?= nl2br(htmlspecialchars($tl['rekomendasi'])) ?></td></tr>
  <tr><th>Unit Kerja</th><td><?= htmlspecialchars($tl['nama_unit']) ?></td></tr>
- <tr><th>PIC</th><td><?= htmlspecialchars($tl['pic']) ?></td></tr>
  <tr><th>Uraian Tindak Lanjut</th><td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($tl['uraian_tindak_lanjut'])) ?></td></tr>
  <tr><th>Target Selesai</th><td><?= $tl['target_selesai'] ? date('d-m-Y', strtotime($tl['target_selesai'])) : '-' ?></td></tr>
- <tr><th>Status Terakhir</th>
-  <td>
-   <?php
-   $sts = $tl['status'];
-   $badgeMap = ['Proses'=>'bg-warning','Sesuai'=>'bg-success','Belum Sesuai'=>'bg-danger','Belum Ditindak Lanjut'=>'bg-secondary','Tidak Dapat Ditindak Lanjut'=>'bg-dark'];
-   $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'bg-info';
-   echo '<span class="badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
-   ?>
-  </td>
- </tr>
+<tr><th>Status Terakhir</th>
+   <td>
+    <?php
+    $sts = $tl['status'];
+    $badgeMap = ['Proses'=>'bg-warning','Sesuai'=>'bg-success','Belum Sesuai'=>'bg-danger','Belum Ditindak Lanjut'=>'bg-secondary','Tidak Dapat Ditindak Lanjut'=>'bg-dark'];
+    $bc = isset($badgeMap[$sts]) ? $badgeMap[$sts] : 'bg-info';
+    echo '<span class="badge ' . $bc . '">' . htmlspecialchars($sts) . '</span>';
+    ?>
+   </td>
+  </tr>
+ <tr><th>Nilai Penyerahan / Penyetoran</th>
+   <td><?= ($tl['nilai_penyerahan'] !== null && $tl['nilai_penyerahan'] !== '') ? 'Rp ' . number_format((float)$tl['nilai_penyerahan'], 2, ',', '.') : '-' ?></td>
+  </tr>
 </table>
 </div>
 </div>

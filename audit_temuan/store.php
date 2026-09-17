@@ -53,7 +53,7 @@ $_POST['akibat']
 $tingkat_risiko =
 $_POST['tingkat_risiko'];
 
-$status = 'OPEN';
+$status = 'Open';
 
 $created_by = $_SESSION['user_id'];
 
@@ -65,7 +65,7 @@ VALUES
 
 $id = mysqli_insert_id($conn);
 
-mysqli_query($conn,"UPDATE audit_pemeriksaan SET status='BERJALAN' WHERE id='$audit_id' AND status='DRAFT'");
+mysqli_query($conn,"UPDATE audit_pemeriksaan SET status='Berjalan' WHERE id='$audit_id' AND status='Draft'");
 
 logActivity(
     $conn,
