@@ -12,6 +12,8 @@ require_once __DIR__ . '/../config/app.php';
 
 <title><?= APP_NAME ?></title>
 
+<meta http-equiv="Cache-Control" content="no-store">
+
 <link rel="icon"
 href="/sisia/assets/images/favicon.ico">
 
@@ -40,6 +42,12 @@ href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
 <!-- SweetAlert2 -->
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<script>
+window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { window.location.reload(); }
+});
+</script>
 
 </head>
 

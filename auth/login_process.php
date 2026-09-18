@@ -26,6 +26,8 @@ $_SESSION['user_id'] = $user['id'];
 $_SESSION['nama'] = $user['nama'];
 $_SESSION['role'] = $user['role'];
 $_SESSION['unit_id'] = $user['unit_id'];
+$_SESSION['foto'] = $user['foto'];
+$_SESSION['email'] = $user['email'];
 $_SESSION['last_activity'] = time();
 
 mysqli_query($conn, " UPDATE users SET last_login=NOW() WHERE id='" . $user['id'] . "' ");

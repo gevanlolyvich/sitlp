@@ -43,6 +43,16 @@ if (isset($_SESSION['user_id'])) {
             margin: 24px;
         }
 
+        .landing-card::before {
+            content: "";
+            display: block;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    var(--jxb-logo-blue) 0 55%,
+                    var(--jxb-logo-red) 55% 80%,
+                    var(--jxb-logo-yellow) 80% 100%);
+        }
+
         .landing-header {
             background: var(--surface);
             padding: 32px 32px 8px;
@@ -72,7 +82,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="card landing-card">
         <div class="landing-header">
             <img src="/sisia/assets/images/LogoJXB_new.png" alt="JXB Logo">
-            <div class="app-title">SISIA JAKTOUR</div>
+            <div class="app-title"><span style="color: red;">SI</span>SIA JAKTOUR</div>
             <div class="app-subtitle">
                 Sistem Informasi Satuan Internal Audit
             </div>
@@ -100,14 +110,14 @@ if (isset($_SESSION['user_id'])) {
                             <span class="jxb-choice-icon"><i class="fas fa-building"></i></span>
                             <div>
                                 <div class="jxb-choice-title">MR</div>
-                                <div class="jxb-choice-desc">Management Representative</div>
+                                <div class="jxb-choice-desc">Managemen Risiko</div>
                             </div>
                             <i class="fas fa-chevron-right ms-auto jxb-choice-arrow"></i>
                         </div>
                     </a>
                 </div>
             </div>
-            <div class="text-center small text-muted mt-4">
+            <div class="text-center mt-4" style="color: blue; font-weight: 500;">
                 © <?= date('Y') ?> PT Jakarta Tourisindo / Jakarta Experience Board
             </div>
         </div>

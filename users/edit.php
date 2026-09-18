@@ -58,7 +58,11 @@ include "../templates/sidebar.php";
   <div class="col-md-6">
    <label class="form-label">Unit Kerja</label>
    <select name="kode_unit" class="form-select">
+     <?php if (!empty($user['unit_id'])): ?>
      <option value="<?= $user['unit_id'] ?>" selected><?= $user['nama_unit'] ?></option>
+     <?php else: ?>
+     <option value="" selected>— Tanpa Unit —</option>
+     <?php endif; ?>
     <?php
      $sql1 = mysqli_query($conn,"select id, nama_unit from unit_kerja where id != " . (int)$user['unit_id']);
      while($res=mysqli_fetch_assoc($sql1)){
@@ -94,7 +98,7 @@ include "../templates/sidebar.php";
  <div class="row">
   <div class="col-md-6">
    <label class="form-label">Foto Baru</label>
-   <input type="file" name="foto" class="form-control">
+   <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png">
   </div>
   <div class="col-md-6">
    <label class="form-label">Status</label>
@@ -120,3 +124,25 @@ include "../templates/sidebar.php";
 <?php
 include "../templates/footer.php";
 ?>
+
+<?php if (isset($_SESSION['error'])) : ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal',
+    text: '<?= addslashes($_SESSION['error']) ?>'
+});
+</script>
+<?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success'])) : ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= addslashes($_SESSION['success']) ?>'
+});
+</script>
+<?php unset($_SESSION['success']); ?>
+<?php endif; ?>

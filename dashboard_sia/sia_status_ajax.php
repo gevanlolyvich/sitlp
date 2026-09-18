@@ -42,7 +42,7 @@ $q = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_rekome
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
     LEFT JOIN audit_temuan t ON r.temuan_id=t.id
     WHERE tl.status='".mysqli_real_escape_string($conn,$status)."' $unitFilter
-    ORDER BY tl.created_at DESC
+    ORDER BY tl.updated_at DESC, tl.id DESC
     LIMIT 20");
 
 function potongTeks($teks, $max = 90)

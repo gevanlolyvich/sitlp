@@ -17,7 +17,7 @@ Tidak mengubah database, query, business logic, autentikasi, otorisasi, routing,
 **Modern enterprise, clean corporate, data-oriented.** Tampilan harus terasa kredibel untuk pengawasan, pemeriksaan, dan pelaporan—bukan template dashboard generik.
 
 1. **Jelas lebih dahulu.** Prioritaskan status, angka, tanggal, penanggung jawab, dan tindakan berikutnya.
-2. **Biru memimpin.** Biru JXB adalah identitas dan aksi utama. Merah dan kuning hanya menandai perhatian, risiko, atau status tertentu.
+2. **Biru memimpin.** Biru JXB adalah identitas dan aksi utama. Merah dan kuning hanya menandai perhatian, risiko, atau status tertentu—kecuali garis aksen tri-warna brand pada shell (topbar, login, beranda) yang memakai warna logo.
 3. **Konsisten, bukan dekoratif.** Komponen dengan fungsi sama harus tampil sama di seluruh modul.
 4. **Kepadatan terukur.** Tabel dan daftar boleh padat, tetapi tinggi baris, kolom, dan filter harus tetap mudah dibaca.
 5. **Whitespace terencana.** Gunakan ruang kosong untuk memisahkan kelompok informasi, bukan banyak garis dan warna.
@@ -50,8 +50,13 @@ Hindari gradient mencolok, glassmorphism, ilustrasi dekoratif berlebihan, shadow
 | `--neutral-100`    | `#F1F4F8` | surface muted         | Latar kontrol atau header tabel                                              |
 | `--canvas`         | `#F6F8FB` | background aplikasi   | Latar halaman                                                                |
 | `--surface`        | `#FFFFFF` | surface               | Card, tabel, modal                                                           |
+| `--jxb-logo-blue`  | `#3C62AE` | aksen brand (logo)    | Segmen garis aksen brand; bukan untuk teks kecil                            |
+| `--jxb-logo-red`   | `#EE3A27` | aksen brand (logo)    | Segmen garis aksen brand; merah status tetap `--jxb-red-600`                |
+| `--jxb-logo-yellow`| `#FCB42C` | aksen brand (logo)    | Segmen garis aksen brand & indikator menu aktif sidebar                     |
 
-Rasio praktis: sekitar 80% neutral/surface, 15% biru, maksimal 5% merah-kuning-hijau. Biru adalah satu-satunya warna untuk CTA utama. Merah tidak dipakai untuk tombol biasa; kuning bukan pengganti primary.
+Rasio praktis: sekitar 70% neutral/surface, 20% biru (termasuk sidebar biru gelap), maksimal 10% merah-kuning-hijau (termasuk garis aksen brand). Biru adalah satu-satunya warna untuk CTA utama. Merah tidak dipakai untuk tombol biasa; kuning bukan pengganti primary.
+
+**Shell biru gelap.** Sidebar memakai biru JXB gelap `--jxb-blue-700` dengan teks putih agar aplikasi tidak terasa "kebanyakan putih", sementara area kerja (card, tabel, form) tetap putih agar data audit tetap terbaca. Tiga warna logo (`--jxb-logo-blue`, `--jxb-logo-red`, `--jxb-logo-yellow`) hanya muncul sebagai garis aksen tri-warna 3–4px pada topbar, card login, dan card beranda—bukan sebagai latar area besar.
 
 ### 3.2 Status semantik
 
@@ -138,19 +143,19 @@ Pada mobile, action utama tetap terlihat; action sekunder pindahkan ke dropdown 
 
 ### Sidebar
 
-- Background putih atau `--jxb-blue-700` yang sangat konsisten; rekomendasi: putih agar aplikasi lebih ringan dan area kerja dominan.
-- Logo/wordmark berada di area tinggi 64px, dengan divider halus di bawahnya.
+- Background biru JXB gelap `--jxb-blue-700` agar aplikasi tidak didominasi putih; teks menu putih/terang. Area kerja (card/tabel) tetap putih.
+- Logo/wordmark berada di area tinggi 64px, dengan divider halus (putih transparan) di bawahnya.
 - Item menu tinggi 44px, padding horizontal 12–16px, ikon 18px, gap 12px.
-- Menu aktif: latar `--jxb-blue-100`, teks dan ikon `--jxb-blue-700`, indikator kiri 3px biru 600. Jangan memakai full blue solid untuk semua menu aktif.
-- Menu hover: `--neutral-100`; submenu diberi indent, bukan warna baru.
-- Kelompok menu dapat diberi label 11–12px neutral 500.
+- Menu aktif: latar `rgba(255,255,255,.15)`, teks dan ikon putih, indikator kiri 3px `--jxb-logo-yellow`. Jangan memakai full blue solid untuk semua menu aktif.
+- Menu hover: `rgba(255,255,255,.08)`; submenu diberi indent, bukan warna baru.
+- Kelompok menu diberi label 11–12px `rgba(255,255,255,.45)`.
 - Sidebar collapsed menampilkan ikon dengan tooltip; jangan hanya andalkan tooltip untuk navigasi penting di touch device.
 
 ### Topbar
 
-- Background putih, border bawah neutral 300, tinggi 64px.
+- Background putih, tinggi 64px, dengan **garis aksen tri-warna brand 3px** (biru→merah→kuning) di tepi bawah sebagai pengganti border biasa.
 - Kiri: toggle sidebar dan breadcrumb/halaman. Kanan: notifikasi, bantuan (bila ada), dan menu profil.
-- Hindari topbar warna-warni; gunakan satu garis/elemen biru kecil bila perlu.
+- Hindari topbar warna-warni; cukup satu garis aksen tri-warna.
 - Notifikasi memiliki badge angka kecil dan panel dropdown yang dapat dibaca keyboard.
 
 ### Footer
@@ -332,6 +337,9 @@ Tambahkan stylesheet override setelah Bootstrap dan AdminLTE, misalnya `assets/c
   --jxb-yellow-600: #a66a00;
   --jxb-yellow-400: #f4b400;
   --jxb-yellow-100: #fff6d8;
+  --jxb-logo-blue: #3c62ae;
+  --jxb-logo-red: #ee3a27;
+  --jxb-logo-yellow: #fcb42c;
   --success-600: #18794e;
   --success-100: #e8f7ee;
   --neutral-900: #172033;
@@ -341,6 +349,12 @@ Tambahkan stylesheet override setelah Bootstrap dan AdminLTE, misalnya `assets/c
   --neutral-100: #f1f4f8;
   --canvas: #f6f8fb;
   --surface: #ffffff;
+  --jxb-sidebar-bg: #063f7a;
+  --jxb-sidebar-text: rgba(255, 255, 255, 0.8);
+  --jxb-sidebar-icon: rgba(255, 255, 255, 0.65);
+  --jxb-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --jxb-sidebar-active: rgba(255, 255, 255, 0.15);
+  --jxb-sidebar-divider: rgba(255, 255, 255, 0.12);
   --radius-control: 6px;
   --radius-card: 10px;
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06);
@@ -374,9 +388,33 @@ body {
   border-color: var(--jxb-blue-600);
   box-shadow: var(--focus-ring);
 }
-.nav-sidebar .nav-link.active {
-  background: var(--jxb-blue-100);
-  color: var(--jxb-blue-700);
+.app-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--jxb-logo-blue) 0 55%,
+    var(--jxb-logo-red) 55% 80%,
+    var(--jxb-logo-yellow) 80% 100%);
+}
+.app-sidebar {
+  background: var(--jxb-sidebar-bg) !important;
+}
+.sidebar-menu > .nav-item > .nav-link.active {
+  background: var(--jxb-sidebar-active);
+  color: #fff;
+}
+.sidebar-menu > .nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  background: var(--jxb-logo-yellow);
 }
 ```
 

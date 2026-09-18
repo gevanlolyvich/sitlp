@@ -36,16 +36,25 @@ $hash = password_hash($password,PASSWORD_DEFAULT);
 $foto = null;
 
 if(isset($_FILES['foto']) && $_FILES['foto']['error']==0){
- $maxSize = 2 * 1024 * 1024;
- if ($_FILES['foto']['size'] > $maxSize) {
-     die("Ukuran file foto maksimal 2MB");
- }
- $ext = strtolower(pathinfo($_FILES['foto']['name'],PATHINFO_EXTENSION));
- $allow = ['jpg','jpeg','png'];
- if(in_array($ext,$allow)){
-  $foto = uniqid().'.'.$ext;
-  move_uploaded_file($_FILES['foto']['tmp_name'],"../uploads/users/".$foto);
- }
+    $maxSize = 2 * 1024 * 1024;
+    if ($_FILES['foto']['size'] > $maxSize) {
+        $_SESSION['error'] = "Ukuran file foto maksimal 2MB";
+        header("Location: create.php");
+        exit;
+    }
+    $ext = strtolower(pathinfo($_FILES['foto']['name'],PATHINFO_EXTENSION));
+    $allow = ['jpg','jpeg','png'];
+    if(!in_array($ext,$allow)){
+        $_SESSION['error'] = "Format foto hanya JPG/JPEG/PNG";
+        header("Location: create.php");
+        exit;
+    }
+    $foto = uniqid().'.'.$ext;
+    if(!move_uploaded_file($_FILES['foto']['tmp_name'],"../uploads/users/".$foto)){
+        $_SESSION['error'] = "Gagal mengunggah foto";
+        header("Location: create.php");
+        exit;
+    }
 }
 
 $role =
@@ -63,7 +72,7 @@ if(
 )
 {
     $_SESSION['error'] =
-        "Unit kerja wajib dipilih";
+        "Unit kerja wajib dipilih untuk role AUDITEE";
     header(
         "Location:create.php"
     );
@@ -77,4 +86,5 @@ if(
 mysqli_query($conn,"INSERT INTO users(nama,username,email,password,role,foto,aktif,unit_id)
 	                       VALUES('$nama','$username','$email','$hash','$role','$foto','$aktif',$unit_id)");
 
+$_SESSION['success'] = "User berhasil ditambahkan.";
 header("Location: index.php");

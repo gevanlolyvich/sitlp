@@ -50,7 +50,7 @@ session_start();
             <div>
                 <i class="fas fa-tools text-muted mb-3" style="font-size:64px;"></i>
             </div>
-            <h4 class="text-muted">Management Resiko (MR)</h4>
+            <h4 class="text-muted">Managemen Risiko (MR)</h4>
             <p class="text-muted">Fitur ini akan tersedia pada rilis berikutnya.</p>
             <a href="../" class="btn btn-primary mt-2">
                 <i class="fas fa-arrow-left"></i> Kembali ke Beranda

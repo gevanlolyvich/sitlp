@@ -40,6 +40,16 @@ if (isset($_SESSION['user_id'])) {
             margin: 24px;
         }
 
+        .login-card::before {
+            content: "";
+            display: block;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    var(--jxb-logo-blue) 0 55%,
+                    var(--jxb-logo-red) 55% 80%,
+                    var(--jxb-logo-yellow) 80% 100%);
+        }
+
         .login-header {
             background: var(--surface);
             padding: 32px 32px 20px;
@@ -75,7 +85,7 @@ if (isset($_SESSION['user_id'])) {
         .footer-text {
             text-align: center;
             font-size: 12px;
-            color: var(--neutral-500);
+            font-weight: 500;
             margin-top: 20px;
         }
     </style>
@@ -85,7 +95,8 @@ if (isset($_SESSION['user_id'])) {
     <div class="card login-card">
         <div class="login-header">
             <img src="/sisia/assets/images/LogoJXB_new.png" alt="JXB Logo">
-            <div class="app-title">SISIA JAKTOUR</div>
+            <div class="app-title"><span style="color: red;">SI</span><span style="color: blue;">SIA JAKTOUR</span>
+            </div>
             <div class="app-subtitle">
                 Sistem Informasi Satuan Internal Audit
             </div>
@@ -115,14 +126,25 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
             <?php endif; ?>
+            <?php if (isset($_GET['nonaktif'])): ?>
+                <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+                    <i class="fas fa-user-slash mt-1"></i>
+                    <div>
+                        <strong>Akun tidak aktif.</strong><br>
+                        Silakan hubungi administrator.
+                    </div>
+                </div>
+            <?php endif; ?>
             <form action="login_process.php" method="post">
                 <div class="mb-3">
                     <label class="form-label" for="username">Username</label>
-                    <input type="text" name="username" id="username" class="form-control" placeholder="Masukkan username" required autofocus>
+                    <input type="text" name="username" id="username" class="form-control"
+                        placeholder="Masukkan username" required autofocus>
                 </div>
                 <div class="mb-4">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" name="password" id="password" class="form-control" placeholder="Masukkan password" required>
+                    <input type="password" name="password" id="password" class="form-control"
+                        placeholder="Masukkan password" required>
                 </div>
                 <button type="submit" class="btn btn-primary btn-login w-100">
                     <i class="fas fa-sign-in-alt"></i>

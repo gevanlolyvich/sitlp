@@ -37,15 +37,7 @@ INNER JOIN audit_pemeriksaan a
     ON t.audit_id = a.id
 WHERE
     tl.unit_id = '$unit_id'
-ORDER BY
-    CASE
-        WHEN tl.status='Proses' THEN 1
-        WHEN tl.status='Belum Ditindak Lanjut' THEN 2
-        WHEN tl.status='Belum Sesuai' THEN 3
-        WHEN tl.status='Tidak Dapat Ditindak Lanjut' THEN 4
-        WHEN tl.status='Sesuai' THEN 5
-    END,
-    tl.target_selesai ASC
+ORDER BY tl.updated_at DESC, tl.id DESC
 ";
 
 //echo $sql; exit;
