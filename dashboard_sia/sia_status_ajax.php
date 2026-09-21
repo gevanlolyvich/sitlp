@@ -94,7 +94,7 @@ function potongTeks($teks, $max = 90)
    <td style="min-width:100px;"><?= $tl['target_selesai'] ? date('d-m-Y', strtotime($tl['target_selesai'])) : '-' ?></td>
    <td><span class="badge <?= $badge ?>"><?= htmlspecialchars($status) ?></span></td>
    <?php if(!$isDireksi): ?>
-   <td class="text-center"><a href="../audit_tindak_lanjut/detail.php?id=<?= (int)$tl['id'] ?>" class="btn btn-primary btn-sm" title="Detail"><i class="fas fa-eye"></i></a></td>
+   <td class="text-center"><a href="../audit_tindak_lanjut/detail.php?id=<?= (int)$tl['id'] ?>" class="btn btn-primary btn-sm tb-icon btn-blink-border" title="Detail" aria-label="Detail"><i class="fas fa-eye"></i></a></td>
    <?php endif; ?>
   </tr>
  <?php endwhile; else: ?>

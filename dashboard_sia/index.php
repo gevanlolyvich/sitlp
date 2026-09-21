@@ -10,13 +10,14 @@ checkRole(['ADMIN', 'KEPALA_SIA', 'AUDITOR', 'DIREKSI', 'KOMISARIS']);
 
 $isDireksi = in_array($_SESSION['role'], ['DIREKSI', 'KOMISARIS']);
 
-function kpiCard($isDireksi, $href, $bg)
+function kpiCard($isDireksi, $href, $bg, $border)
 {
+    $style = 'background:' . $bg . ';border:2px solid ' . $border . ';';
     if($isDireksi || !$href)
     {
-        return ['open' => '<div class="card kpi-card shadow" style="background:' . $bg . ';">', 'close' => '</div>'];
+        return ['open' => '<div class="card kpi-card shadow" style="' . $style . '">', 'close' => '</div>'];
     }
-    return ['open' => '<a href="' . $href . '" class="card kpi-card shadow" style="background:' . $bg . ';">', 'close' => '</a>'];
+    return ['open' => '<a href="' . $href . '" class="card kpi-card shadow" style="' . $style . '">', 'close' => '</a>'];
 }
 
 $totalProgram     = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_program"))[0];
@@ -45,6 +46,14 @@ $statusConf = [
     'Belum Sesuai'              => ['icon' => 'fa-times-circle',   'soft' => '#FDECEC', 'strong' => '#C53030'],
     'Belum Ditindak Lanjut'     => ['icon' => 'fa-minus-circle',   'soft' => '#FFF6D8', 'strong' => '#A66A00'],
     'Tidak Dapat Ditindak Lanjut' => ['icon' => 'fa-ban',          'soft' => '#F1F4F8', 'strong' => '#46526A'],
+];
+
+$statusCss = [
+    'Proses'                      => 'is-proses',
+    'Sesuai'                      => 'is-sesuai',
+    'Belum Sesuai'                => 'is-belum-sesuai',
+    'Belum Ditindak Lanjut'       => 'is-belum-ditindak-lanjut',
+    'Tidak Dapat Ditindak Lanjut' => 'is-tidak-dapat',
 ];
 
 $today      = date('Y-m-d');
@@ -101,11 +110,11 @@ include "../templates/sidebar.php";
 </div>
 
 <!-- Kartu KPI -->
-<?php $kpiProgram   = kpiCard($isDireksi, '../audit_program/', '#ffffff');
-      $kpiPemeriksaan = kpiCard($isDireksi, '../audit_pemeriksaan/', '#ffffff');
-      $kpiTemuan    = kpiCard($isDireksi, null, '#ffffff');
-      $kpiRekomendasi = kpiCard($isDireksi, null, '#ffffff');
-      $kpiTL        = kpiCard($isDireksi, '../audit_tindak_lanjut/', '#ffffff'); ?>
+<?php $kpiProgram   = kpiCard($isDireksi, '../audit_program/', '#ffffff', '#075AA8');
+      $kpiPemeriksaan = kpiCard($isDireksi, '../audit_pemeriksaan/', '#ffffff', '#0891B2');
+      $kpiTemuan    = kpiCard($isDireksi, null, '#ffffff', '#C53030');
+      $kpiRekomendasi = kpiCard($isDireksi, null, '#ffffff', '#A66A00');
+      $kpiTL        = kpiCard($isDireksi, '../audit_tindak_lanjut/', '#ffffff', '#18794E'); ?>
 <div class="row g-3 mb-4">
     <div class="col-12 col-sm-6 col-lg">
         <?= $kpiProgram['open'] ?>
@@ -179,7 +188,7 @@ include "../templates/sidebar.php";
                     $icon = $statusConf[$sts]['icon'];
                 ?>
                 <div class="col-12 col-sm-6 col-md-4 col-lg">
-                    <a href="javascript:void(0)" class="card shadow-sm text-decoration-none status-card"
+                    <a href="javascript:void(0)" class="card shadow-sm text-decoration-none status-card <?= $statusCss[$sts] ?? '' ?>"
                         data-status="<?= htmlspecialchars($sts, ENT_QUOTES) ?>" onclick="toggleStatus(this)">
                         <div class="card-body d-flex align-items-center justify-content-between py-3">
                             <div class="d-flex align-items-center gap-3">
@@ -280,7 +289,7 @@ include "../templates/sidebar.php";
                             foreach($labels as $i => $label):
                                 $color = $palette[$i % count($palette)];
                             ?>
-                            <div class="jxb-legend-item">
+                            <div class="jxb-legend-item" data-status="<?= htmlspecialchars($label, ENT_QUOTES) ?>" onclick="openStatusList('<?= htmlspecialchars($label, ENT_QUOTES) ?>')">
                                 <span class="jxb-legend-label"><span class="jxb-legend-dot" style="background:<?= $color ?>;"></span><?= htmlspecialchars($label) ?></span>
                                 <span class="jxb-legend-value"><?= (int)$charts[$i] ?></span>
                             </div>
@@ -302,19 +311,20 @@ include "../templates/sidebar.php";
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    window.toggleStatus = function(card){
-        var status = card.getAttribute('data-status');
+    window.openStatusList = function(status){
         var container = document.getElementById('statusResult');
         var body = document.getElementById('statusBody');
         var cards = document.querySelectorAll('.status-card');
+        var card = null;
+        cards.forEach(function(c){ if(c.getAttribute('data-status') === status){ card = c; } });
 
-        if(card.classList.contains('active')){
+        if(card && card.classList.contains('active')){
             card.classList.remove('active');
             container.classList.add('d-none');
             return;
         }
         cards.forEach(function(c){ c.classList.remove('active'); });
-        card.classList.add('active');
+        if(card){ card.classList.add('active'); }
 
         body.innerHTML = '<div class="p-4 text-center text-muted small"><i class="fas fa-spinner fa-spin me-1"></i>Memuat data...</div>';
         container.classList.remove('d-none');
@@ -326,6 +336,9 @@ document.addEventListener('DOMContentLoaded', function(){
             .catch(function(){
                 body.innerHTML = '<div class="p-4 text-danger small"><i class="fas fa-exclamation-triangle me-1"></i>Gagal memuat data tindak lanjut.</div>';
             });
+    };
+    window.toggleStatus = function(card){
+        openStatusList(card.getAttribute('data-status'));
     };
 
     var labels = <?= json_encode($labels) ?>;
@@ -351,6 +364,11 @@ document.addEventListener('DOMContentLoaded', function(){
                 plugins: {
                     legend: { display: false },
                     tooltip: { enabled: true }
+                },
+                onClick: function(evt, elements){
+                    if(elements && elements.length > 0){
+                        openStatusList(labels[elements[0].index]);
+                    }
                 }
             }
         });

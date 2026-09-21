@@ -140,7 +140,7 @@ include "../templates/sidebar.php";
                                     </td>
                                     <td>
                                         <a href="../audit_tindak_lanjut/detail.php?id=<?= $row['tindak_lanjut_id'] ?>"
-                                            class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Lihat</a>
+                                            class="btn btn-primary btn-sm tb-icon btn-blink-border" title="Lihat" aria-label="Lihat"><i class="fas fa-eye"></i></a>
                                     </td>
                                 </tr>
                             <?php endwhile;

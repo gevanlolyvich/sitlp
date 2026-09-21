@@ -68,12 +68,12 @@ Edit
 </td>
 -->
 	<td>
-	 <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm">Edit</a>
-         <?php if($r['aktif']){ ?>
-         <a href="status.php?id=<?= $r['id'] ?>" class="btn btn-danger btn-sm">Nonaktif</a>
-         <?php } else { ?>
-         <a href="status.php?id=<?= $r['id'] ?>" class="btn btn-outline-success btn-sm">Aktifkan</a>
-         <?php } ?>
+	 <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm tb-icon btn-blink-border" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></a>
+	 <?php if($r['aktif']){ ?>
+	 <a href="status.php?id=<?= $r['id'] ?>" class="btn btn-danger btn-sm tb-icon btn-blink-border" title="Nonaktif" aria-label="Nonaktif" onclick="return confirm('Nonaktifkan unit ini?')"><i class="fas fa-ban"></i></a>
+	 <?php } else { ?>
+	 <a href="status.php?id=<?= $r['id'] ?>" class="btn btn-outline-success btn-sm tb-icon btn-blink-border" title="Aktifkan" aria-label="Aktifkan"><i class="fas fa-check"></i></a>
+	 <?php } ?>
         </td>
        </tr>
       <?php } ?>

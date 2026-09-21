@@ -202,7 +202,7 @@ Daftar tindak lanjut seluruh rekomendasi
    <td style="white-space: pre-wrap;"><?= htmlspecialchars($rk['rekomendasi']) ?></td>
    <td>
     <?php if($_SESSION['role'] != 'AUDITEE' && !$locked): ?>
-    <a href="create.php?rekomendasi_id=<?= $rk['id'] ?>&temuan_id=<?= $temuan_id ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> TL</a>
+    <a href="create.php?rekomendasi_id=<?= $rk['id'] ?>&temuan_id=<?= $temuan_id ?>" class="btn btn-primary btn-sm tb-icon btn-blink-border" title="Tambah TL" aria-label="Tambah TL"><i class="fas fa-plus"></i></a>
     <?php endif; ?>
    </td>
   </tr>
@@ -282,19 +282,19 @@ Daftar tindak lanjut seluruh rekomendasi
     <td><?= ($row['nilai_penyerahan'] !== null && $row['nilai_penyerahan'] !== '') ? 'Rp ' . number_format((float)$row['nilai_penyerahan'], 2, ',', '.') : '-' ?></td>
     <td>
     <?php if ($row['bukti_file']): ?>
-    <a href="../uploads/tindak_lanjut/<?= basename($row['bukti_file']) ?>" target="_blank" class="btn btn-success btn-sm mb-1" title="Lihat Bukti"><i class="fas fa-file"></i></a>
+     <a href="../uploads/tindak_lanjut/<?= basename($row['bukti_file']) ?>" target="_blank" class="btn btn-success btn-sm tb-icon btn-blink-border" title="Lihat Bukti" aria-label="Lihat Bukti"><i class="fas fa-file"></i></a>
     <?php endif; ?>
     <?php if ($_SESSION['role'] == 'AUDITEE'): ?>
-     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Lihat</a>
+     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm tb-icon btn-blink-border" title="Lihat" aria-label="Lihat"><i class="fas fa-eye"></i></a>
     <?php elseif (in_array($row['status'], ['Sesuai', 'Tidak Dapat Ditindak Lanjut'])): ?>
-     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm" title="History"><i class="fas fa-history"></i> History</a>
+     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm tb-icon btn-blink-border" title="History" aria-label="History"><i class="fas fa-history"></i></a>
     <?php else: ?>
       <?php if ($row['status'] == 'Proses' && !$hasUpload && !$locked): ?>
-      <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline-warning btn-sm mb-1" title="Edit"><i class="fas fa-edit"></i></a>
-      <a href="javascript:void(0)" class="btn btn-danger btn-sm mb-1" onclick="hapusTL(<?= $row['id'] ?>,<?= $row['rekomendasi_id'] ?>)" title="Hapus"><i class="fas fa-trash"></i></a>
+      <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline-warning btn-sm tb-icon btn-blink-border" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></a>
+      <a href="javascript:void(0)" class="btn btn-danger btn-sm tb-icon btn-blink-border" onclick="hapusTL(<?= $row['id'] ?>,<?= $row['rekomendasi_id'] ?>)" title="Hapus" aria-label="Hapus"><i class="fas fa-trash"></i></a>
       <?php endif; ?>
       <?php if ($lastLogAksi == 'upload_bukti'): ?>
-      <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm mb-1" title="Verifikasi"><i class="fas fa-check"></i> Verifikasi</a>
+      <a href="verifikasi.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm tb-icon btn-blink-border" title="Verifikasi" aria-label="Verifikasi"><i class="fas fa-check"></i></a>
       <?php endif; ?>
     <?php endif; ?>
    </td>

@@ -185,26 +185,16 @@ $sql = mysqli_query(
                                         <td>
                                             <?php if ($r['status'] == 'Rencana'): ?>
                                                 <?php if (in_array($_SESSION['role'], ['ADMIN', 'KEPALA_SIA'])): ?>
-                                                    <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm">
-                                                        Edit
-                                                    </a>
-                                                    <button onclick="hapusProgram(<?= $r['id'] ?>)" class="btn btn-danger btn-sm">
-                                                        Hapus
-                                                    </button>
+                                                    <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm tb-icon btn-blink-border" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></a>
+                                                    <button onclick="hapusProgram(<?= $r['id'] ?>)" class="btn btn-danger btn-sm tb-icon btn-blink-border" title="Hapus" aria-label="Hapus"><i class="fas fa-trash"></i></button>
                                                 <?php endif; ?>
-                                                <a href="../audit_pemeriksaan/create.php?program_id=<?= $r['id'] ?>"
-                                                    class="btn btn-success btn-sm btn-blink-border">
-                                                    Buat Audit
-                                                </a>
+                                                    <a href="../audit_pemeriksaan/create.php?program_id=<?= $r['id'] ?>"
+                                                        class="btn btn-success btn-sm tb-icon btn-blink-border" title="Buat Audit" aria-label="Buat Audit"><i class="fas fa-plus"></i></a>
                                             <?php elseif ($r['status'] == 'Selesai' && !empty($r['lha_file'])): ?>
-                                                <a href="../uploads/program_lha/<?= $r['lha_file'] ?>" target="_blank"
-                                                    class="btn btn-outline-success btn-sm">
-                                                    <i class="fas fa-file-pdf"></i> Lihat LHA
-                                                </a>
+                                                    <a href="../uploads/program_lha/<?= $r['lha_file'] ?>" target="_blank"
+                                                        class="btn btn-outline-success btn-sm tb-icon btn-blink-border" title="Lihat LHA" aria-label="Lihat LHA"><i class="fas fa-file-pdf"></i></a>
                                             <?php elseif ($r['status'] == 'Selesai'): ?>
-                                                <a href="upload_lha.php?id=<?= $r['id'] ?>" class="btn btn-outline-info btn-sm">
-                                                    <i class="fas fa-upload"></i> Upload LHA
-                                                </a>
+                                                    <a href="upload_lha.php?id=<?= $r['id'] ?>" class="btn btn-outline-info btn-sm tb-icon btn-blink-border" title="Upload LHA" aria-label="Upload LHA"><i class="fas fa-upload"></i></a>
                                             <?php else: ?>
                                                 <span class="text-muted small">-</span>
                                             <?php endif; ?>

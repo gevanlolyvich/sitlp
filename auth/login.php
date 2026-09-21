@@ -95,8 +95,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="card login-card">
         <div class="login-header">
             <img src="/sisia/assets/images/LogoJXB_new.png" alt="JXB Logo">
-            <div class="app-title"><span style="color: red;">SI</span><span style="color: blue;">SIA JAKTOUR</span>
-            </div>
+            <div class="app-title"><span style="color: red;">SI</span>SIA JAKTOUR</div>
             <div class="app-subtitle">
                 Sistem Informasi Satuan Internal Audit
             </div>

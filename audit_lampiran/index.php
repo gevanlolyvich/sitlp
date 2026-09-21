@@ -111,9 +111,9 @@ include "../templates/sidebar.php";
 	<td><?= htmlspecialchars($row['nama']) ?></td>
 	<td><?= $row['uploaded_at'] ?></td>
 	<td>
-          <a href="../<?= htmlspecialchars($row['file_path']) ?>" target="_blank" class="btn btn-outline-primary btn-sm" title="Download"><i class="fas fa-download"></i> Download</a>
+          <a href="../<?= htmlspecialchars($row['file_path']) ?>" target="_blank" class="btn btn-outline-primary btn-sm tb-icon btn-blink-border" title="Download" aria-label="Download"><i class="fas fa-download"></i></a>
           <?php if(!$locked): ?>
-          <a href="javascript:void(0)" class="btn btn-danger btn-sm" title="Hapus" aria-label="Hapus" onclick="hapusLampiran(<?= $row['id'] ?>, <?= $audit_id ?>)"><i class="fas fa-trash"></i> Hapus</a>
+          <a href="javascript:void(0)" class="btn btn-danger btn-sm tb-icon btn-blink-border" title="Hapus" aria-label="Hapus" onclick="hapusLampiran(<?= $row['id'] ?>, <?= $audit_id ?>)"><i class="fas fa-trash"></i></a>
           <?php endif; ?>
         </td>
        </tr>

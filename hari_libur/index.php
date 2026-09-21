@@ -67,8 +67,8 @@ include "../templates/sidebar.php";
 <td><?= htmlspecialchars($r['keterangan']) ?></td>
 <td><?= htmlspecialchars($r['nama'] ?? '-') ?></td>
 <td>
-<a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
-<a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="if(confirm('Yakin hapus?')){window.location='delete.php?id=<?= $r['id'] ?>'}"><i class="fas fa-trash"></i></a>
+						 <a href="edit.php?id=<?= $r['id'] ?>" class="btn btn-outline-warning btn-sm tb-icon btn-blink-border" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></a>
+						 <a href="javascript:void(0)" class="btn btn-danger btn-sm tb-icon btn-blink-border" title="Hapus" aria-label="Hapus" onclick="if(confirm('Yakin hapus?')){window.location='delete.php?id=<?= $r['id'] ?>'}"><i class="fas fa-trash"></i></a>
 </td>
 </tr>
 <?php endwhile; else: ?>

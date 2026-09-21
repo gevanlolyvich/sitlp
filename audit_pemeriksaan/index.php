@@ -109,9 +109,9 @@ $q = mysqli_query($conn,"SELECT ap.*, uk.nama_unit, au.nama_auditor
 		}
 	?></td>
 	<td>
-	 <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm">Detail</a>
+	 <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary btn-sm tb-icon btn-blink-border" title="Detail" aria-label="Detail"><i class="fas fa-eye"></i></a>
 	 <?php if($row['status'] != 'Selesai'): ?>
-	 <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline-warning btn-sm">Edit</a>
+	 <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline-warning btn-sm tb-icon btn-blink-border" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></a>
 	 <?php endif; ?>
 
 	</td>

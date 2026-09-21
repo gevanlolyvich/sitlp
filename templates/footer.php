@@ -8,7 +8,7 @@
 
     <strong>
 
-        &copy; <?= date('Y') ?> PT Jakarta Tourisindo By MBG
+        &copy; <?= date('Y') ?> PT Jakarta Tourisindo By Collaborations
 
     </strong>
 

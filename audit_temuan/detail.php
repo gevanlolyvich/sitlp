@@ -128,9 +128,9 @@ include "../templates/sidebar.php";
          </a>
         </td>
         <td>
-         <a href="../audit_tindak_lanjut/index.php?temuan_id=<?= $temuan['id'] ?>" class="btn btn-success btn-sm"><i class="fas fa-list"></i> Tindak Lanjut</a>
+         <a href="../audit_tindak_lanjut/index.php?temuan_id=<?= $temuan['id'] ?>" class="btn btn-success btn-sm tb-icon btn-blink-border" title="Tindak Lanjut" aria-label="Tindak Lanjut"><i class="fas fa-list"></i></a>
          <?php if(!$locked): ?>
-         <a href="../audit_rekomendasi/edit.php?temuan_id=<?= $temuan['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+         <a href="../audit_rekomendasi/edit.php?temuan_id=<?= $temuan['id'] ?>" class="btn btn-warning btn-sm tb-icon btn-blink-border" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></a>
          <?php endif; ?>
         </td>
        </tr>

@@ -170,13 +170,9 @@ $r['aktif']
 
 <a
 href="edit.php?id=<?= $r['id'] ?>"
-class="btn btn-outline-warning btn-sm">
+class="btn btn-outline-warning btn-sm tb-icon btn-blink-border" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></a>
 
- Edit
-
-</a>
-
-<a href="#" class="btn btn-outline-primary btn-sm" onclick="resetPassword(<?= $r['id'] ?>, '<?= htmlspecialchars($r['nama'], ENT_QUOTES) ?>')">Reset</a>
+<a href="#" class="btn btn-outline-primary btn-sm tb-icon btn-blink-border" title="Reset Password" aria-label="Reset Password" onclick="resetPassword(<?= $r['id'] ?>, '<?= htmlspecialchars($r['nama'], ENT_QUOTES) ?>')"><i class="fas fa-key"></i></a>
 
 </td>
 
