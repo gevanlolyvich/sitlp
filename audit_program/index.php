@@ -79,6 +79,10 @@ $sql = mysqli_query(
                     </div>
                 </div>
                 <div class="col-md-4 text-end">
+                    <a href="export.php<?= $keyword ? '?keyword=' . urlencode($keyword) : '' ?>" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i>
+                        Export Excel
+                    </a>
                     <?php if (in_array($_SESSION['role'], ['ADMIN', 'KEPALA_SIA'])): ?>
                         <a href="create.php" class="btn btn-primary">
                             <i class="fas fa-plus"></i>
