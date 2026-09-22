@@ -12,8 +12,12 @@ $role = $_SESSION['role'];
 $unitFilter = '';
 if($role == 'AUDITEE')
 {
-    $unitFilter = ' AND unit_id=' . (int)$_SESSION['unit_id'];
+    $unitFilter = ' AND tl.unit_id=' . (int)$_SESSION['unit_id'];
 }
+$filterUnit = isset($_GET['unit']) ? (int)$_GET['unit'] : 0;
+$filterTahun = isset($_GET['tahun']) ? (int)$_GET['tahun'] : 0;
+if($filterUnit > 0)  { $unitFilter .= " AND tl.unit_id=$filterUnit"; }
+if($filterTahun > 0) { $unitFilter .= " AND p.tahun_audit=$filterTahun"; }
 $isDireksi = in_array($role, ['DIREKSI', 'KOMISARIS']);
 
 $allowedStatus = [
@@ -33,7 +37,7 @@ if(!isset($allowedStatus[$status]))
 }
 $badge = $allowedStatus[$status];
 
-$total = mysqli_fetch_row(mysqli_query($conn,"SELECT COUNT(*) FROM audit_tindak_lanjut WHERE status='".mysqli_real_escape_string($conn,$status)."' $unitFilter"))[0];
+$total = mysqli_fetch_row(mysqli_query($conn,"SELECT COUNT(*) FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id LEFT JOIN audit_temuan t ON r.temuan_id=t.id LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id WHERE tl.status='".mysqli_real_escape_string($conn,$status)."' $unitFilter"))[0];
 
 $q = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_rekomendasi,
     t.judul_temuan, t.nomor_temuan
@@ -41,6 +45,7 @@ $q = mysqli_query($conn,"SELECT tl.*, u.nama_unit, r.rekomendasi, r.nomor_rekome
     LEFT JOIN unit_kerja u ON tl.unit_id=u.id
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
     LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+    LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id
     WHERE tl.status='".mysqli_real_escape_string($conn,$status)."' $unitFilter
     ORDER BY tl.updated_at DESC, tl.id DESC
     LIMIT 20");
@@ -111,9 +116,7 @@ function potongTeks($teks, $max = 90)
 
 <div class="d-flex justify-content-between align-items-center mt-2 border-top pt-2 small">
     <span class="text-muted">Menampilkan maksimal 20 dari <strong><?= $total ?></strong> tindak lanjut.</span>
-    <?php if($isDireksi): ?>
-    <span class="text-muted fw-bold"><i class="fas fa-lock me-1"></i>Lihat semua (<?= $total ?>)</span>
-    <?php else: ?>
-    <a href="../audit_tindak_lanjut/index.php?status=<?= urlencode($status) ?>" class="fw-bold text-primary text-decoration-none">Lihat semua (<?= $total ?>) <i class="fas fa-arrow-right"></i></a>
+    <?php if(!$isDireksi): ?>
+    <a href="../audit_tindak_lanjut/index.php?status=<?= urlencode($status) ?><?= $filterUnit > 0 ? '&unit=' . $filterUnit : '' ?><?= $filterTahun > 0 ? '&tahun=' . $filterTahun : '' ?>" class="fw-bold text-primary text-decoration-none">Lihat semua (<?= $total ?>) <i class="fas fa-arrow-right"></i></a>
     <?php endif; ?>
 </div>

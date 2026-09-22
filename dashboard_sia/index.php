@@ -20,17 +20,50 @@ function kpiCard($isDireksi, $href, $bg, $border)
     return ['open' => '<a href="' . $href . '" class="card kpi-card shadow" style="' . $style . '">', 'close' => '</a>'];
 }
 
-$totalProgram     = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_program"))[0];
-$totalPemeriksaan = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_pemeriksaan"))[0];
-$totalTemuan      = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_temuan"))[0];
-$totalRekomendasi = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_rekomendasi"))[0];
-$totalTL          = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut"))[0];
+$filterUnit   = isset($_GET['unit']) ? (int)$_GET['unit'] : 0;
+$filterTahun  = isset($_GET['tahun']) ? (int)$_GET['tahun'] : 0;
 
-$proses             = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE status='Proses'"))[0];
-$sesuai             = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE status='Sesuai'"))[0];
-$belumSesuai        = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE status='Belum Sesuai'"))[0];
-$belumDitindakLanjut= mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE status='Belum Ditindak Lanjut'"))[0];
-$tidakDapat         = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE status='Tidak Dapat Ditindak Lanjut'"))[0];
+$wProgram = " WHERE 1=1";
+if ($filterUnit > 0)  { $wProgram .= " AND unit_id=$filterUnit"; }
+if ($filterTahun > 0) { $wProgram .= " AND tahun=$filterTahun"; }
+
+$wPemeriksaan = " WHERE 1=1";
+if ($filterUnit > 0)  { $wPemeriksaan .= " AND unit_id=$filterUnit"; }
+if ($filterTahun > 0) { $wPemeriksaan .= " AND tahun_audit=$filterTahun"; }
+
+$wTemuan = " WHERE 1=1";
+if ($filterUnit > 0)  { $wTemuan .= " AND p.unit_id=$filterUnit"; }
+if ($filterTahun > 0) { $wTemuan .= " AND p.tahun_audit=$filterTahun"; }
+
+$wRekomendasi = " WHERE 1=1";
+if ($filterUnit > 0)  { $wRekomendasi .= " AND p.unit_id=$filterUnit"; }
+if ($filterTahun > 0) { $wRekomendasi .= " AND p.tahun_audit=$filterTahun"; }
+
+$wTL = " WHERE 1=1";
+if ($filterUnit > 0)  { $wTL .= " AND tl.unit_id=$filterUnit"; }
+if ($filterTahun > 0) { $wTL .= " AND p.tahun_audit=$filterTahun"; }
+
+$totalProgram     = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_program $wProgram"))[0];
+$totalPemeriksaan = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_pemeriksaan $wPemeriksaan"))[0];
+$totalTemuan      = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_temuan t JOIN audit_pemeriksaan p ON t.audit_id=p.id $wTemuan"))[0];
+$totalRekomendasi = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_rekomendasi r JOIN audit_temuan t ON r.temuan_id=t.id JOIN audit_pemeriksaan p ON t.audit_id=p.id $wRekomendasi"))[0];
+$totalTL          = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id LEFT JOIN audit_temuan t ON r.temuan_id=t.id LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id $wTL"))[0];
+
+$proses             = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id LEFT JOIN audit_temuan t ON r.temuan_id=t.id LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id $wTL AND tl.status='Proses'"))[0];
+$sesuai             = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id LEFT JOIN audit_temuan t ON r.temuan_id=t.id LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id $wTL AND tl.status='Sesuai'"))[0];
+$belumSesuai        = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id LEFT JOIN audit_temuan t ON r.temuan_id=t.id LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id $wTL AND tl.status='Belum Sesuai'"))[0];
+$belumDitindakLanjut= mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id LEFT JOIN audit_temuan t ON r.temuan_id=t.id LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id $wTL AND tl.status='Belum Ditindak Lanjut'"))[0];
+$tidakDapat         = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut tl LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id LEFT JOIN audit_temuan t ON r.temuan_id=t.id LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id $wTL AND tl.status='Tidak Dapat Ditindak Lanjut'"))[0];
+
+$qUnitOptions   = mysqli_query($conn, "SELECT id, nama_unit FROM unit_kerja WHERE aktif=1 ORDER BY nama_unit");
+$qTahunOptions  = mysqli_query($conn, "SELECT DISTINCT tahun AS th FROM audit_program WHERE tahun IS NOT NULL UNION SELECT DISTINCT tahun_audit FROM audit_pemeriksaan WHERE tahun_audit IS NOT NULL UNION SELECT DISTINCT tahun FROM lhp WHERE tahun IS NOT NULL ORDER BY th DESC");
+
+$lhpWhere = " WHERE 1=1";
+if ($filterUnit > 0)  { $lhpWhere .= " AND l.unit_id=$filterUnit"; }
+if ($filterTahun > 0) { $lhpWhere .= " AND l.tahun=$filterTahun"; }
+$totalLhp = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM lhp l $lhpWhere"))[0];
+$qLhp = mysqli_query($conn, "SELECT l.*, uk.nama_unit FROM lhp l LEFT JOIN unit_kerja uk ON l.unit_id=uk.id $lhpWhere ORDER BY l.tahun DESC, l.id DESC LIMIT 10");
+$lhpSumberBadge = ['BPK' => 'is-info', 'BPKP' => 'is-warn', 'KAP' => 'is-neutral'];
 
 $statusCounts = [
     'Proses'                    => $proses,
@@ -63,7 +96,10 @@ $qPerlu     = mysqli_query($conn, "SELECT tl.id, tl.status, tl.target_selesai, t
     LEFT JOIN unit_kerja u ON tl.unit_id=u.id
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
     LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+    LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id
     WHERE tl.status IN ('Proses','Belum Ditindak Lanjut')
+    " . ($filterUnit > 0 ? " AND tl.unit_id=$filterUnit" : '') . "
+    " . ($filterTahun > 0 ? " AND p.tahun_audit=$filterTahun" : '') . "
     ORDER BY (tl.target_selesai IS NULL), tl.target_selesai ASC, tl.id DESC
     LIMIT 8");
 $perluTindakan = [];
@@ -106,6 +142,42 @@ include "../templates/sidebar.php";
     <div>
         <h1 class="jxb-page-title"><i class="fas fa-chart-line me-2 text-primary"></i>Dashboard Monitoring SIA</h1>
         <div class="jxb-page-subtitle">Ringkasan audit dan tindak lanjut satuan internal audit</div>
+    </div>
+</div>
+
+<!-- Filter Unit + Tahun -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-4 col-lg-3">
+                <label class="form-label small mb-1 fw-semibold"><i class="fas fa-building me-1"></i>Unit Kerja</label>
+                <select name="unit" class="form-select">
+                    <option value="">Semua Unit</option>
+                    <?php while ($u = mysqli_fetch_assoc($qUnitOptions)): ?>
+                        <option value="<?= $u['id'] ?>" <?= $filterUnit === (int)$u['id'] ? 'selected' : '' ?>><?= htmlspecialchars($u['nama_unit']) ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <label class="form-label small mb-1 fw-semibold"><i class="fas fa-calendar-alt me-1"></i>Tahun</label>
+                <select name="tahun" class="form-select">
+                    <option value="">Semua Tahun</option>
+                    <?php while ($t = mysqli_fetch_assoc($qTahunOptions)): ?>
+                        <option value="<?= $t['th'] ?>" <?= $filterTahun === (int)$t['th'] ? 'selected' : '' ?>><?= $t['th'] ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter me-1"></i>Terapkan Filter</button>
+                <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-undo me-1"></i>Reset</a>
+            </div>
+        </form>
+        <?php if ($filterUnit > 0 || $filterTahun > 0): ?>
+        <div class="small text-muted mt-2"><i class="fas fa-info-circle me-1"></i>Menampilkan data untuk
+            <?= $filterUnit > 0 ? 'unit terpilih' : 'semua unit'; ?> &mdash;
+            <?= $filterTahun > 0 ? 'TA ' . $filterTahun : 'semua tahun'; ?>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -221,7 +293,7 @@ include "../templates/sidebar.php";
         <div class="card shadow-sm h-100">
             <div class="card-header">
                 <span class="card-title"><i class="fas fa-exclamation-circle me-2 text-primary"></i>Perlu Tindakan</span>
-                <?php if(count($perluTindakan) > 0): ?>
+                <?php if(count($perluTindakan) > 0 && !$isDireksi): ?>
                 <a href="../audit_tindak_lanjut/" class="btn btn-sm btn-link float-end p-0">Lihat semua</a>
                 <?php endif; ?>
             </div>
@@ -306,6 +378,83 @@ include "../templates/sidebar.php";
     </div>
 </div>
 
+<!-- Data Tindak Lanjut LHP -->
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="card-title"><i class="fas fa-tasks me-2 text-primary"></i>Data Tindak Lanjut LHP <?= $filterTahun > 0 ? 'TA ' . $filterTahun : '' ?></span>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">Total: <strong><?= $totalLhp ?></strong></small>
+                    <?php if(!$isDireksi): ?>
+                    <a href="../tl_lhp/index.php<?= $filterUnit > 0 ? '?unit=' . $filterUnit : '' ?>" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>Lihat semua</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive-wrapper">
+                <table class="table table-bordered table-hover align-middle mb-0 jxb-tl-table">
+                    <thead>
+                        <tr class="text-center align-middle">
+                            <th rowspan="2" width="40">No</th>
+                            <th rowspan="2" width="90">Sumber</th>
+                            <th colspan="2">Temuan Pemeriksaan</th>
+                            <th colspan="2">Rekomendasi</th>
+                            <th rowspan="2">Tindak Lanjut Entitas yang Diperiksa</th>
+                            <th rowspan="2">Unit</th>
+                            <th colspan="4">Hasil Pemantauan Tindak Lanjut</th>
+                            <th rowspan="2">Kesimpulan</th>
+                            <th rowspan="2">Nilai Penyerahan Aset / Penyetoran Uang ke Kas Negara/Daerah</th>
+                            <th rowspan="2" width="70">Aksi</th>
+                        </tr>
+                        <tr class="text-center">
+                            <th>Judul</th>
+                            <th width="50">Jml</th>
+                            <th>Uraian</th>
+                            <th width="50">Jml</th>
+                            <th width="60">Sesuai</th>
+                            <th width="60">Belum Sesuai</th>
+                            <th width="60">Belum Ditindaklanjuti</th>
+                            <th width="60">Tidak Dapat Ditindaklanjuti</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($qLhp) > 0): $no = 1; while ($r = mysqli_fetch_assoc($qLhp)): ?>
+                        <tr>
+                            <td class="text-center"><?= $no++ ?></td>
+                            <td class="text-center"><span class="jxb-status-badge <?= $lhpSumberBadge[$r['sumber']] ?? 'is-neutral' ?>"><?= htmlspecialchars($r['sumber']) ?></span></td>
+                            <td>
+                                <strong class="d-block"><?= htmlspecialchars($r['judul_temuan']) ?></strong>
+                                <small class="text-muted"><?= htmlspecialchars($r['nomor_lhp']) ?> &middot; TA <?= (int)$r['tahun'] ?></small>
+                            </td>
+                            <td class="text-center"><?= (int)$r['jml_rekomendasi'] ?></td>
+                            <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['uraian_rekomendasi'])) ?></td>
+                            <td class="text-center"><?= (int)$r['jml_tl'] ?></td>
+                            <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['uraian_tl'])) ?></td>
+                            <td><?= htmlspecialchars($r['nama_unit'] ?? '-') ?></td>
+                            <td class="text-center"><?= (int)$r['hasil_sesuai'] ?></td>
+                            <td class="text-center"><?= (int)$r['hasil_belum_sesuai'] ?></td>
+                            <td class="text-center"><?= (int)$r['hasil_belum_tl'] ?></td>
+                            <td class="text-center"><?= (int)$r['hasil_tidak_tl'] ?></td>
+                            <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['kesimpulan'])) ?></td>
+                            <td class="text-end text-nowrap"><?= $r['nilai'] !== null ? 'Rp ' . number_format((float)$r['nilai'], 0, ',', '.') : '-' ?></td>
+                            <td class="text-center"><a href="../tl_lhp/detail.php?id=<?= $r['id'] ?>" class="btn btn-primary btn-sm tb-icon btn-blink-border" title="Detail" aria-label="Detail"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                        <?php endwhile; else: ?>
+                        <tr>
+                            <td colspan="15" class="text-center py-4">
+                                <div class="jxb-empty"><i class="fas fa-tasks"></i><div class="jxb-empty-title mt-1">Belum ada data TL LHP</div><div>Ubah filter atau tambah data pada menu TL LHP.</div></div>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     </div>
 </main>
 
@@ -326,11 +475,17 @@ document.addEventListener('DOMContentLoaded', function(){
         cards.forEach(function(c){ c.classList.remove('active'); });
         if(card){ card.classList.add('active'); }
 
+        var filterUnit  = <?= $filterUnit ?>;
+        var filterTahun = <?= $filterTahun ?>;
+        var qs = 'status=' + encodeURIComponent(status);
+        if(filterUnit > 0){ qs += '&unit=' + filterUnit; }
+        if(filterTahun > 0){ qs += '&tahun=' + filterTahun; }
+
         body.innerHTML = '<div class="p-4 text-center text-muted small"><i class="fas fa-spinner fa-spin me-1"></i>Memuat data...</div>';
         container.classList.remove('d-none');
         container.scrollIntoView({behavior:'smooth', block:'nearest'});
 
-        fetch('sia_status_ajax.php?status=' + encodeURIComponent(status))
+        fetch('sia_status_ajax.php?' + qs)
             .then(function(r){ if(!r.ok){ throw new Error('HTTP ' + r.status); } return r.text(); })
             .then(function(html){ body.innerHTML = html; })
             .catch(function(){

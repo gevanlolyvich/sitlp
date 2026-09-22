@@ -12,13 +12,24 @@ $unit_id = (int) $_SESSION['unit_id'];
 
 $unitRow = mysqli_fetch_row(mysqli_query($conn, "SELECT nama_unit FROM unit_kerja WHERE id=$unit_id"));
 $namaUnit = $unitRow ? $unitRow[0] : null;
-$totalTL = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id"))[0];
 
-$proses              = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id AND status='Proses'"))[0];
-$sesuai              = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id AND status='Sesuai'"))[0];
-$belumSesuai         = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id AND status='Belum Sesuai'"))[0];
-$belumDitindakLanjut = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id AND status='Belum Ditindak Lanjut'"))[0];
-$tidakDapat          = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_tindak_lanjut WHERE unit_id=$unit_id AND status='Tidak Dapat Ditindak Lanjut'"))[0];
+$filterTahun = isset($_GET['tahun']) ? (int)$_GET['tahun'] : 0;
+$tahunSql = '';
+if ($filterTahun > 0) { $tahunSql = " AND p.tahun_audit=$filterTahun"; }
+
+$tlJoin = " FROM audit_tindak_lanjut tl
+    LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
+    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+    LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id
+    WHERE tl.unit_id=$unit_id";
+
+$totalTL = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) $tlJoin$tahunSql"))[0];
+
+$proses              = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) $tlJoin AND tl.status='Proses'$tahunSql"))[0];
+$sesuai              = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) $tlJoin AND tl.status='Sesuai'$tahunSql"))[0];
+$belumSesuai         = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) $tlJoin AND tl.status='Belum Sesuai'$tahunSql"))[0];
+$belumDitindakLanjut = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) $tlJoin AND tl.status='Belum Ditindak Lanjut'$tahunSql"))[0];
+$tidakDapat          = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) $tlJoin AND tl.status='Tidak Dapat Ditindak Lanjut'$tahunSql"))[0];
 
 $statusCounts = [
     'Proses'                    => $proses,
@@ -35,6 +46,15 @@ $statusConf = [
     'Belum Ditindak Lanjut'     => ['icon' => 'fa-minus-circle',   'soft' => '#FFF6D8', 'strong' => '#A66A00'],
     'Tidak Dapat Ditindak Lanjut' => ['icon' => 'fa-ban',          'soft' => '#F1F4F8', 'strong' => '#46526A'],
 ];
+
+$qTahunOptions = mysqli_query($conn, "
+    SELECT DISTINCT p.tahun_audit AS th
+    FROM audit_tindak_lanjut tl
+    LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
+    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+    LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id
+    WHERE tl.unit_id=$unit_id
+    ORDER BY p.tahun_audit DESC");
 
 function kpiCard($href, $bg)
 {
@@ -58,7 +78,8 @@ $qPerlu     = mysqli_query($conn, "SELECT tl.id, tl.status, tl.target_selesai, t
     FROM audit_tindak_lanjut tl
     LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
     LEFT JOIN audit_temuan t ON r.temuan_id=t.id
-    WHERE tl.unit_id=$unit_id AND tl.status IN ('Proses','Belum Ditindak Lanjut')
+    LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id
+    WHERE tl.unit_id=$unit_id AND tl.status IN ('Proses','Belum Ditindak Lanjut') $tahunSql
     ORDER BY (tl.target_selesai IS NULL), tl.target_selesai ASC, tl.id DESC
     LIMIT 8");
 $perluTindakan = [];
@@ -100,7 +121,31 @@ include "../templates/sidebar.php";
 <div class="jxb-page-header">
     <div>
         <h1 class="jxb-page-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Dashboard Auditee</h1>
-        <div class="jxb-page-subtitle">Monitoring tindak lanjut <?= htmlspecialchars($namaUnit ?? 'unit kerja Anda') ?></div>
+        <div class="jxb-page-subtitle">Monitoring tindak lanjut <?= htmlspecialchars($namaUnit ?? 'unit kerja Anda') ?><?= $filterTahun > 0 ? ' &mdash; TA ' . $filterTahun : '' ?></div>
+    </div>
+</div>
+
+<!-- Filter Tahun -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-4 col-lg-3">
+                <label class="form-label small mb-1 fw-semibold"><i class="fas fa-calendar-alt me-1"></i>Tahun</label>
+                <select name="tahun" class="form-select">
+                    <option value="">Semua Tahun</option>
+                    <?php while ($t = mysqli_fetch_assoc($qTahunOptions)): ?>
+                        <option value="<?= $t['th'] ?>" <?= $filterTahun === (int)$t['th'] ? 'selected' : '' ?>><?= $t['th'] ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter me-1"></i>Terapkan Filter</button>
+                <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-undo me-1"></i>Reset</a>
+            </div>
+        </form>
+        <?php if ($filterTahun > 0): ?>
+        <div class="small text-muted mt-2"><i class="fas fa-info-circle me-1"></i>Menampilkan data tindak lanjut untuk TA <?= $filterTahun ?> pada unit <?= htmlspecialchars($namaUnit ?? 'Anda') ?>.</div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -329,7 +374,11 @@ document.addEventListener('DOMContentLoaded', function(){
         container.classList.remove('d-none');
         container.scrollIntoView({behavior:'smooth', block:'nearest'});
 
-        fetch('../dashboard_sia/sia_status_ajax.php?status=' + encodeURIComponent(status))
+        var tahun = <?= $filterTahun ?>;
+        var qs = 'status=' + encodeURIComponent(status);
+        if(tahun > 0){ qs += '&tahun=' + tahun; }
+
+        fetch('../dashboard_sia/sia_status_ajax.php?' + qs)
             .then(function(r){ if(!r.ok){ throw new Error('HTTP ' + r.status); } return r.text(); })
             .then(function(html){ body.innerHTML = html; })
             .catch(function(){

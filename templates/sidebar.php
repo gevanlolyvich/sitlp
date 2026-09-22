@@ -14,6 +14,7 @@ $parentMenuMap = [
     'audit_tim' => 'audit_pemeriksaan',
     'audit_lampiran' => 'audit_pemeriksaan',
     'audit_tindak_lanjut' => 'audit_tindak_lanjut',
+    'tl_lhp' => 'tl_lhp',
     'audit_log' => 'audit_log',
     'users' => 'users',
     'unit_kerja' => 'unit_kerja',
@@ -120,6 +121,39 @@ $brandActive = ($curModule === 'dashboard') ? ' active' : '';
                             <i class="nav-icon fas fa-tasks"></i>
                             <p>Monitoring Tindak Lanjut</p>
                         </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN', 'KEPALA_SIA', 'AUDITOR'])): ?>
+                    <li class="nav-item<?= $activeMenu === 'tl_lhp' ? ' menu-open active' : '' ?>">
+                        <a href="#" class="nav-link<?= $activeMenu === 'tl_lhp' ? ' active' : '' ?>">
+                            <i class="nav-icon fas fa-clipboard-check"></i>
+                            <p>TL LHP<i class="right nav-arrow fas fa-angle-left"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <?php $tlSumber = $activeMenu === 'tl_lhp' ? strtoupper(trim($_GET['sumber'] ?? 'BPK')) : ''; ?>
+                            <li class="nav-item">
+                                <a href="../tl_lhp/index.php?sumber=BPK"
+                                    class="nav-link<?= $tlSumber === 'BPK' ? ' active' : '' ?>" style="color: cyan">
+                                    <i class="nav-icon far fa-circle"></i>
+                                    <p>TL LHP BPK</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../tl_lhp/index.php?sumber=BPKP"
+                                    class="nav-link<?= $tlSumber === 'BPKP' ? ' active' : '' ?>" style="color: cyan">
+                                    <i class="nav-icon far fa-circle"></i>
+                                    <p>TL LHP BPKP</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../tl_lhp/index.php?sumber=KAP"
+                                    class="nav-link<?= $tlSumber === 'KAP' ? ' active' : '' ?>" style="color: cyan">
+                                    <i class="nav-icon far fa-circle"></i>
+                                    <p>TL LHP KAP</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 <?php endif; ?>
 

@@ -234,6 +234,11 @@ a {
 
 /* Sidebar (biru JXB gelap + glow brand) */
 .app-sidebar {
+  --lte-sidebar-submenu-color: rgba(255, 255, 255, 0.80);
+  --lte-sidebar-submenu-hover-color: #ffffff;
+  --lte-sidebar-submenu-hover-bg: rgba(255, 255, 255, 0.08);
+  --lte-sidebar-submenu-active-color: #ffffff;
+  --lte-sidebar-submenu-active-bg: rgba(255, 255, 255, 0.15);
   background:
     radial-gradient(circle at 12% 6%, rgba(252, 180, 44, 0.30), rgba(252, 180, 44, 0) 42%),
     radial-gradient(circle at 88% 94%, rgba(238, 58, 39, 0.32), rgba(238, 58, 39, 0) 46%),
@@ -327,6 +332,56 @@ a {
   width: 3px;
   border-radius: 0 3px 3px 0;
   background: var(--jxb-logo-yellow);
+}
+
+/* Sidebar submenu (treeview) - konsisten dengan top-level */
+.sidebar-wrapper .sidebar-menu .nav-treeview {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-control);
+  padding: 4px 0;
+  margin: 4px 0;
+}
+
+.sidebar-wrapper .sidebar-menu .nav-treeview>.nav-item {
+  margin: 2px 8px;
+}
+
+.sidebar-wrapper .sidebar-menu .nav-treeview>.nav-item>.nav-link {
+  min-height: 36px;
+  padding: 8px 12px 8px 44px;
+  border-radius: var(--radius-control);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-wrapper .sidebar-menu .nav-treeview>.nav-item>.nav-link .nav-icon {
+  width: 20px;
+  margin-right: 10px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--jxb-sidebar-icon);
+}
+
+.sidebar-wrapper .sidebar-menu .nav-treeview>.nav-item>.nav-link:hover {
+  background: var(--jxb-sidebar-hover);
+  color: #ffffff;
+}
+
+.sidebar-wrapper .sidebar-menu .nav-treeview>.nav-item>.nav-link:hover .nav-icon {
+  color: #ffffff;
+}
+
+.sidebar-wrapper .sidebar-menu .nav-treeview>.nav-item>.nav-link.active {
+  background: var(--jxb-sidebar-active);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--jxb-logo-yellow);
+}
+
+.sidebar-wrapper .sidebar-menu .nav-treeview>.nav-item>.nav-link.active .nav-icon {
+  color: #ffffff;
 }
 
 /* Sidebar group label */
