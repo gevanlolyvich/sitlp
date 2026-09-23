@@ -99,7 +99,9 @@ include "../templates/sidebar.php";
                                             <?php
                                             for ($i = 1; $i <= 12; $i++) {
                                                 ?>
-                                                <option value="<?= $i ?>">
+                                                <option value="<?= $i ?>" <?= (int)$data['bulan_rencana'] === $i
+                                                    ? 'selected'
+                                                    : '' ?>>
                                                     <?= date('F', mktime(0, 0, 0, $i, 1)) ?>
                                                 </option>
                                                 <?php

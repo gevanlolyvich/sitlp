@@ -8,6 +8,10 @@ require_once "../auth/check.php";
 
 $tahun = date('Y');
 
+$bulanSekarang = (int)date('n');
+$defaultTriwulan = 'TW' . ceil($bulanSekarang / 3);
+$defaultBulan = (ceil($bulanSekarang / 3) - 1) * 3 + 1;
+
 $q = mysqli_query($conn, "SELECT COUNT(*) total FROM audit_program WHERE tahun='$tahun'");
 $d = mysqli_fetch_assoc($q);
 $urut = $d['total'] + 1;
@@ -53,10 +57,18 @@ include "../templates/sidebar.php";
 									<div class="col-md-3">
 										<label class="form-label">Triwulan <span class="jxb-required">*</span></label>
 										<select name="triwulan" class="form-select" required>
-											<option value="TW1">TW1</option>
-											<option value="TW2">TW2</option>
-											<option value="TW3">TW3</option>
-											<option value="TW4">TW4</option>
+											<option value="TW1" <?= $defaultTriwulan == 'TW1'
+											    ? 'selected'
+											    : '' ?>>TW1</option>
+											<option value="TW2" <?= $defaultTriwulan == 'TW2'
+											    ? 'selected'
+											    : '' ?>>TW2</option>
+											<option value="TW3" <?= $defaultTriwulan == 'TW3'
+											    ? 'selected'
+											    : '' ?>>TW3</option>
+											<option value="TW4" <?= $defaultTriwulan == 'TW4'
+											    ? 'selected'
+											    : '' ?>>TW4</option>
 										</select>
 									</div>
 									<div class="col-md-3">
@@ -65,7 +77,9 @@ include "../templates/sidebar.php";
 											<?php
 											for ($i = 1; $i <= 12; $i++) {
 												?>
-												<option value="<?= $i ?>"><?= date('F', mktime(0, 0, 0, $i, 1)) ?></option>
+												<option value="<?= $i ?>" <?= $i === $defaultBulan
+												    ? 'selected'
+												    : '' ?>><?= date('F', mktime(0, 0, 0, $i, 1)) ?></option>
 											<?php } ?>
 										</select>
 									</div>
