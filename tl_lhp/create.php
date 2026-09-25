@@ -35,7 +35,7 @@ include "../templates/sidebar.php";
             </div>
 
             <div class="card mt-3">
-                <form action="store.php" method="post" enctype="multipart/form-data">
+                <form action="store.php" method="post" enctype="multipart/form-data" data-rek-form>
                     <input type="hidden" name="sumber" value="<?= $sumber ?>">
                     <div class="card-body">
                         <h6 class="jxb-form-section"><i class="fas fa-file-invoice me-1"></i>Data LHP</h6>
@@ -48,78 +48,81 @@ include "../templates/sidebar.php";
                                 <label class="form-label">Tahun Pemeriksaan <span class="jxb-required">*</span></label>
                                 <input type="number" name="tahun" class="form-control" min="2000" max="<?= date('Y') + 1 ?>" value="<?= date('Y') ?>" required>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Unit / Entitas yang Diperiksa</label>
-                                <select name="unit_id" class="form-select">
-                                    <option value="">Pilih Unit</option>
-                                    <?php while ($u = mysqli_fetch_assoc($qUnit)): ?>
-                                        <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['nama_unit']) ?></option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </div>
                             <div class="col-12">
                                 <label class="form-label">Judul Temuan Pemeriksaan <span class="jxb-required">*</span></label>
                                 <input type="text" name="judul_temuan" class="form-control" required>
                             </div>
+                            <div class="col-12">
+                                <label class="form-label">Unit / Entitas yang Diperiksa (bisa pilih lebih dari satu)</label>
+                                <div class="row g-2">
+                                    <?php while ($u = mysqli_fetch_assoc($qUnit)): ?>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="unit_id[]" value="<?= (int)$u['id'] ?>" id="unit_<?= (int)$u['id'] ?>">
+                                                <label class="form-check-label" for="unit_<?= (int)$u['id'] ?>"><?= htmlspecialchars($u['nama_unit']) ?></label>
+                                            </div>
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
+                                <small class="text-muted">Kosongkan bila belum diketahui unitnya.</small>
+                            </div>
                         </div>
 
                         <hr>
-                        <h6 class="jxb-form-section"><i class="fas fa-list-check me-1"></i>Rekomendasi</h6>
-                        <div class="row g-3">
+                        <h6 class="jxb-form-section"><i class="fas fa-list-check me-1"></i>Rekomendasi & Tindak Lanjut</h6>
+                        <div class="row g-3 align-items-end">
                             <div class="col-md-3">
                                 <label class="form-label">Jml Rekomendasi</label>
-                                <input type="number" name="jml_rekomendasi" class="form-control" min="0" value="0">
+                                <input type="number" name="jml_rekomendasi" id="jml_rekomendasi" class="form-control" min="0" max="20" value="0" oninput="renderRek()">
                             </div>
                             <div class="col-md-9">
-                                <label class="form-label">Uraian Rekomendasi</label>
-                                <textarea name="uraian_rekomendasi" class="form-control" rows="3"></textarea>
+                                <small class="text-muted">Jumlah rekomendasi menentukan banyaknya kartu rekomendasi. Tiap rekomendasi memiliki jml tindak lanjut sendiri.</small>
                             </div>
                         </div>
+                        <div id="rekContainer" class="mt-3"></div>
 
                         <hr>
-                        <h6 class="jxb-form-section"><i class="fas fa-clipboard-check me-1"></i>Tindak Lanjut Entitas yang Diperiksa</h6>
+                        <h6 class="jxb-form-section"><i class="fas fa-chart-pie me-1"></i>Hasil Pemantauan Tindak Lanjut
+                            <small class="text-muted text-normal">(otomatis dari status tiap tindak lanjut)</small>
+                        </h6>
                         <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Jml Tindak Lanjut</label>
-                                <input type="number" name="jml_tl" class="form-control" min="0" value="0">
+                            <div class="col-6 col-md">
+                                <div class="border rounded p-3 text-center">
+                                    <div class="text-muted small">Proses</div>
+                                    <strong id="sum_Proses">0</strong>
+                                </div>
                             </div>
-                            <div class="col-md-9">
-                                <label class="form-label">Uraian Tindak Lanjut</label>
-                                <textarea name="uraian_tl" class="form-control" rows="3"></textarea>
+                            <div class="col-6 col-md">
+                                <div class="border rounded p-3 text-center">
+                                    <div class="text-muted small">Sesuai</div>
+                                    <strong id="sum_Sesuai">0</strong>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Bukti Tindak Lanjut (file, opsional)</label>
-                                <input type="file" name="bukti_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                <small class="text-muted">PDF/JPG/PNG maks. 5MB. Bukti tidak ditampilkan sebagai kolom tabel.</small>
+                            <div class="col-6 col-md">
+                                <div class="border rounded p-3 text-center">
+                                    <div class="text-muted small">Belum Sesuai</div>
+                                    <strong id="sum_Belum_Sesuai">0</strong>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Nilai Penyerahan Aset / Penyetoran Uang ke Kas Negara/Daerah (Rp)</label>
-                                <input type="text" name="nilai" class="form-control" placeholder="cth: 1.500.000">
+                            <div class="col-6 col-md">
+                                <div class="border rounded p-3 text-center">
+                                    <div class="text-muted small">Belum Ditindak Lanjut</div>
+                                    <strong id="sum_Belum_Ditindak_Lanjut">0</strong>
+                                </div>
                             </div>
-                        </div>
-
-                        <hr>
-                        <h6 class="jxb-form-section"><i class="fas fa-chart-pie me-1"></i>Hasil Pemantauan Tindak Lanjut</h6>
-                        <div class="row g-3">
-                            <div class="col-6 col-md-3">
-                                <label class="form-label">Sesuai</label>
-                                <input type="number" name="hasil_sesuai" class="form-control" min="0" value="0">
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <label class="form-label">Belum Sesuai</label>
-                                <input type="number" name="hasil_belum_sesuai" class="form-control" min="0" value="0">
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <label class="form-label">Belum Ditindaklanjuti</label>
-                                <input type="number" name="hasil_belum_tl" class="form-control" min="0" value="0">
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <label class="form-label">Tidak Dapat Ditindaklanjuti</label>
-                                <input type="number" name="hasil_tidak_tl" class="form-control" min="0" value="0">
+                            <div class="col-6 col-md">
+                                <div class="border rounded p-3 text-center">
+                                    <div class="text-muted small">Tidak Dapat Ditindak Lanjut</div>
+                                    <strong id="sum_Tidak_Dapat_Ditindak_Lanjut">0</strong>
+                                </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Kesimpulan</label>
                                 <textarea name="kesimpulan" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nilai Penyerahan Aset / Penyetoran Uang ke Kas Negara/Daerah (Rp)</label>
+                                <input type="text" name="nilai" class="form-control" placeholder="cth: 1.500.000">
                             </div>
                         </div>
                     </div>
@@ -132,4 +135,6 @@ include "../templates/sidebar.php";
         </div>
     </div>
 </main>
+<script>window.LHP_SEED = [];</script>
+<?php include __DIR__ . '/_rekom_js.php'; ?>
 <?php include "../templates/footer.php"; ?>

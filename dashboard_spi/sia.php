@@ -6,7 +6,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN', 'KEPALA_SIA', 'DIREKSI', 'KOMISARIS']);
+checkRole(['ADMIN', 'KEPALA_SIA', 'DIREKSI', 'KOMISARIS', 'KOMITE_AUDIT']);
 
 $totalProgram     = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_program"))[0];
 $totalPemeriksaan = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM audit_pemeriksaan"))[0];
@@ -31,7 +31,7 @@ include "../templates/sidebar.php";
 
 <div class="jxb-page-header">
  <div>
-  <h1 class="jxb-page-title"><i class="fas fa-clipboard-list me-2 text-primary"></i>Dashboard Monitoring SIA</h1>
+  <h1 class="jxb-page-title"><i class="fas fa-clipboard-list me-2 text-primary"></i>Dashboard Monitoring</h1>
   <div class="jxb-page-subtitle">Ringkasan program, pemeriksaan, temuan, dan tindak lanjut</div>
  </div>
  <div class="jxb-page-actions">

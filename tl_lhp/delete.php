@@ -14,10 +14,16 @@ $r = mysqli_fetch_assoc($qRow);
 $redirect = 'index.php';
 if ($r) {
     $redirect = "index.php?sumber=" . $r['sumber'];
-    if ($r['bukti_file']) {
-        $file = __DIR__ . "/../uploads/tl_lhp/" . $r['bukti_file'];
-        if (file_exists($file)) {
-            @unlink($file);
+
+    $files = [];
+    $qFiles = mysqli_query($conn, "SELECT b.file FROM lhp_tl_bukti b JOIN lhp_tl t ON b.tl_id=t.id JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=$id");
+    while ($f = mysqli_fetch_assoc($qFiles)) {
+        $files[] = $f['file'];
+    }
+    foreach ($files as $f) {
+        $path = dirname(__DIR__) . "/uploads/tl_lhp/" . $f;
+        if (file_exists($path)) {
+            @unlink($path);
         }
     }
 }

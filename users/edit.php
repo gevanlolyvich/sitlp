@@ -91,6 +91,7 @@ include "../templates/sidebar.php";
     <option value="AUDITEE"<?= $user['role']=='AUDITEE'?'selected':'' ?>>AUDITEE</option>
     <option value="DIREKSI"<?= $user['role']=='DIREKSI'?'selected':'' ?>>DIREKSI</option>
     <option value="KOMISARIS"<?= $user['role']=='KOMISARIS'?'selected':'' ?>>KOMISARIS</option>
+    <option value="KOMITE_AUDIT"<?= $user['role']=='KOMITE_AUDIT'?'selected':'' ?>>KOMITE AUDIT</option>
    </select>
   </div>
  </div>

@@ -6,9 +6,9 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN', 'KEPALA_SIA', 'AUDITOR', 'DIREKSI', 'KOMISARIS']);
+checkRole(['ADMIN', 'KEPALA_SIA', 'AUDITOR', 'DIREKSI', 'KOMISARIS', 'KOMITE_AUDIT']);
 
-$isDireksi = in_array($_SESSION['role'], ['DIREKSI', 'KOMISARIS']);
+$isDireksi = in_array($_SESSION['role'], ['DIREKSI', 'KOMISARIS', 'KOMITE_AUDIT']);
 
 function kpiCard($isDireksi, $href, $bg, $border)
 {
@@ -58,12 +58,38 @@ $tidakDapat         = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM
 $qUnitOptions   = mysqli_query($conn, "SELECT id, nama_unit FROM unit_kerja WHERE aktif=1 ORDER BY nama_unit");
 $qTahunOptions  = mysqli_query($conn, "SELECT DISTINCT tahun AS th FROM audit_program WHERE tahun IS NOT NULL UNION SELECT DISTINCT tahun_audit FROM audit_pemeriksaan WHERE tahun_audit IS NOT NULL UNION SELECT DISTINCT tahun FROM lhp WHERE tahun IS NOT NULL ORDER BY th DESC");
 
-$lhpWhere = " WHERE 1=1";
-if ($filterUnit > 0)  { $lhpWhere .= " AND l.unit_id=$filterUnit"; }
-if ($filterTahun > 0) { $lhpWhere .= " AND l.tahun=$filterTahun"; }
-$totalLhp = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM lhp l $lhpWhere"))[0];
-$qLhp = mysqli_query($conn, "SELECT l.*, uk.nama_unit FROM lhp l LEFT JOIN unit_kerja uk ON l.unit_id=uk.id $lhpWhere ORDER BY l.tahun DESC, l.id DESC LIMIT 10");
+$lhpSumber = ['KAP', 'BPK', 'BPKP'];
 $lhpSumberBadge = ['BPK' => 'is-info', 'BPKP' => 'is-warn', 'KAP' => 'is-neutral'];
+$lhpSumberLabel = ['KAP' => 'Kantor Akuntan Publik', 'BPK' => 'Badan Pemeriksa Keuangan', 'BPKP' => 'Badan Pengawasan Keuangan dan Pembangunan'];
+$lhpSumberCard = [
+    'KAP'  => ['icon' => 'fa-landmark',   'soft' => '#F1F4F8', 'strong' => '#46526A'],
+    'BPK'  => ['icon' => 'fa-shield-alt', 'soft' => '#E8F2FC', 'strong' => '#063F7A'],
+    'BPKP' => ['icon' => 'fa-user-tie',   'soft' => '#FFF6D8', 'strong' => '#A66A00'],
+];
+$totalLhp = [];
+$totalTlLhp = [];
+$lhpStatusList = ['Proses', 'Sesuai', 'Belum Sesuai', 'Belum Ditindak Lanjut', 'Tidak Dapat Ditindak Lanjut'];
+$lhpStatusCounts = [
+    'KAP'  => ['Proses' => 0, 'Sesuai' => 0, 'Belum Sesuai' => 0, 'Belum Ditindak Lanjut' => 0, 'Tidak Dapat Ditindak Lanjut' => 0],
+    'BPK'  => ['Proses' => 0, 'Sesuai' => 0, 'Belum Sesuai' => 0, 'Belum Ditindak Lanjut' => 0, 'Tidak Dapat Ditindak Lanjut' => 0],
+    'BPKP' => ['Proses' => 0, 'Sesuai' => 0, 'Belum Sesuai' => 0, 'Belum Ditindak Lanjut' => 0, 'Tidak Dapat Ditindak Lanjut' => 0],
+];
+$wUnitTahun = '';
+if ($filterUnit > 0)  { $wUnitTahun .= " AND EXISTS(SELECT 1 FROM lhp_unit lu WHERE lu.lhp_id=l.id AND lu.unit_id=$filterUnit)"; }
+if ($filterTahun > 0) { $wUnitTahun .= " AND l.tahun=$filterTahun"; }
+$qLhpCnt = mysqli_query($conn, "SELECT l.sumber AS src, t.status AS st, COUNT(*) AS jml
+    FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id JOIN lhp l ON r.lhp_id=l.id
+    WHERE 1=1 $wUnitTahun GROUP BY l.sumber, t.status");
+while ($lc = mysqli_fetch_assoc($qLhpCnt)) {
+    if (isset($lhpStatusCounts[$lc['src']][$lc['st']])) {
+        $lhpStatusCounts[$lc['src']][$lc['st']] = (int)$lc['jml'];
+    }
+}
+foreach ($lhpSumber as $src) {
+    $lhpWhere = " WHERE l.sumber='$src'$wUnitTahun";
+    $totalLhp[$src] = (int)mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM lhp l $lhpWhere"))[0];
+    $totalTlLhp[$src] = array_sum($lhpStatusCounts[$src]);
+}
 
 $statusCounts = [
     'Proses'                    => $proses,
@@ -140,7 +166,7 @@ include "../templates/sidebar.php";
 
 <div class="jxb-page-header">
     <div>
-        <h1 class="jxb-page-title"><i class="fas fa-chart-line me-2 text-primary"></i>Dashboard Monitoring SIA</h1>
+        <h1 class="jxb-page-title"><i class="fas fa-chart-line me-2 text-primary"></i>Dashboard Monitoring</h1>
         <div class="jxb-page-subtitle">Ringkasan audit dan tindak lanjut satuan internal audit</div>
     </div>
 </div>
@@ -382,73 +408,59 @@ include "../templates/sidebar.php";
 <div class="row g-3 mt-1">
     <div class="col-12">
         <div class="card shadow-sm">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <span class="card-title"><i class="fas fa-tasks me-2 text-primary"></i>Data Tindak Lanjut LHP <?= $filterTahun > 0 ? 'TA ' . $filterTahun : '' ?></span>
-                <div class="d-flex align-items-center gap-2">
-                    <small class="text-muted">Total: <strong><?= $totalLhp ?></strong></small>
-                    <?php if(!$isDireksi): ?>
-                    <a href="../tl_lhp/index.php<?= $filterUnit > 0 ? '?unit=' . $filterUnit : '' ?>" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>Lihat semua</a>
-                    <?php endif; ?>
-                </div>
             </div>
             <div class="card-body">
-                <div class="table-responsive-wrapper">
-                <table class="table table-bordered table-hover align-middle mb-0 jxb-tl-table">
-                    <thead>
-                        <tr class="text-center align-middle">
-                            <th rowspan="2" width="40">No</th>
-                            <th rowspan="2" width="90">Sumber</th>
-                            <th colspan="2">Temuan Pemeriksaan</th>
-                            <th colspan="2">Rekomendasi</th>
-                            <th rowspan="2">Tindak Lanjut Entitas yang Diperiksa</th>
-                            <th rowspan="2">Unit</th>
-                            <th colspan="4">Hasil Pemantauan Tindak Lanjut</th>
-                            <th rowspan="2">Kesimpulan</th>
-                            <th rowspan="2">Nilai Penyerahan Aset / Penyetoran Uang ke Kas Negara/Daerah</th>
-                            <th rowspan="2" width="70">Aksi</th>
-                        </tr>
-                        <tr class="text-center">
-                            <th>Judul</th>
-                            <th width="50">Jml</th>
-                            <th>Uraian</th>
-                            <th width="50">Jml</th>
-                            <th width="60">Sesuai</th>
-                            <th width="60">Belum Sesuai</th>
-                            <th width="60">Belum Ditindaklanjuti</th>
-                            <th width="60">Tidak Dapat Ditindaklanjuti</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (mysqli_num_rows($qLhp) > 0): $no = 1; while ($r = mysqli_fetch_assoc($qLhp)): ?>
-                        <tr>
-                            <td class="text-center"><?= $no++ ?></td>
-                            <td class="text-center"><span class="jxb-status-badge <?= $lhpSumberBadge[$r['sumber']] ?? 'is-neutral' ?>"><?= htmlspecialchars($r['sumber']) ?></span></td>
-                            <td>
-                                <strong class="d-block"><?= htmlspecialchars($r['judul_temuan']) ?></strong>
-                                <small class="text-muted"><?= htmlspecialchars($r['nomor_lhp']) ?> &middot; TA <?= (int)$r['tahun'] ?></small>
-                            </td>
-                            <td class="text-center"><?= (int)$r['jml_rekomendasi'] ?></td>
-                            <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['uraian_rekomendasi'])) ?></td>
-                            <td class="text-center"><?= (int)$r['jml_tl'] ?></td>
-                            <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['uraian_tl'])) ?></td>
-                            <td><?= htmlspecialchars($r['nama_unit'] ?? '-') ?></td>
-                            <td class="text-center"><?= (int)$r['hasil_sesuai'] ?></td>
-                            <td class="text-center"><?= (int)$r['hasil_belum_sesuai'] ?></td>
-                            <td class="text-center"><?= (int)$r['hasil_belum_tl'] ?></td>
-                            <td class="text-center"><?= (int)$r['hasil_tidak_tl'] ?></td>
-                            <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['kesimpulan'])) ?></td>
-                            <td class="text-end text-nowrap"><?= $r['nilai'] !== null ? 'Rp ' . number_format((float)$r['nilai'], 0, ',', '.') : '-' ?></td>
-                            <td class="text-center"><a href="../tl_lhp/detail.php?id=<?= $r['id'] ?>" class="btn btn-primary btn-sm tb-icon btn-blink-border" title="Detail" aria-label="Detail"><i class="fas fa-eye"></i></a></td>
-                        </tr>
-                        <?php endwhile; else: ?>
-                        <tr>
-                            <td colspan="15" class="text-center py-4">
-                                <div class="jxb-empty"><i class="fas fa-tasks"></i><div class="jxb-empty-title mt-1">Belum ada data TL LHP</div><div>Ubah filter atau tambah data pada menu TL LHP.</div></div>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                <div class="row g-3">
+                    <?php foreach ($lhpSumber as $src):
+                        $sb = $lhpSumberBadge[$src];
+                        $sc = $lhpSumberCard[$src];
+                    ?>
+                    <div class="col-12 col-md-4">
+                        <a href="javascript:void(0)" class="card shadow-sm text-decoration-none status-card lhp-card is-sumber-<?= strtolower($src) ?>"
+                            data-sumber="<?= $src ?>" onclick="toggleLhp(this)">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <span class="status-icon" style="background:<?= $sc['soft'] ?>;color:<?= $sc['strong'] ?>;"><i class="fas <?= $sc['icon'] ?>"></i></span>
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="status-count mb-0"><?= $totalTlLhp[$src] ?></span>
+                                        <span class="jxb-status-badge <?= $sb ?>"><?= $src ?></span>
+                                    </div>
+                                    <div class="status-name mt-1"><?= $lhpSumberLabel[$src] ?></div>
+                                    <div class="small text-muted mt-1"><?= $totalLhp[$src] ?> LHP &middot; tindak lanjut</div>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </a>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="text-muted small mt-3"><i class="fas fa-info-circle me-1"></i>Klik sumber, lalu pilih status untuk menampilkan daftar tindak lanjut di bawah.</div>
+                <div id="lhpResult" class="mt-3 d-none">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row g-3" id="lhpStatusRow">
+                                <?php foreach ($lhpStatusList as $st):
+                                    $stc = $statusConf[$st];
+                                ?>
+                                <div class="col-6 col-md">
+                                    <a href="javascript:void(0)" class="card shadow-sm text-decoration-none status-card lhp-status-card <?= $statusCss[$st] ?>"
+                                        data-lhp-status="<?= $st ?>" onclick="selectLhpStatus('<?= $st ?>')">
+                                        <div class="card-body d-flex align-items-center gap-2 py-3">
+                                            <span class="status-icon" style="background:<?= $stc['soft'] ?>;color:<?= $stc['strong'] ?>;"><i class="fas <?= $stc['icon'] ?>"></i></span>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="status-count mb-0" id="lhpStatusCnt_<?= str_replace(' ', '_', $st) ?>">0</div>
+                                                <div class="status-name"><?= $st ?></div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <div class="card-body p-0 border-top" id="lhpBody"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -463,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function(){
     window.openStatusList = function(status){
         var container = document.getElementById('statusResult');
         var body = document.getElementById('statusBody');
-        var cards = document.querySelectorAll('.status-card');
+        var cards = document.querySelectorAll('.status-card[data-status]');
         var card = null;
         cards.forEach(function(c){ if(c.getAttribute('data-status') === status){ card = c; } });
 
@@ -494,6 +506,74 @@ document.addEventListener('DOMContentLoaded', function(){
     };
     window.toggleStatus = function(card){
         openStatusList(card.getAttribute('data-status'));
+    };
+
+    window.LHP_STATUS_COUNTS = <?= json_encode($lhpStatusCounts) ?>;
+    window.CURRENT_LHP_SRC = '';
+
+    window.openLhpList = function(sumber){
+        var container = document.getElementById('lhpResult');
+        var body = document.getElementById('lhpBody');
+        var cards = document.querySelectorAll('.lhp-card');
+        var card = null;
+        cards.forEach(function(c){ if(c.getAttribute('data-sumber') === sumber){ card = c; } });
+
+        if(card && card.classList.contains('active')){
+            card.classList.remove('active');
+            container.classList.add('d-none');
+            body.innerHTML = '';
+            return;
+        }
+        cards.forEach(function(c){ c.classList.remove('active'); });
+        if(card){ card.classList.add('active'); }
+        window.CURRENT_LHP_SRC = sumber;
+
+        container.classList.remove('d-none');
+        container.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+        updateLhpStatusCounts(sumber);
+        clearLhpStatusSelection();
+        body.innerHTML = '<div class="p-4 text-center text-muted small"><i class="fas fa-info-circle me-1"></i>Pilih status di atas untuk menampilkan daftar tindak lanjut.</div>';
+    };
+    window.updateLhpStatusCounts = function(sumber){
+        var counts = (window.LHP_STATUS_COUNTS && window.LHP_STATUS_COUNTS[sumber]) || {};
+        document.querySelectorAll('.lhp-status-card').forEach(function(c){
+            var st = c.getAttribute('data-lhp-status');
+            var el = c.querySelector('.status-count');
+            if(el){ el.textContent = counts[st] || 0; }
+        });
+    };
+    window.clearLhpStatusSelection = function(){
+        document.querySelectorAll('.lhp-status-card').forEach(function(c){ c.classList.remove('active'); });
+    };
+    window.toggleLhp = function(card){
+        openLhpList(card.getAttribute('data-sumber'));
+    };
+    window.selectLhpStatus = function(status){
+        clearLhpStatusSelection();
+        var cards = document.querySelectorAll('.lhp-status-card');
+        cards.forEach(function(c){ if(c.getAttribute('data-lhp-status') === status){ c.classList.add('active'); } });
+        loadLhp(window.CURRENT_LHP_SRC, status, 1);
+    };
+    window.loadLhp = function(sumber, status, page){
+        var container = document.getElementById('lhpResult');
+        var body = document.getElementById('lhpBody');
+        var filterUnit  = <?= $filterUnit ?>;
+        var filterTahun = <?= $filterTahun ?>;
+        var qs = 'sumber=' + encodeURIComponent(sumber) + '&status=' + encodeURIComponent(status) + '&page=' + (Math.floor(page) || 1);
+        if(filterUnit > 0){ qs += '&unit=' + filterUnit; }
+        if(filterTahun > 0){ qs += '&tahun=' + filterTahun; }
+
+        body.innerHTML = '<div class="p-4 text-center text-muted small"><i class="fas fa-spinner fa-spin me-1"></i>Memuat data...</div>';
+        container.classList.remove('d-none');
+
+        fetch('lhp_ajax.php?' + qs)
+            .then(function(r){ if(!r.ok){ throw new Error('HTTP ' + r.status); } return r.text(); })
+            .then(function(html){ body.innerHTML = html; })
+            .catch(function(){
+                body.innerHTML = '<div class="p-4 text-danger small"><i class="fas fa-exclamation-triangle me-1"></i>Gagal memuat data tindak lanjut.</div>';
+            });
+        return false;
     };
 
     var labels = <?= json_encode($labels) ?>;

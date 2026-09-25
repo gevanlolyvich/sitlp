@@ -22,11 +22,13 @@ $offset = ($page - 1) * $limit;
 $where = "WHERE l.sumber='$sumber'";
 $keyword = isset($_GET['keyword']) ? mysqli_real_escape_string($conn, $_GET['keyword']) : '';
 if ($keyword !== '') {
-    $where .= " AND (l.nomor_lhp LIKE '%$keyword%' OR l.judul_temuan LIKE '%$keyword%' OR l.uraian_rekomendasi LIKE '%$keyword%')";
+    $where .= " AND (l.nomor_lhp LIKE '%$keyword%' OR l.judul_temuan LIKE '%$keyword%'
+        OR EXISTS(SELECT 1 FROM lhp_rekomendasi r WHERE r.lhp_id=l.id AND r.uraian LIKE '%$keyword%')
+        OR EXISTS(SELECT 1 FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=l.id AND t.uraian LIKE '%$keyword%'))";
 }
 $filterUnit = isset($_GET['unit']) ? (int)$_GET['unit'] : 0;
 if ($filterUnit > 0) {
-    $where .= " AND l.unit_id=$filterUnit";
+    $where .= " AND EXISTS(SELECT 1 FROM lhp_unit lu WHERE lu.lhp_id=l.id AND lu.unit_id=$filterUnit)";
 }
 $qUnitFilter = mysqli_query($conn, "SELECT id, nama_unit FROM unit_kerja WHERE aktif=1 ORDER BY nama_unit");
 
@@ -34,7 +36,38 @@ $countResult = mysqli_query($conn, "SELECT COUNT(*) total FROM lhp l $where");
 $totalRecords = mysqli_fetch_assoc($countResult)['total'];
 $totalPages = max(1, (int)ceil($totalRecords / $limit));
 
-$q = mysqli_query($conn, "SELECT l.*, u.nama AS nama_user, uk.nama_unit FROM lhp l LEFT JOIN users u ON l.created_by=u.id LEFT JOIN unit_kerja uk ON l.unit_id=uk.id $where ORDER BY l.tahun DESC, l.id DESC LIMIT $limit OFFSET $offset");
+$q = mysqli_query($conn, "SELECT l.*,
+    (SELECT COUNT(*) FROM lhp_rekomendasi r WHERE r.lhp_id=l.id) AS jml_rekomendasi,
+    (SELECT COUNT(*) FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=l.id) AS jml_tl,
+    (SELECT GROUP_CONCAT(uk.nama_unit ORDER BY uk.nama_unit SEPARATOR ', ') FROM lhp_unit lu JOIN unit_kerja uk ON lu.unit_id=uk.id WHERE lu.lhp_id=l.id) AS nama_unit,
+    (SELECT COUNT(*) FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=l.id AND t.status='Proses') AS hasil_proses,
+    (SELECT COUNT(*) FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=l.id AND t.status='Sesuai') AS hasil_sesuai,
+    (SELECT COUNT(*) FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=l.id AND t.status='Belum Sesuai') AS hasil_belum_sesuai,
+    (SELECT COUNT(*) FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=l.id AND t.status='Belum Ditindak Lanjut') AS hasil_belum_tl,
+    (SELECT COUNT(*) FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id WHERE r.lhp_id=l.id AND t.status='Tidak Dapat Ditindak Lanjut') AS hasil_tidak_tl
+    FROM lhp l $where ORDER BY l.tahun DESC, l.id DESC LIMIT $limit OFFSET $offset");
+
+$rows = [];
+while ($rw = mysqli_fetch_assoc($q)) {
+    $rows[] = $rw;
+}
+
+$rekMap = [];
+$tlMap = [];
+$rowIds = array_column($rows, 'id');
+if ($rowIds) {
+    $in = implode(',', array_map('intval', $rowIds));
+    $qRek = mysqli_query($conn, "SELECT lhp_id, no, uraian FROM lhp_rekomendasi WHERE lhp_id IN ($in) ORDER BY lhp_id, no");
+    while ($rk = mysqli_fetch_assoc($qRek)) {
+        $rekMap[$rk['lhp_id']][] = $rk;
+    }
+    $qTl = mysqli_query($conn, "SELECT r.lhp_id, r.no AS rek_no, t.no AS tl_no, t.uraian, t.status
+        FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id
+        WHERE r.lhp_id IN ($in) ORDER BY r.lhp_id, r.no, t.no");
+    while ($tx = mysqli_fetch_assoc($qTl)) {
+        $tlMap[$tx['lhp_id']][] = $tx;
+    }
+}
 
 include "../templates/header.php";
 include "../templates/navbar.php";
@@ -49,6 +82,7 @@ include "../templates/sidebar.php";
                     <div class="jxb-page-subtitle">Pemantauan tindak lanjut rekomendasi hasil pemeriksaan <?= $judulMap[$sumber] ?></div>
                 </div>
                 <div class="jxb-page-actions">
+                    <a href="export.php?sumber=<?= $sumber ?><?= $filterUnit > 0 ? '&unit=' . $filterUnit : '' ?><?= $keyword !== '' ? '&keyword=' . urlencode($keyword) : '' ?>" class="btn btn-outline-success"><i class="fas fa-file-excel"></i> Export Excel</a>
                     <a href="create.php?sumber=<?= $sumber ?>" class="btn btn-primary"><i class="fas fa-plus"></i>Tambah TL LHP</a>
                 </div>
             </div>
@@ -88,26 +122,27 @@ include "../templates/sidebar.php";
                                     <th rowspan="2" width="40">No</th>
                                     <th colspan="2">Temuan Pemeriksaan</th>
                                     <th colspan="2">Rekomendasi</th>
-                                    <th rowspan="2">Tindak Lanjut Entitas yang Diperiksa</th>
+                                    <th rowspan="2" width="380">Tindak Lanjut Entitas yang Diperiksa</th>
                                     <th rowspan="2">Unit / Entitas yang Diperiksa</th>
-                                    <th colspan="4">Hasil Pemantauan Tindak Lanjut</th>
+                                    <th colspan="5">Hasil Pemantauan Tindak Lanjut</th>
                                     <th rowspan="2">Kesimpulan</th>
-                                    <th rowspan="2">Nilai Penyerahan Aset / Penyetoran Uang ke Kas Negara/Daerah</th>
+                                    <th rowspan="2" width="150"><abbr title="Nilai Penyerahan Aset / Penyetoran Uang ke Kas Negara/Daerah">Nilai Penyerahan</abbr></th>
                                     <th rowspan="2" width="150">Aksi</th>
                                 </tr>
                                 <tr class="text-center">
                                     <th>Judul</th>
                                     <th width="55">Jml</th>
-                                    <th>Uraian</th>
+                                    <th width="360">Uraian</th>
                                     <th width="55">Jml</th>
+                                    <th width="70">Proses</th>
                                     <th width="70">Sesuai</th>
                                     <th width="70">Belum Sesuai</th>
-                                    <th width="70">Belum Ditindaklanjuti</th>
-                                    <th width="70">Tidak Dapat Ditindaklanjuti</th>
+                                    <th width="70">Belum Ditindak Lanjut</th>
+                                    <th width="70">Tidak Dapat Ditindak Lanjut</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (mysqli_num_rows($q) > 0): $no = $offset + 1; while ($r = mysqli_fetch_assoc($q)): ?>
+                                <?php if (count($rows) > 0): $no = $offset + 1; foreach ($rows as $r): ?>
                                 <tr>
                                     <td class="text-center"><?= $no++ ?></td>
                                     <td>
@@ -115,10 +150,35 @@ include "../templates/sidebar.php";
                                         <small class="text-muted"><?= htmlspecialchars($r['nomor_lhp']) ?> &middot; TA <?= (int)$r['tahun'] ?></small>
                                     </td>
                                     <td class="text-center"><?= (int)$r['jml_rekomendasi'] ?></td>
-                                    <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['uraian_rekomendasi'])) ?></td>
+                                    <td>
+                                        <?php if (!empty($rekMap[$r['id']])): ?>
+                                            <div class="jxb-split-list">
+                                                <?php foreach ($rekMap[$r['id']] as $rk): ?>
+                                                    <div class="jxb-split-item"><?= (int)$rk['no'] ?>. <?= nl2br(htmlspecialchars($rk['uraian'])) ?></div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>-<?php endif; ?>
+                                    </td>
                                     <td class="text-center"><?= (int)$r['jml_tl'] ?></td>
-                                    <td style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($r['uraian_tl'])) ?></td>
+                                    <td>
+                                        <?php if (!empty($tlMap[$r['id']])): ?>
+                                            <div class="jxb-split-list">
+                                                <?php
+                                                $groups = []; $current = []; $lastRek = null;
+                                                foreach ($tlMap[$r['id']] as $tx) {
+                                                    if ($lastRek !== null && (string)$tx['rek_no'] !== (string)$lastRek) { $groups[] = $current; $current = []; }
+                                                    $lastRek = $tx['rek_no'];
+                                                    $current[] = '<span>' . (int)$tx['tl_no'] . '. ' . nl2br(htmlspecialchars($tx['uraian'])) . ' (' . htmlspecialchars($tx['status']) . ')</span>';
+                                                }
+                                                if ($current) { $groups[] = $current; }
+                                                foreach ($groups as $g): ?>
+                                                    <div class="jxb-split-item"><?= implode('<br>', $g) ?></div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>-<?php endif; ?>
+                                    </td>
                                     <td><?= htmlspecialchars($r['nama_unit'] ?? '-') ?></td>
+                                    <td class="text-center"><?= (int)$r['hasil_proses'] ?></td>
                                     <td class="text-center"><?= (int)$r['hasil_sesuai'] ?></td>
                                     <td class="text-center"><?= (int)$r['hasil_belum_sesuai'] ?></td>
                                     <td class="text-center"><?= (int)$r['hasil_belum_tl'] ?></td>
@@ -131,9 +191,9 @@ include "../templates/sidebar.php";
                                         <a href="javascript:void(0)" class="btn btn-danger btn-sm tb-icon btn-blink-border" onclick="hapusLHP(<?= $r['id'] ?>)" title="Hapus" aria-label="Hapus"><i class="fas fa-trash"></i></a>
                                     </td>
                                 </tr>
-                                <?php endwhile; else: ?>
+                                <?php endforeach; else: ?>
                                 <tr>
-                                    <td colspan="14" class="text-center py-4">
+                                    <td colspan="15" class="text-center py-4">
                                         <div class="jxb-empty"><i class="fas fa-tasks"></i><div class="jxb-empty-title mt-1">Belum ada data <?= $submenuMap[$sumber] ?></div><div>Klik "Tambah TL LHP" untuk menambahkan.</div></div>
                                     </td>
                                 </tr>

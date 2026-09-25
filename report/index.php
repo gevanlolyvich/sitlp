@@ -12,7 +12,8 @@ checkRole([
     'ADMIN',
     'KEPALA_SIA',
     'DIREKSI',
-    'KOMISARIS'
+    'KOMISARIS',
+    'KOMITE_AUDIT'
 ]);
 
 include "../templates/header.php";

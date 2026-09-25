@@ -47,12 +47,12 @@ include "../templates/sidebar.php";
 									<div class="col-md-4">
 										<label class="form-label">Kode Program</label>
 										<input type="text" name="kode_program" value="<?= $kode_program ?>"
-											class="form-control" readonly>
+											class="form-control" readonly id="kode_program">
 									</div>
 									<div class="col-md-2">
 										<label class="form-label">Tahun <span class="jxb-required">*</span></label>
 										<input type="number" name="tahun" value="<?= $tahun ?>" class="form-control"
-											required>
+											required id="tahun_program">
 									</div>
 									<div class="col-md-3">
 										<label class="form-label">Triwulan <span class="jxb-required">*</span></label>
@@ -163,3 +163,16 @@ include "../templates/sidebar.php";
 <?php
 include "../templates/footer.php";
 ?>
+
+<script>
+document.getElementById('tahun_program').addEventListener('change', function(){
+    var th = parseInt(this.value, 10);
+    if (!th || th < 2000 || th > 2100) { return; }
+    fetch('kode.php?tahun=' + encodeURIComponent(th))
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d && d.kode) { document.getElementById('kode_program').value = d.kode; }
+        })
+        .catch(function(){});
+});
+</script>

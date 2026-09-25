@@ -21,21 +21,16 @@ $judulMap = ['BPK' => 'LHP BPK', 'BPKP' => 'LHP BPKP', 'KAP' => 'LHP KAP'];
 
 $nomor_lhp = mysqli_real_escape_string($conn, trim($_POST['nomor_lhp'] ?? ''));
 $tahun = (int)($_POST['tahun'] ?? date('Y'));
-$unit_id = (int)($_POST['unit_id'] ?? 0);
-if ($unit_id <= 0) {
-    $unit_id = 0;
-}
-$unit_sql = $unit_id > 0 ? $unit_id : 'NULL';
 $judul_temuan = mysqli_real_escape_string($conn, trim($_POST['judul_temuan'] ?? ''));
-$jml_rekomendasi = max(0, (int)($_POST['jml_rekomendasi'] ?? 0));
-$uraian_rekomendasi = mysqli_real_escape_string($conn, trim($_POST['uraian_rekomendasi'] ?? ''));
-$jml_tl = max(0, (int)($_POST['jml_tl'] ?? 0));
-$uraian_tl = mysqli_real_escape_string($conn, trim($_POST['uraian_tl'] ?? ''));
-$hasil_sesuai = max(0, (int)($_POST['hasil_sesuai'] ?? 0));
-$hasil_belum_sesuai = max(0, (int)($_POST['hasil_belum_sesuai'] ?? 0));
-$hasil_belum_tl = max(0, (int)($_POST['hasil_belum_tl'] ?? 0));
-$hasil_tidak_tl = max(0, (int)($_POST['hasil_tidak_tl'] ?? 0));
 $kesimpulan = mysqli_real_escape_string($conn, trim($_POST['kesimpulan'] ?? ''));
+
+$unit_ids = [];
+foreach (($_POST['unit_id'] ?? []) as $uid) {
+    $uid = (int)$uid;
+    if ($uid > 0) {
+        $unit_ids[$uid] = $uid;
+    }
+}
 
 $nilai_raw = trim($_POST['nilai'] ?? '');
 $nilai = null;
@@ -52,47 +47,90 @@ if ($nomor_lhp === '' || $judul_temuan === '') {
     exit;
 }
 
-$created_by = (int)$_SESSION['user_id'];
-
-$bukti_file = null;
-if (isset($_FILES['bukti_file']) && $_FILES['bukti_file']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = __DIR__ . "/../uploads/tl_lhp/";
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-    $maxSize = 5 * 1024 * 1024;
-    $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
-    $ext = strtolower(pathinfo($_FILES['bukti_file']['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, $allowed)) {
-        $_SESSION['error'] = "Format bukti harus PDF/JPG/PNG.";
-        header("Location: create.php?sumber=$sumber");
-        exit;
-    }
-    if ($_FILES['bukti_file']['size'] > $maxSize) {
-        $_SESSION['error'] = "Ukuran file bukti maksimal 5MB.";
-        header("Location: create.php?sumber=$sumber");
-        exit;
-    }
-    $nama_file = 'tl_' . date('YmdHis') . '_' . uniqid() . '.' . $ext;
-    if (move_uploaded_file($_FILES['bukti_file']['tmp_name'], $uploadDir . $nama_file)) {
-        $bukti_file = $nama_file;
-    } else {
-        $_SESSION['error'] = "Gagal mengunggah file bukti.";
-        header("Location: create.php?sumber=$sumber");
-        exit;
-    }
-}
-
-$sql = "INSERT INTO lhp (nomor_lhp, sumber, tahun, unit_id, judul_temuan, jml_rekomendasi, uraian_rekomendasi, jml_tl, uraian_tl, bukti_file, hasil_sesuai, hasil_belum_sesuai, hasil_belum_tl, hasil_tidak_tl, kesimpulan, nilai, created_by)
-VALUES ('$nomor_lhp', '$sumber', $tahun, $unit_sql, '$judul_temuan', $jml_rekomendasi, '$uraian_rekomendasi', $jml_tl, '$uraian_tl', " . ($bukti_file ? "'$bukti_file'" : 'NULL') . ", $hasil_sesuai, $hasil_belum_sesuai, $hasil_belum_tl, $hasil_tidak_tl, '$kesimpulan', " . ($nilai !== null ? $nilai : 'NULL') . ", $created_by)";
-
-if (mysqli_query($conn, $sql)) {
-    $newId = mysqli_insert_id($conn);
-    logActivity($conn, "Menambah {$judulMap[$sumber]}: $nomor_lhp", 'lhp', $newId);
-    $_SESSION['success'] = "Data TL LHP $sumber berhasil disimpan.";
-    header("Location: index.php?sumber=$sumber");
-} else {
-    $_SESSION['error'] = "Gagal menyimpan: " . mysqli_error($conn);
+$rekomendasi = $_POST['rekomendasi'] ?? [];
+$jmlRek = count((array)$rekomendasi);
+if ($jmlRek < 1) {
+    $_SESSION['error'] = "Minimal 1 rekomendasi wajib diisi.";
     header("Location: create.php?sumber=$sumber");
+    exit;
 }
+
+$fileTree = (isset($_FILES['rekomendasi']) && is_array($_FILES['rekomendasi']))
+    ? normalizeFileArray($_FILES['rekomendasi'])
+    : [];
+
+$fail = function ($msg) use ($conn, $sumber) {
+    mysqli_rollback($conn);
+    $_SESSION['error'] = $msg;
+    header("Location: create.php?sumber=$sumber");
+    exit;
+};
+
+mysqli_begin_transaction($conn);
+
+$created_by = (int)$_SESSION['user_id'];
+$nilai_sql = ($nilai !== null) ? $nilai : 'NULL';
+$sql = "INSERT INTO lhp (nomor_lhp, sumber, tahun, judul_temuan, kesimpulan, nilai, created_by)
+        VALUES ('$nomor_lhp', '$sumber', $tahun, '$judul_temuan', '$kesimpulan', $nilai_sql, $created_by)";
+if (!mysqli_query($conn, $sql)) {
+    $fail("Gagal menyimpan data LHP: " . mysqli_error($conn));
+}
+$lhpId = mysqli_insert_id($conn);
+
+foreach ($unit_ids as $uid) {
+    mysqli_query($conn, "INSERT INTO lhp_unit (lhp_id, unit_id) VALUES ($lhpId, $uid)");
+}
+
+foreach (array_slice($rekomendasi, 0, 20) as $i => $rek) {
+    $uraianRek = mysqli_real_escape_string($conn, trim($rek['uraian'] ?? ''));
+    if ($uraianRek === '') {
+        $fail("Uraian rekomendasi ke-" . ($i + 1) . " wajib diisi.");
+    }
+    $no = $i + 1;
+    if (!mysqli_query($conn, "INSERT INTO lhp_rekomendasi (lhp_id, no, uraian) VALUES ($lhpId, $no, '$uraianRek')")) {
+        $fail("Gagal menyimpan rekomendasi: " . mysqli_error($conn));
+    }
+    $rekId = mysqli_insert_id($conn);
+
+    $tls = (array)($rek['tl'] ?? []);
+    foreach (array_slice($tls, 0, 10) as $j => $tl) {
+        $uraianTl = mysqli_real_escape_string($conn, trim($tl['uraian'] ?? ''));
+        $status = mysqli_real_escape_string($conn, trim($tl['status'] ?? ''));
+        if (!in_array($status, ['Proses', 'Sesuai', 'Belum Sesuai', 'Belum Ditindak Lanjut', 'Tidak Dapat Ditindak Lanjut'])) {
+            $status = '';
+        }
+        if ($uraianTl === '' || $status === '') {
+            $fail("Uraian dan status tindak lanjut ke-" . ($j + 1) . " pada rekomendasi " . ($i + 1) . " wajib diisi.");
+        }
+        if (!mysqli_query($conn, "INSERT INTO lhp_tl (rekomendasi_id, no, uraian, status) VALUES ($rekId, " . ($j + 1) . ", '$uraianTl', '$status')")) {
+            $fail("Gagal menyimpan tindak lanjut: " . mysqli_error($conn));
+        }
+        $tlId = mysqli_insert_id($conn);
+
+        $bukti = [];
+        if (isset($fileTree[$i]['tl'][$j]['bukti']) && is_array($fileTree[$i]['tl'][$j]['bukti'])) {
+            $bukti = array_filter($fileTree[$i]['tl'][$j]['bukti']);
+        }
+        $count = 0;
+        foreach ($bukti as $entry) {
+            if ($count >= 5) {
+                break;
+            }
+            $nama = uploadBuktiFile($entry, 'bukti_' . $tlId);
+            if ($nama === false) {
+                $fail("File bukti tindak lanjut " . ($j + 1) . " tidak valid (format PDF/JPG/JPEG/PNG/XLS/XLSX, maks 5MB).");
+            }
+            if ($nama !== null) {
+                mysqli_query($conn, "INSERT INTO lhp_tl_bukti (tl_id, file) VALUES ($tlId, '$nama')");
+                $count++;
+            }
+        }
+    }
+}
+
+mysqli_commit($conn);
+
+logActivity($conn, "Menambah {$judulMap[$sumber]}: $nomor_lhp", 'lhp', $lhpId);
+$_SESSION['success'] = "Data TL LHP $sumber berhasil disimpan.";
+header("Location: index.php?sumber=$sumber");
 exit;

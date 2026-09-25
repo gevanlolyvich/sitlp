@@ -1284,3 +1284,66 @@ a:focus-visible,
     padding: 16px;
   }
 }
+
+/* Pemisah antar-item daftar bertingkat (rekomendasi / tindak lanjut) */
+.jxb-split-list>.jxb-split-item+.jxb-split-item {
+  border-top: 1px solid #adb5bd;
+  margin-top: .5rem;
+  padding-top: .5rem;
+}
+
+.jxb-split-item {
+  white-space: pre-wrap;
+}
+
+/* ---------- Kartu sumber LHP (KAP / BPK / BPKP) ---------- */
+
+.lhp-card.is-sumber-kap {
+  border: 2px solid #46526A;
+}
+
+.lhp-card.is-sumber-kap:hover {
+  border-color: #46526A;
+  box-shadow: 0 6px 16px rgba(70, 82, 106, 0.16);
+}
+
+.lhp-card.is-sumber-bpk {
+  border: 2px solid #063F7A;
+}
+
+.lhp-card.is-sumber-bpk:hover {
+  border-color: #063F7A;
+  box-shadow: 0 6px 16px rgba(6, 63, 122, 0.16);
+}
+
+.lhp-card.is-sumber-bpkp {
+  border: 2px solid #A66A00;
+}
+
+.lhp-card.is-sumber-bpkp:hover {
+  border-color: #A66A00;
+  box-shadow: 0 6px 16px rgba(166, 106, 0, 0.16);
+}
+
+.lhp-card.is-sumber-kap.active,
+.lhp-card.is-sumber-bpk.active,
+.lhp-card.is-sumber-bpkp.active,
+.lhp-card.is-sumber-kap.active:hover,
+.lhp-card.is-sumber-bpk.active:hover,
+.lhp-card.is-sumber-bpkp.active:hover {
+  border-color: var(--jxb-blue-500);
+  box-shadow: 0 0 0 3px rgba(22, 116, 198, 0.15);
+}
+
+/* ---------- Mini-kartu status LHP ---------- */
+
+.lhp-status-card .status-count {
+  font-size: 18px;
+}
+
+.lhp-status-card .status-icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  font-size: 15px;
+}

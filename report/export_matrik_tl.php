@@ -17,7 +17,8 @@ checkRole([
     'ADMIN',
     'KEPALA_SIA',
     'DIREKSI',
-    'KOMISARIS'
+    'KOMISARIS',
+    'KOMITE_AUDIT'
 ]);
 
 require_once '../vendor/autoload.php';

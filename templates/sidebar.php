@@ -77,12 +77,12 @@ $brandActive = ($curModule === 'dashboard') ? ' active' : '';
 
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
 
-                <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN', 'KEPALA_SIA', 'DIREKSI', 'KOMISARIS'])): ?>
+                <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN', 'KEPALA_SIA', 'DIREKSI', 'KOMISARIS', 'KOMITE_AUDIT'])): ?>
                     <li class="nav-item jxb-sidebar-label"><span>Operasional</span></li>
                     <li class="nav-item<?= $isActiveLink('dashboard_sia') ?>">
                         <a href="../dashboard_sia/" class="nav-link<?= $isActiveLink('dashboard_sia') ?>">
                             <i class="nav-icon fas fa-chart-line"></i>
-                            <p>Dashboard Monitoring SIA</p>
+                            <p>Dashboard Monitoring</p>
                         </a>
                     </li>
                 <?php endif; ?>
@@ -92,7 +92,7 @@ $brandActive = ($curModule === 'dashboard') ? ' active' : '';
                     <li class="nav-item<?= $isActiveLink('dashboard_sia') ?>">
                         <a href="../dashboard_sia/" class="nav-link<?= $isActiveLink('dashboard_sia') ?>">
                             <i class="nav-icon fas fa-chart-line"></i>
-                            <p>Dashboard Monitoring SIA</p>
+                            <p>Dashboard Monitoring</p>
                         </a>
                     </li>
                 <?php endif; ?>
@@ -215,9 +215,15 @@ $brandActive = ($curModule === 'dashboard') ? ' active' : '';
                             <p>Tindak Lanjut Saya</p>
                         </a>
                     </li>
+                    <li class="nav-item<?= $isActiveLink('auditee_lhp') ?>">
+                        <a href="../auditee_lhp/" class="nav-link<?= $isActiveLink('auditee_lhp') ?>">
+                            <i class="nav-icon fas fa-file-upload"></i>
+                            <p>Bukti LHP</p>
+                        </a>
+                    </li>
                 <?php endif; ?>
 
-                <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN', 'KEPALA_SIA', 'DIREKSI', 'KOMISARIS'])): ?>
+                <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['ADMIN', 'KEPALA_SIA', 'DIREKSI', 'KOMISARIS', 'KOMITE_AUDIT', 'AUDITOR'])): ?>
                     <li class="nav-item jxb-sidebar-label"><span>Laporan</span></li>
                     <li class="nav-item<?= $isActiveLink('report') ?>">
                         <a href="../report" class="nav-link<?= $isActiveLink('report') ?>">

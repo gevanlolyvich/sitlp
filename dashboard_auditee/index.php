@@ -47,14 +47,63 @@ $statusConf = [
     'Tidak Dapat Ditindak Lanjut' => ['icon' => 'fa-ban',          'soft' => '#F1F4F8', 'strong' => '#46526A'],
 ];
 
+$lhpSumber = ['KAP', 'BPK', 'BPKP'];
+$lhpSumberBadge = ['BPK' => 'is-info', 'BPKP' => 'is-warn', 'KAP' => 'is-neutral'];
+$lhpSumberLabel = [
+    'KAP'  => 'Kantor Akuntan Publik',
+    'BPK'  => 'Badan Pemeriksa Keuangan',
+    'BPKP' => 'Badan Pengawasan Keuangan dan Pembangunan',
+];
+$lhpSumberCard = [
+    'KAP'  => ['icon' => 'fa-landmark',   'soft' => '#F1F4F8', 'strong' => '#46526A'],
+    'BPK'  => ['icon' => 'fa-shield-alt', 'soft' => '#E8F2FC', 'strong' => '#063F7A'],
+    'BPKP' => ['icon' => 'fa-user-tie',   'soft' => '#FFF6D8', 'strong' => '#A66A00'],
+];
+$lhpStatusList = ['Proses', 'Sesuai', 'Belum Sesuai', 'Belum Ditindak Lanjut', 'Tidak Dapat Ditindak Lanjut'];
+$statusCss = [
+    'Proses'                      => 'is-proses',
+    'Sesuai'                      => 'is-sesuai',
+    'Belum Sesuai'                => 'is-belum-sesuai',
+    'Belum Ditindak Lanjut'       => 'is-belum-ditindak-lanjut',
+    'Tidak Dapat Ditindak Lanjut' => 'is-tidak-dapat',
+];
+$lhpStatusCounts = [
+    'KAP'  => ['Proses' => 0, 'Sesuai' => 0, 'Belum Sesuai' => 0, 'Belum Ditindak Lanjut' => 0, 'Tidak Dapat Ditindak Lanjut' => 0],
+    'BPK'  => ['Proses' => 0, 'Sesuai' => 0, 'Belum Sesuai' => 0, 'Belum Ditindak Lanjut' => 0, 'Tidak Dapat Ditindak Lanjut' => 0],
+    'BPKP' => ['Proses' => 0, 'Sesuai' => 0, 'Belum Sesuai' => 0, 'Belum Ditindak Lanjut' => 0, 'Tidak Dapat Ditindak Lanjut' => 0],
+];
+$wLhpUnit  = " AND EXISTS(SELECT 1 FROM lhp_unit lu WHERE lu.lhp_id=l.id AND lu.unit_id=$unit_id)";
+$wLhpTahun = $filterTahun > 0 ? " AND l.tahun=$filterTahun" : '';
+$qLhpCnt = mysqli_query($conn, "SELECT l.sumber AS src, t.status AS st, COUNT(*) AS jml
+    FROM lhp_tl t JOIN lhp_rekomendasi r ON t.rekomendasi_id=r.id JOIN lhp l ON r.lhp_id=l.id
+    WHERE 1=1 $wLhpUnit $wLhpTahun GROUP BY l.sumber, t.status");
+while ($lc = mysqli_fetch_assoc($qLhpCnt)) {
+    if (isset($lhpStatusCounts[$lc['src']][$lc['st']])) {
+        $lhpStatusCounts[$lc['src']][$lc['st']] = (int)$lc['jml'];
+    }
+}
+$totalLhp = [];
+$totalTlLhp = [];
+foreach ($lhpSumber as $src) {
+    $totalLhp[$src]  = (int)mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM lhp l WHERE l.sumber='$src' $wLhpUnit $wLhpTahun"))[0];
+    $totalTlLhp[$src] = array_sum($lhpStatusCounts[$src]);
+}
+
 $qTahunOptions = mysqli_query($conn, "
-    SELECT DISTINCT p.tahun_audit AS th
-    FROM audit_tindak_lanjut tl
-    LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
-    LEFT JOIN audit_temuan t ON r.temuan_id=t.id
-    LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id
-    WHERE tl.unit_id=$unit_id
-    ORDER BY p.tahun_audit DESC");
+    SELECT DISTINCT th FROM (
+        SELECT DISTINCT p.tahun_audit AS th
+        FROM audit_tindak_lanjut tl
+        LEFT JOIN audit_rekomendasi r ON tl.rekomendasi_id=r.id
+        LEFT JOIN audit_temuan t ON r.temuan_id=t.id
+        LEFT JOIN audit_pemeriksaan p ON t.audit_id=p.id
+        WHERE tl.unit_id=$unit_id
+        UNION
+        SELECT DISTINCT l.tahun AS th
+        FROM lhp l
+        WHERE EXISTS(SELECT 1 FROM lhp_unit lu WHERE lu.lhp_id=l.id AND lu.unit_id=$unit_id) AND l.tahun IS NOT NULL
+    ) AS tahun_set
+    WHERE th IS NOT NULL
+    ORDER BY th DESC");
 
 function kpiCard($href, $bg)
 {
@@ -351,6 +400,69 @@ include "../templates/sidebar.php";
     </div>
 </div>
 
+    <!-- Data Tindak Lanjut LHP -->
+    <div class="row g-3 mt-1">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-tasks me-2 text-primary"></i>Data Tindak Lanjut LHP <?= $filterTahun > 0 ? 'TA ' . $filterTahun : '' ?></span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <?php foreach ($lhpSumber as $src):
+                            $sb = $lhpSumberBadge[$src];
+                            $sc = $lhpSumberCard[$src];
+                        ?>
+                        <div class="col-12 col-md-4">
+                            <a href="javascript:void(0)" class="card shadow-sm text-decoration-none status-card lhp-card is-sumber-<?= strtolower($src) ?>"
+                                data-sumber="<?= $src ?>" onclick="toggleLhp(this)">
+                                <div class="card-body d-flex align-items-center gap-3">
+                                    <span class="status-icon" style="background:<?= $sc['soft'] ?>;color:<?= $sc['strong'] ?>;"><i class="fas <?= $sc['icon'] ?>"></i></span>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="status-count mb-0"><?= $totalTlLhp[$src] ?></span>
+                                            <span class="jxb-status-badge <?= $sb ?>"><?= $src ?></span>
+                                        </div>
+                                        <div class="status-name mt-1"><?= $lhpSumberLabel[$src] ?></div>
+                                        <div class="small text-muted mt-1"><?= $totalLhp[$src] ?> LHP &middot; tindak lanjut unit Anda</div>
+                                    </div>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </a>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="text-muted small mt-3"><i class="fas fa-info-circle me-1"></i>Klik salah satu sumber, lalu pilih status untuk menampilkan daftar tindak lanjut unit Anda.</div>
+                    <div id="lhpResult" class="mt-3 d-none">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <div class="row g-3" id="lhpStatusRow">
+                                    <?php foreach ($lhpStatusList as $st):
+                                        $stc = $statusConf[$st];
+                                    ?>
+                                    <div class="col-6 col-md">
+                                        <a href="javascript:void(0)" class="card shadow-sm text-decoration-none status-card lhp-status-card <?= $statusCss[$st] ?>"
+                                            data-lhp-status="<?= $st ?>" onclick="selectLhpStatus('<?= $st ?>')">
+                                            <div class="card-body d-flex align-items-center gap-2 py-3">
+                                                <span class="status-icon" style="background:<?= $stc['soft'] ?>;color:<?= $stc['strong'] ?>;"><i class="fas <?= $stc['icon'] ?>"></i></span>
+                                                <div class="flex-grow-1 min-w-0">
+                                                    <div class="status-count mb-0" id="lhpStatusCnt_<?= str_replace(' ', '_', $st) ?>">0</div>
+                                                    <div class="status-name"><?= $st ?></div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <div class="card-body p-0 border-top" id="lhpBody"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     </div>
 </main>
 
@@ -360,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var status = card.getAttribute('data-status');
         var container = document.getElementById('statusResult');
         var body = document.getElementById('statusBody');
-        var cards = document.querySelectorAll('.status-card');
+        var cards = document.querySelectorAll('.status-card[data-status]');
 
         if(card.classList.contains('active')){
             card.classList.remove('active');
@@ -384,6 +496,74 @@ document.addEventListener('DOMContentLoaded', function(){
             .catch(function(){
                 body.innerHTML = '<div class="p-4 text-danger small"><i class="fas fa-exclamation-triangle me-1"></i>Gagal memuat data tindak lanjut.</div>';
             });
+    };
+
+    window.LHP_STATUS_COUNTS = <?= json_encode($lhpStatusCounts) ?>;
+    window.CURRENT_LHP_SRC = '';
+
+    window.openLhpList = function(sumber){
+        var container = document.getElementById('lhpResult');
+        var body = document.getElementById('lhpBody');
+        var cards = document.querySelectorAll('.lhp-card');
+        var card = null;
+        cards.forEach(function(c){ if(c.getAttribute('data-sumber') === sumber){ card = c; } });
+
+        if(card && card.classList.contains('active')){
+            card.classList.remove('active');
+            container.classList.add('d-none');
+            body.innerHTML = '';
+            window.CURRENT_LHP_SRC = '';
+            return;
+        }
+        cards.forEach(function(c){ c.classList.remove('active'); });
+        if(card){ card.classList.add('active'); }
+        window.CURRENT_LHP_SRC = sumber;
+
+        container.classList.remove('d-none');
+        container.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+        updateLhpStatusCounts(sumber);
+        clearLhpStatusSelection();
+        body.innerHTML = '<div class="p-4 text-center text-muted small"><i class="fas fa-info-circle me-1"></i>Pilih status di atas untuk menampilkan daftar tindak lanjut.</div>';
+    };
+    window.updateLhpStatusCounts = function(sumber){
+        var counts = (window.LHP_STATUS_COUNTS && window.LHP_STATUS_COUNTS[sumber]) || {};
+        document.querySelectorAll('.lhp-status-card').forEach(function(c){
+            var st = c.getAttribute('data-lhp-status');
+            var el = c.querySelector('.status-count');
+            if(el){ el.textContent = counts[st] || 0; }
+        });
+    };
+    window.clearLhpStatusSelection = function(){
+        document.querySelectorAll('.lhp-status-card').forEach(function(c){ c.classList.remove('active'); });
+    };
+    window.toggleLhp = function(card){
+        openLhpList(card.getAttribute('data-sumber'));
+    };
+    window.selectLhpStatus = function(status){
+        clearLhpStatusSelection();
+        document.querySelectorAll('.lhp-status-card').forEach(function(c){
+            if(c.getAttribute('data-lhp-status') === status){ c.classList.add('active'); }
+        });
+        loadLhp(window.CURRENT_LHP_SRC, status, 1);
+    };
+    window.loadLhp = function(sumber, status, page){
+        var container = document.getElementById('lhpResult');
+        var body = document.getElementById('lhpBody');
+        var tahun = <?= $filterTahun ?>;
+        var qs = 'sumber=' + encodeURIComponent(sumber) + '&status=' + encodeURIComponent(status) + '&page=' + (Math.floor(page) || 1);
+        if(tahun > 0){ qs += '&tahun=' + tahun; }
+
+        body.innerHTML = '<div class="p-4 text-center text-muted small"><i class="fas fa-spinner fa-spin me-1"></i>Memuat data...</div>';
+        container.classList.remove('d-none');
+
+        fetch('../dashboard_sia/lhp_ajax.php?' + qs)
+            .then(function(r){ if(!r.ok){ throw new Error('HTTP ' + r.status); } return r.text(); })
+            .then(function(html){ body.innerHTML = html; })
+            .catch(function(){
+                body.innerHTML = '<div class="p-4 text-danger small"><i class="fas fa-exclamation-triangle me-1"></i>Gagal memuat data tindak lanjut.</div>';
+            });
+        return false;
     };
 
     var labels = <?= json_encode($labels) ?>;

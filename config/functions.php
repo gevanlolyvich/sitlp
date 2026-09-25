@@ -27,6 +27,51 @@ function hasRole($roles)
     }
 }
 
+function normalizeFileArray(array $p)
+{
+    if (isset($p['name']) && is_array($p['name'])) {
+        $out = [];
+        foreach ($p['name'] as $k => $v) {
+            $sub = [];
+            foreach (['name', 'type', 'tmp_name', 'error', 'size'] as $prop) {
+                $sub[$prop] = $p[$prop][$k] ?? null;
+            }
+            $out[$k] = normalizeFileArray($sub);
+        }
+        return $out;
+    }
+    if ((int)($p['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    return $p;
+}
+
+function uploadBuktiFile($entry, $prefix)
+{
+    if (!$entry || (int)($entry['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        return null;
+    }
+    $maxSize = 5 * 1024 * 1024;
+    $allow = ['pdf', 'jpg', 'jpeg', 'png', 'xls', 'xlsx'];
+    $size = (int)($entry['size'] ?? 0);
+    if ($size < 1 || $size > $maxSize) {
+        return false;
+    }
+    $ext = strtolower(pathinfo($entry['name'] ?? '', PATHINFO_EXTENSION));
+    if (!in_array($ext, $allow)) {
+        return false;
+    }
+    $dir = dirname(__DIR__) . '/uploads/tl_lhp/';
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+    $nama = $prefix . '_' . date('YmdHis') . '_' . uniqid() . '.' . $ext;
+    if (!move_uploaded_file($entry['tmp_name'], $dir . $nama)) {
+        return false;
+    }
+    return $nama;
+}
+
 function menuActive($folder)
 {
     return strpos(

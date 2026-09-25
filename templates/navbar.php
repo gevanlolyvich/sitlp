@@ -33,7 +33,7 @@
                     } elseif (count($parts) === 1) {
                         $initials = mb_strtoupper(mb_substr($parts[0], 0, 1));
                     }
-                    $roleMap = ['ADMIN' => 'A', 'KEPALA_SIA' => 'K', 'AUDITOR' => 'R', 'AUDITEE' => 'E', 'DIREKSI' => 'D', 'KOMISARIS' => 'C'];
+                    $roleMap = ['ADMIN' => 'A', 'KEPALA_SIA' => 'K', 'AUDITOR' => 'R', 'AUDITEE' => 'E', 'DIREKSI' => 'D', 'KOMISARIS' => 'C', 'KOMITE_AUDIT' => 'M'];
                     $role = $_SESSION['role'] ?? '';
                     $roleAlias = $roleMap[$role] ?? mb_strtoupper(mb_substr($role, 0, 1));
                 ?>

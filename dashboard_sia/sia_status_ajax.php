@@ -6,7 +6,7 @@ require_once "../config/functions.php";
 require_once "../auth/check.php";
 require_once "../auth/role.php";
 
-checkRole(['ADMIN', 'KEPALA_SIA', 'AUDITOR', 'DIREKSI', 'KOMISARIS', 'AUDITEE']);
+checkRole(['ADMIN', 'KEPALA_SIA', 'AUDITOR', 'DIREKSI', 'KOMISARIS', 'KOMITE_AUDIT', 'AUDITEE']);
 
 $role = $_SESSION['role'];
 $unitFilter = '';
@@ -18,7 +18,7 @@ $filterUnit = isset($_GET['unit']) ? (int)$_GET['unit'] : 0;
 $filterTahun = isset($_GET['tahun']) ? (int)$_GET['tahun'] : 0;
 if($filterUnit > 0)  { $unitFilter .= " AND tl.unit_id=$filterUnit"; }
 if($filterTahun > 0) { $unitFilter .= " AND p.tahun_audit=$filterTahun"; }
-$isDireksi = in_array($role, ['DIREKSI', 'KOMISARIS']);
+$isDireksi = in_array($role, ['DIREKSI', 'KOMISARIS', 'KOMITE_AUDIT']);
 
 $allowedStatus = [
     'Proses'                    => 'bg-warning',

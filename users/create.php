@@ -63,6 +63,7 @@ include "../templates/sidebar.php";
                                                 <option value="AUDITEE">AUDITEE</option>
                                                 <option value="DIREKSI">DIREKSI</option>
                                                 <option value="KOMISARIS">KOMISARIS</option>
+                                                <option value="KOMITE_AUDIT">KOMITE AUDIT</option>
                                             </select>
                                         </div>
                                     </div>
